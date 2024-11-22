@@ -2,15 +2,16 @@ package com.team25.event.planner.offering.service.model;
 
 import com.team25.event.planner.offering.common.model.Offering;
 import jakarta.persistence.*;
-import lombok.Data;
-import lombok.EqualsAndHashCode;
+import lombok.*;
 
-@EqualsAndHashCode(callSuper = true)
 @Entity
-@Table(name = "Service")
-@Data
+@Getter
+@Setter
+@NoArgsConstructor
+@AllArgsConstructor
+@Inheritance(strategy = InheritanceType.TABLE_PER_CLASS)
 public class Service extends Offering{
-    private String specifcs;
+    private String specifics;
     private int duration;
     private int reservationDeadline;
     private int cancellationDeadline;
