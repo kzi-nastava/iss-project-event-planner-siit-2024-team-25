@@ -19,10 +19,4 @@ public class OfferingCategory {
     private String description;
     @Enumerated(EnumType.STRING)
     private OfferingCategoryType status;
-
-    @ManyToMany
-    private Collection<EventType> eventType;
-
-    @ManyToOne
-    private OfferingCategory offeringCategory;
 }
