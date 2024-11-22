@@ -11,5 +11,5 @@ import lombok.Setter;
 @NoArgsConstructor
 public class OfferingCategoryServiceResponseDTO {
     private Long id;
-    private String description;
+    private String name;
 }

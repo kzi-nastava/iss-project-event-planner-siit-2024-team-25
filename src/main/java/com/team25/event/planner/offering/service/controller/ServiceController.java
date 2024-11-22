@@ -12,6 +12,8 @@ import org.springframework.web.bind.annotation.*;
 import java.awt.*;
 import java.util.ArrayList;
 import java.util.Collection;
+import java.util.Objects;
+import java.util.stream.Collectors;
 
 @RestController
 @RequestMapping("api/services")
@@ -19,6 +21,90 @@ public class ServiceController {
 
     @GetMapping(produces = MediaType.APPLICATION_JSON_VALUE)
     public ResponseEntity<Collection<ServiceResponseDTO>> getServices() {
+        Collection<ServiceResponseDTO> services = SetMockData();
+
+        return new ResponseEntity<Collection<ServiceResponseDTO>>(services, HttpStatus.OK);
+    }
+
+    @GetMapping(value = "/{id}", produces = MediaType.APPLICATION_JSON_VALUE)
+    public ResponseEntity<ServiceResponseDTO> getService(@PathVariable Long id) {
+        ServiceResponseDTO service1 = new ServiceResponseDTO();
+        service1.setId(1L);
+        if (!Objects.equals(service1.getId(), id)) { // if the service exist => update else not found the service
+            return new ResponseEntity<ServiceResponseDTO>(HttpStatus.NOT_FOUND);
+        }
+
+
+        service1.setName("Wedding Photography");
+        service1.setDescription("Professional photography services for weddings.");
+        service1.setPrice(1000.00);
+        service1.setDiscount(10.0);
+        service1.setAvailable(false);
+
+        ArrayList<String> images2 = new ArrayList<>();
+        images2.add("wedding1.jpg");
+        images2.add("wedding2.jpg");
+        service1.setImages(images2);
+
+        ArrayList<EventTypeServiceResponseDTO> eventTypes2 = new ArrayList<>();
+        EventTypeServiceResponseDTO eventType21 = new EventTypeServiceResponseDTO(3L, "Photography");
+        EventTypeServiceResponseDTO eventType22 = new EventTypeServiceResponseDTO(4L, "Videography");
+        eventTypes2.add(eventType21);
+        eventTypes2.add(eventType22);
+        service1.setEventTypes(eventTypes2);
+
+        service1.setOfferingCategory(new OfferingCategoryServiceResponseDTO(1L, "Premium"));
+
+        return new ResponseEntity<ServiceResponseDTO>(service1, HttpStatus.OK);
+    }
+
+    @GetMapping(value = "/search", produces = MediaType.APPLICATION_JSON_VALUE)
+    public ResponseEntity<Collection<ServiceResponseDTO>> searchServices(
+            @RequestParam(value = "name", required = false) String name,
+            @RequestParam(value = "category", required = false) String offeringCategory,
+            @RequestParam(value = "eventType", required = false) String eventType,
+            @RequestParam(value = "price", required = false) Double price,
+            @RequestParam(value = "available", required = false) Boolean available
+    ){
+
+        Collection<ServiceResponseDTO> services = filter(name, offeringCategory, eventType, price, available);
+
+        return new ResponseEntity<Collection<ServiceResponseDTO>>(services, HttpStatus.OK);
+    }
+
+    private Collection<ServiceResponseDTO> filter(String name,  String offeringCategory, String eventType, Double price, Boolean available) {
+        Collection<ServiceResponseDTO> services = SetMockData();
+        if (name != null) {
+            services = services.stream()
+                    .filter(service -> service.getName().toLowerCase().contains(name.toLowerCase()))
+                    .collect(Collectors.toList());
+        }
+        if(offeringCategory != null) {
+            services = services.stream()
+                    .filter(service -> service.getOfferingCategory().getName().toLowerCase().contains(offeringCategory.toLowerCase()))
+                    .collect(Collectors.toList());
+        }
+        if (eventType != null) {
+            services = services.stream()
+                    .filter(service -> service.getEventTypes().stream()
+                            .anyMatch(eventTypeTemp -> eventTypeTemp.getName().toLowerCase().contains(eventType.toLowerCase())))
+                    .collect(Collectors.toList());
+        }
+        if (price != null) {
+            services = services.stream()
+                    .filter(service -> service.getPrice() == price)
+                    .collect(Collectors.toList());
+        }
+
+        if (available != null) {
+            services = services.stream()
+                    .filter(service -> service.isAvailable() == available)
+                    .collect(Collectors.toList());
+        }
+        return services;
+    }
+
+    private Collection<ServiceResponseDTO> SetMockData() {
         Collection<ServiceResponseDTO> services = new ArrayList<>();
 
         ServiceResponseDTO service1 = new ServiceResponseDTO();
@@ -29,6 +115,7 @@ public class ServiceController {
         service1.setDescription("Professional photography services for weddings.");
         service1.setPrice(1000.00);
         service1.setDiscount(10.0);
+        service1.setAvailable(false);
 
         ArrayList<String> images2 = new ArrayList<>();
         images2.add("wedding1.jpg");
@@ -49,6 +136,7 @@ public class ServiceController {
         service2.setDescription("Comprehensive event planning services for corporate events.");
         service2.setPrice(5000.00);
         service2.setDiscount(15.0);
+        service2.setAvailable(false);
 
         ArrayList<String> images = new ArrayList<>();
         images.add("corporate1.jpg");
@@ -67,44 +155,8 @@ public class ServiceController {
 
         services.add(service1);
         services.add(service2);
-
-
-        return new ResponseEntity<Collection<ServiceResponseDTO>>(services, HttpStatus.OK);
+        return services;
     }
-
-    @GetMapping(value = "/{id}", produces = MediaType.APPLICATION_JSON_VALUE)
-    public ResponseEntity<ServiceResponseDTO> getService(@PathVariable Long id) {
-        ServiceResponseDTO service1 = new ServiceResponseDTO();
-
-        if (service1 == null) {
-            return new ResponseEntity<ServiceResponseDTO>(HttpStatus.NOT_FOUND);
-        }
-
-        service1.setId(1L);
-        service1.setName("Wedding Photography");
-        service1.setDescription("Professional photography services for weddings.");
-        service1.setPrice(1000.00);
-        service1.setDiscount(10.0);
-
-        ArrayList<String> images2 = new ArrayList<>();
-        images2.add("wedding1.jpg");
-        images2.add("wedding2.jpg");
-        service1.setImages(images2);
-
-        ArrayList<EventTypeServiceResponseDTO> eventTypes2 = new ArrayList<>();
-        EventTypeServiceResponseDTO eventType21 = new EventTypeServiceResponseDTO(3L, "Photography");
-        EventTypeServiceResponseDTO eventType22 = new EventTypeServiceResponseDTO(4L, "Videography");
-        eventTypes2.add(eventType21);
-        eventTypes2.add(eventType22);
-        service1.setEventTypes(eventTypes2);
-
-        service1.setOfferingCategory(new OfferingCategoryServiceResponseDTO(1L, "Premium"));
-
-        return new ResponseEntity<ServiceResponseDTO>(service1, HttpStatus.OK);
-    }
-
-    @GetMapping("/search")
-
 
     @PostMapping(consumes = MediaType.APPLICATION_JSON_VALUE, produces = MediaType.APPLICATION_JSON_VALUE)
     public ResponseEntity<ServiceCreateResponseDTO> createService(@RequestBody ServiceCreateRequestDTO service)throws Exception {
@@ -133,10 +185,10 @@ public class ServiceController {
     @PutMapping(value = "/{id}", consumes = MediaType.APPLICATION_JSON_VALUE, produces = MediaType.APPLICATION_JSON_VALUE)
     public ResponseEntity<ServiceUpdateResponseDTO> updateService(@PathVariable Long id, @RequestBody ServiceUpdateRequestDTO service)throws Exception {
         ServiceUpdateResponseDTO service1 = new ServiceUpdateResponseDTO();
-        if (service1 == null) {
+        service1.setId(1L);
+        if (!Objects.equals(service1.getId(), id)) {
             return new ResponseEntity<ServiceUpdateResponseDTO>(HttpStatus.NOT_FOUND);
         }
-        service1.setId(id);
 
         service1.setName(service.getName());
         service1.setDescription(service.getDescription());
@@ -158,6 +210,11 @@ public class ServiceController {
 
     @DeleteMapping(value = "/{id}")
     public ResponseEntity<?> deleteService(@PathVariable Long id) {
+        ServiceResponseDTO service1 = new ServiceResponseDTO();
+        service1.setId(1L);
+        if (!Objects.equals(service1.getId(), id)) { // || service1 == null
+            return new ResponseEntity<ServiceResponseDTO>(HttpStatus.NOT_FOUND);
+        }
         return new ResponseEntity<>(HttpStatus.NO_CONTENT);
     }
 }

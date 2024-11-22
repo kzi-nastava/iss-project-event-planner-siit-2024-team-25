@@ -20,6 +20,7 @@ public class ServiceResponseDTO {
     private double price;
     private double discount;
     private List<String> images;
+    private boolean isAvailable;
     private List<EventTypeServiceResponseDTO> eventTypes;
     private OfferingCategoryServiceResponseDTO offeringCategory;
 }
