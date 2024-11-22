@@ -1,8 +1,10 @@
 package com.team25.event.planner.offering.common.model;
 
+import com.team25.event.planner.offering.event.model.EventType;
 import jakarta.persistence.*;
 import lombok.*;
 
+import java.util.Collection;
 import java.util.List;
 
 
@@ -27,5 +29,11 @@ public abstract class Offering {
     private boolean isVisible;
     private boolean isAvailable;
     private OfferingType status;
+
+    @ManyToMany
+    private Collection<EventType> eventType;
+
+    @ManyToOne
+    private OfferingCategory offeringCategory;
 
 }
