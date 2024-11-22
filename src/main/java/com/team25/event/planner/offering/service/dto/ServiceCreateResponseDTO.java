@@ -2,18 +2,15 @@ package com.team25.event.planner.offering.service.dto;
 
 import com.team25.event.planner.offering.common.model.OfferingType;
 import com.team25.event.planner.offering.service.model.ReservationType;
-import lombok.AllArgsConstructor;
 import lombok.Getter;
-import lombok.NoArgsConstructor;
 import lombok.Setter;
 
 import java.util.List;
 
 @Getter
 @Setter
-@AllArgsConstructor
-@NoArgsConstructor
-public class ServiceCreateRequestDTO {
+public class ServiceCreateResponseDTO {
+    private Long Id;
     private String name;
     private String description;
     private double price;
