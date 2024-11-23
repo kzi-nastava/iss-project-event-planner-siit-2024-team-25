@@ -120,6 +120,7 @@
 					<user>postgres</user>
 					<password>postgres</password>
 					<locations>filesystem:src/main/resources/db/migrations</locations>
+					<cleanDisabled>false</cleanDisabled>
 				</configuration>
 			</plugin>
 		</plugins>
