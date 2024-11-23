@@ -1,12 +1,12 @@
 package com.team25.event.planner.event.dto;
 
-
+import jakarta.validation.constraints.NotEmpty;
 import lombok.Data;
 
 @Data
-public class EventTypeResponseDTO {
-    private final Long id;
+public class EventTypeRequestDTO {
+    @NotEmpty(message = "Name is required")
     private final String name;
+
     private final String description;
-    private final Boolean isActive;
 }

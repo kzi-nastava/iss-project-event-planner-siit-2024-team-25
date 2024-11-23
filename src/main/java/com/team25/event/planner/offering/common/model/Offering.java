@@ -1,6 +1,7 @@
 package com.team25.event.planner.offering.common.model;
 
 import com.team25.event.planner.event.model.EventType;
+
 import jakarta.persistence.*;
 import lombok.*;
 
