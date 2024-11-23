@@ -1,6 +1,9 @@
 package com.team25.event.planner.event.model;
 
 import jakarta.persistence.*;
+
+import lombok.*;
+
 import jakarta.validation.constraints.NotNull;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
@@ -18,11 +21,12 @@ public class EventType {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
+    private String description;
+
     @NotNull(message = "Name is required")
     @Column(nullable = false)
     private String name;
 
-    private String description;
 
     @NotNull(message = "Active status is required")
     @Column(nullable = false)

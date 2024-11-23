@@ -1,21 +1,13 @@
-package com.team25.event.planner.offering.service.dto;
+package com.team25.event.planner.offering.product.dto;
 
-import com.team25.event.planner.event.dto.EventTypeServiceResponseDTO;
 import com.team25.event.planner.offering.common.dto.OfferingCategoryServiceResponseDTO;
-
-
-import lombok.AllArgsConstructor;
-import lombok.Getter;
-import lombok.NoArgsConstructor;
-import lombok.Setter;
+import com.team25.event.planner.event.dto.EventTypeServiceResponseDTO;
+import lombok.Data;
 
 import java.util.List;
 
-@Getter
-@Setter
-@AllArgsConstructor
-@NoArgsConstructor
-public class ServiceResponseDTO {
+@Data
+public class ProductDetailsResponseDTO {
     private Long id;
     private String name;
     private String description;

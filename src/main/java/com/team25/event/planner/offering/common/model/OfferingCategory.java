@@ -1,6 +1,7 @@
 package com.team25.event.planner.offering.common.model;
 
 import jakarta.persistence.*;
+
 import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
