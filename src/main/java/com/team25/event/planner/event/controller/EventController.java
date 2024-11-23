@@ -34,7 +34,7 @@ public class EventController {
         return ResponseEntity.ok(eventService.getEvents(filter, page, size, sortBy, sortDirection));
     }
 
-    @GetMapping("/home/all")
+    @GetMapping("/all")
     public ResponseEntity<Page<EventPreviewResponseDTO>> getAllEvents(
             @ModelAttribute EventFilterDTO filter,
             @RequestParam(defaultValue = "0") int page,
@@ -45,7 +45,7 @@ public class EventController {
         return ResponseEntity.ok(eventService.getAllEvents(filter, page, size, sortBy, sortDirection));
     }
 
-    @GetMapping("/home/top")
+    @GetMapping("/top")
     public ResponseEntity<Page<EventPreviewResponseDTO>> getTopEvents(
             @RequestParam(required = false) String country,
             @RequestParam(required = false) String city
