@@ -1,7 +1,7 @@
 package com.team25.event.planner.offering.service.dto;
 
+import com.team25.event.planner.event.dto.EventTypePreviewResponseDTO;
 import com.team25.event.planner.offering.common.dto.OfferingCategoryServiceResponseDTO;
-import com.team25.event.planner.offering.event.dto.EventTypeServiceResponseDTO;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
@@ -21,6 +21,6 @@ public class ServiceResponseDTO {
     private double discount;
     private List<String> images;
     private boolean isAvailable;
-    private List<EventTypeServiceResponseDTO> eventTypes;
+    private List<EventTypePreviewResponseDTO> eventTypes;
     private OfferingCategoryServiceResponseDTO offeringCategory;
 }
