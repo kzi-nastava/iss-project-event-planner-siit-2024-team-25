@@ -11,7 +11,7 @@ import java.util.List;
 public class ServiceManagerImpl implements ServiceManager {
 
     @Override
-    public Collection<ServiceCreateResponseDTO> findAll() {
+    public Collection<ServiceCreateResponseDTO> getAll() {
         return List.of();
     }
 
@@ -21,7 +21,7 @@ public class ServiceManagerImpl implements ServiceManager {
     }
 
     @Override
-    public ServiceCreateResponseDTO findOne(Long id) {
+    public ServiceCreateResponseDTO getOne(Long id) {
         return null;
     }
 

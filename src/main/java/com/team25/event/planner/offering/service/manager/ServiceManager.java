@@ -8,11 +8,11 @@ import com.team25.event.planner.offering.service.dto.ServiceUpdateResponseDTO;
 import java.util.Collection;
 
 public interface ServiceManager {
-    Collection<ServiceCreateResponseDTO> findAll();
+    Collection<ServiceCreateResponseDTO> getAll();
 
     Collection<ServiceCreateResponseDTO> searchServices(String from);
 
-    ServiceCreateResponseDTO findOne(Long id);
+    ServiceCreateResponseDTO getOne(Long id);
 
     ServiceCreateResponseDTO create(ServiceCreateRequestDTO createService) throws Exception;
 

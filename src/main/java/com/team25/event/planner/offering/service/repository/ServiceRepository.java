@@ -6,9 +6,9 @@ import java.util.Collection;
 
 public interface ServiceRepository {
 
-    Collection<ServiceResponseDTO> findAll();
+    Collection<ServiceResponseDTO> getAll();
 
-    ServiceResponseDTO findOne(Long id);
+    ServiceResponseDTO getOne(Long id);
 
     Collection<ServiceResponseDTO> search(String from);
 

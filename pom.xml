@@ -116,9 +116,9 @@
 				<artifactId>flyway-maven-plugin</artifactId>
 				<version>10.17.0</version>
 				<configuration>
-					<url>jdbc:postgresql://localhost:5432/EventPlanner</url>
+					<url>jdbc:postgresql://localhost:5432/event_planner</url>
 					<user>postgres</user>
-					<password>123</password>
+					<password>postgres</password>
 					<locations>filesystem:src/main/resources/db/migrations</locations>
 				</configuration>
 			</plugin>
