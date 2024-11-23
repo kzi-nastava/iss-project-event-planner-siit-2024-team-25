@@ -7,7 +7,9 @@ import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
+import org.springframework.data.annotation.CreatedDate;
 
+import java.time.Instant;
 import java.time.LocalDate;
 import java.time.LocalTime;
 
@@ -58,4 +60,7 @@ public class Event {
     @NotNull(message = "Location is required")
     @Column(nullable = false)
     private Location location;
+
+    @CreatedDate
+    private Instant createdDate;
 }

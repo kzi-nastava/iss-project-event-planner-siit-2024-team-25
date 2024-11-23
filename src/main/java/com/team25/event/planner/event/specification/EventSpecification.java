@@ -33,28 +33,20 @@ public class EventSpecification {
                 predicates.add(cb.equal(root.get("privacyType"), filter.getPrivacyType()));
             }
 
-            if (filter.getStartDateFrom() != null) {
-                predicates.add(cb.greaterThanOrEqualTo(root.get("startDate"), filter.getStartDateFrom()));
+            if (filter.getStartDate() != null) {
+                predicates.add(cb.greaterThanOrEqualTo(root.get("startDate"), filter.getStartDate()));
             }
 
-            if (filter.getStartDateTo() != null) {
-                predicates.add(cb.lessThanOrEqualTo(root.get("startDate"), filter.getStartDateTo()));
+            if (filter.getEndDate() != null) {
+                predicates.add(cb.lessThanOrEqualTo(root.get("endDate"), filter.getEndDate()));
             }
 
-            if (filter.getEndDateFrom() != null) {
-                predicates.add(cb.greaterThanOrEqualTo(root.get("endDate"), filter.getEndDateFrom()));
+            if (filter.getStartTime() != null) {
+                predicates.add(cb.greaterThanOrEqualTo(root.get("startTime"), filter.getStartTime()));
             }
 
-            if (filter.getEndDateTo() != null) {
-                predicates.add(cb.lessThanOrEqualTo(root.get("endDate"), filter.getEndDateTo()));
-            }
-
-            if (filter.getStartTimeFrom() != null) {
-                predicates.add(cb.greaterThanOrEqualTo(root.get("startTime"), filter.getStartTimeFrom()));
-            }
-
-            if (filter.getStartTimeTo() != null) {
-                predicates.add(cb.lessThanOrEqualTo(root.get("startTime"), filter.getStartTimeTo()));
+            if (filter.getEndTime() != null) {
+                predicates.add(cb.lessThanOrEqualTo(root.get("startTime"), filter.getEndTime()));
             }
 
             if (filter.getMinParticipants() != null) {
@@ -63,6 +55,10 @@ public class EventSpecification {
 
             if (filter.getMaxParticipants() != null) {
                 predicates.add(cb.lessThanOrEqualTo(root.get("maxParticipants"), filter.getMaxParticipants()));
+            }
+
+            if (filter.getCountry() != null) {
+                predicates.add(cb.equal(root.get("location").get("country"), filter.getCountry()));
             }
 
             if (filter.getCity() != null) {
