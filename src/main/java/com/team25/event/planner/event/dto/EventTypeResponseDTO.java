@@ -1,4 +1,4 @@
-package com.team25.event.planner.offering.event.dto;
+package com.team25.event.planner.event.dto;
 
 import lombok.AllArgsConstructor;
 import lombok.Getter;
@@ -9,7 +9,9 @@ import lombok.Setter;
 @Setter
 @AllArgsConstructor
 @NoArgsConstructor
-public class EventTypeServiceResponseDTO {
+public class EventTypeResponseDTO {
     private Long id;
     private String name;
+    private String description;
+    private boolean isActive;
 }

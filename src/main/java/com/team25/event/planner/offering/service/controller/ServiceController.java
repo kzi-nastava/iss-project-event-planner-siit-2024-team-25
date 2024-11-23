@@ -1,16 +1,14 @@
 package com.team25.event.planner.offering.service.controller;
 
 import com.team25.event.planner.offering.common.dto.OfferingCategoryServiceResponseDTO;
-import com.team25.event.planner.offering.event.dto.EventTypeServiceResponseDTO;
+import com.team25.event.planner.event.dto.EventTypeServiceResponseDTO;
 import com.team25.event.planner.offering.service.dto.*;
 import com.team25.event.planner.offering.service.model.ReservationType;
-import com.team25.event.planner.offering.service.model.Service;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
-import java.awt.*;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Objects;

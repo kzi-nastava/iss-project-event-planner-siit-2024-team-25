@@ -1,9 +1,8 @@
 package com.team25.event.planner.offering.product;
 
 import com.team25.event.planner.offering.common.dto.OfferingCategoryServiceResponseDTO;
-import com.team25.event.planner.offering.event.dto.EventTypeServiceResponseDTO;
+import com.team25.event.planner.event.dto.EventTypeServiceResponseDTO;
 import com.team25.event.planner.offering.product.dto.ProductDetailsResponseDTO;
-import com.team25.event.planner.offering.service.dto.ServiceDetailsResponseDTO;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;

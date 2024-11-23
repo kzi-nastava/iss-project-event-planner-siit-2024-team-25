@@ -1,7 +1,7 @@
 package com.team25.event.planner.offering.service.dto;
 
 import com.team25.event.planner.offering.common.dto.OfferingCategoryServiceResponseDTO;
-import com.team25.event.planner.offering.event.dto.EventTypeServiceResponseDTO;
+import com.team25.event.planner.event.dto.EventTypeServiceResponseDTO;
 import com.team25.event.planner.offering.service.model.ReservationType;
 import lombok.Data;
 

@@ -1,4 +1,4 @@
-package com.team25.event.planner.offering.event.model;
+package com.team25.event.planner.event.model;
 
 import jakarta.persistence.*;
 import lombok.*;

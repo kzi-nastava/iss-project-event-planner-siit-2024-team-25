@@ -1,6 +1,6 @@
 package com.team25.event.planner.user.controller;
 
-import com.team25.event.planner.user.dto.favouriteOfferingResponseDTO;
+import com.team25.event.planner.user.dto.FavouriteOfferingResponseDTO;
 import com.team25.event.planner.user.dto.UserOfferingFavRequestDTO;
 import com.team25.event.planner.user.dto.UserOfferingFavResponseDTO;
 import org.springframework.http.HttpStatus;
@@ -17,16 +17,16 @@ import java.util.Objects;
 public class UserController {
 
     @GetMapping(value = "/{id}/favourite-offerings", produces = MediaType.APPLICATION_JSON_VALUE)
-    public ResponseEntity<Collection<favouriteOfferingResponseDTO>> getFavouriteOfferings(@PathVariable("id") Long id){
-        Collection<favouriteOfferingResponseDTO> responseDTOS = new ArrayList<>();
+    public ResponseEntity<Collection<FavouriteOfferingResponseDTO>> getFavouriteOfferings(@PathVariable("id") Long id){
+        Collection<FavouriteOfferingResponseDTO> responseDTOS = new ArrayList<>();
 
-        favouriteOfferingResponseDTO object1 = new favouriteOfferingResponseDTO();
+        FavouriteOfferingResponseDTO object1 = new FavouriteOfferingResponseDTO();
         object1.setId(1L);
         object1.setName("Basic Photography Package");
         object1.setDescription("A simple package including essential photography services.");
         object1.setPrice(300.00);
 
-        favouriteOfferingResponseDTO object2 = new favouriteOfferingResponseDTO();
+        FavouriteOfferingResponseDTO object2 = new FavouriteOfferingResponseDTO();
         object2.setId(2L);
         object2.setName("Premium Photography Package");
         object2.setDescription("An advanced package with additional features like drone photography.");
@@ -35,7 +35,7 @@ public class UserController {
         responseDTOS.add(object1);
         responseDTOS.add(object2);
 
-        return new ResponseEntity<Collection<favouriteOfferingResponseDTO>>(responseDTOS, HttpStatus.OK);
+        return new ResponseEntity<Collection<FavouriteOfferingResponseDTO>>(responseDTOS, HttpStatus.OK);
     }
 
     @PostMapping(value = "/{id}/favourite-offerings", consumes = MediaType.APPLICATION_JSON_VALUE, produces = MediaType.APPLICATION_JSON_VALUE)
@@ -54,10 +54,10 @@ public class UserController {
 
     @DeleteMapping(value = "/{id}/favourite-offerings/{favId}")
     public ResponseEntity<?> deleteOfferingFromFavourite(@PathVariable Long id,@PathVariable Long favId) {
-        favouriteOfferingResponseDTO response = new favouriteOfferingResponseDTO();
+        FavouriteOfferingResponseDTO response = new FavouriteOfferingResponseDTO();
         response.setId(1L);
         if (!Objects.equals(response.getId(), favId)) {
-            return new ResponseEntity<favouriteOfferingResponseDTO>(HttpStatus.NOT_FOUND);
+            return new ResponseEntity<FavouriteOfferingResponseDTO>(HttpStatus.NOT_FOUND);
         }
         return new ResponseEntity<>(HttpStatus.NO_CONTENT);
     }

@@ -1,7 +1,7 @@
 package com.team25.event.planner.offering.product.dto;
 
 import com.team25.event.planner.offering.common.dto.OfferingCategoryServiceResponseDTO;
-import com.team25.event.planner.offering.event.dto.EventTypeServiceResponseDTO;
+import com.team25.event.planner.event.dto.EventTypeServiceResponseDTO;
 import lombok.Data;
 
 import java.util.List;
