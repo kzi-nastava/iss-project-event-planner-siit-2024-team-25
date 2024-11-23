@@ -1,16 +1,16 @@
 package com.team25.event.planner.offering.service.controller;
 
+import com.team25.event.planner.event.dto.EventTypePreviewResponseDTO;
 import com.team25.event.planner.offering.common.dto.OfferingCategoryServiceResponseDTO;
-import com.team25.event.planner.offering.event.dto.EventTypeServiceResponseDTO;
 import com.team25.event.planner.offering.service.dto.*;
 import com.team25.event.planner.offering.service.model.ReservationType;
 import com.team25.event.planner.offering.service.model.Service;
+
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
-import java.awt.*;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Objects;
@@ -47,9 +47,9 @@ public class ServiceController {
         images2.add("wedding2.jpg");
         service1.setImages(images2);
 
-        ArrayList<EventTypeServiceResponseDTO> eventTypes2 = new ArrayList<>();
-        EventTypeServiceResponseDTO eventType21 = new EventTypeServiceResponseDTO(3L, "Photography");
-        EventTypeServiceResponseDTO eventType22 = new EventTypeServiceResponseDTO(4L, "Videography");
+        ArrayList<EventTypePreviewResponseDTO> eventTypes2 = new ArrayList<>();
+        EventTypePreviewResponseDTO eventType21 = new EventTypePreviewResponseDTO(3L, "Photography");
+        EventTypePreviewResponseDTO eventType22 = new EventTypePreviewResponseDTO(4L, "Videography");
         eventTypes2.add(eventType21);
         eventTypes2.add(eventType22);
         service1.setEventTypes(eventTypes2);
@@ -72,21 +72,21 @@ public class ServiceController {
             @RequestParam(value = "eventType", required = false) String eventType,
             @RequestParam(value = "price", required = false) Double price,
             @RequestParam(value = "available", required = false) Boolean available
-    ){
+    ) {
 
         Collection<ServiceResponseDTO> services = filter(name, offeringCategory, eventType, price, available);
 
         return new ResponseEntity<Collection<ServiceResponseDTO>>(services, HttpStatus.OK);
     }
 
-    private Collection<ServiceResponseDTO> filter(String name,  String offeringCategory, String eventType, Double price, Boolean available) {
+    private Collection<ServiceResponseDTO> filter(String name, String offeringCategory, String eventType, Double price, Boolean available) {
         Collection<ServiceResponseDTO> services = SetMockData();
         if (name != null) {
             services = services.stream()
                     .filter(service -> service.getName().toLowerCase().contains(name.toLowerCase()))
                     .collect(Collectors.toList());
         }
-        if(offeringCategory != null) {
+        if (offeringCategory != null) {
             services = services.stream()
                     .filter(service -> service.getOfferingCategory().getName().toLowerCase().contains(offeringCategory.toLowerCase()))
                     .collect(Collectors.toList());
@@ -129,9 +129,9 @@ public class ServiceController {
         images2.add("wedding2.jpg");
         service1.setImages(images2);
 
-        ArrayList<EventTypeServiceResponseDTO> eventTypes2 = new ArrayList<>();
-        EventTypeServiceResponseDTO eventType21 = new EventTypeServiceResponseDTO(3L, "Photography");
-        EventTypeServiceResponseDTO eventType22 = new EventTypeServiceResponseDTO(4L, "Videography");
+        ArrayList<EventTypePreviewResponseDTO> eventTypes2 = new ArrayList<>();
+        EventTypePreviewResponseDTO eventType21 = new EventTypePreviewResponseDTO(3L, "Photography");
+        EventTypePreviewResponseDTO eventType22 = new EventTypePreviewResponseDTO(4L, "Videography");
         eventTypes2.add(eventType21);
         eventTypes2.add(eventType22);
         service1.setEventTypes(eventTypes2);
@@ -151,9 +151,9 @@ public class ServiceController {
         images.add("corporate3.jpg");
         service2.setImages(images);
 
-        ArrayList<EventTypeServiceResponseDTO> eventTypes = new ArrayList<>();
-        EventTypeServiceResponseDTO eventType1 = new EventTypeServiceResponseDTO(3L, "Event Planning");
-        EventTypeServiceResponseDTO eventType2 = new EventTypeServiceResponseDTO(4L, "Catering");
+        ArrayList<EventTypePreviewResponseDTO> eventTypes = new ArrayList<>();
+        EventTypePreviewResponseDTO eventType1 = new EventTypePreviewResponseDTO(3L, "Event Planning");
+        EventTypePreviewResponseDTO eventType2 = new EventTypePreviewResponseDTO(4L, "Catering");
         eventTypes.add(eventType1);
         eventTypes.add(eventType2);
         service2.setEventTypes(eventTypes);
@@ -166,7 +166,7 @@ public class ServiceController {
     }
 
     @PostMapping(consumes = MediaType.APPLICATION_JSON_VALUE, produces = MediaType.APPLICATION_JSON_VALUE)
-    public ResponseEntity<ServiceCreateResponseDTO> createService(@RequestBody ServiceCreateRequestDTO service)throws Exception {
+    public ResponseEntity<ServiceCreateResponseDTO> createService(@RequestBody ServiceCreateRequestDTO service) throws Exception {
         ServiceCreateResponseDTO service1 = new ServiceCreateResponseDTO();
 
         service1.setId(10L);
@@ -190,7 +190,7 @@ public class ServiceController {
     }
 
     @PutMapping(value = "/{id}", consumes = MediaType.APPLICATION_JSON_VALUE, produces = MediaType.APPLICATION_JSON_VALUE)
-    public ResponseEntity<ServiceUpdateResponseDTO> updateService(@PathVariable Long id, @RequestBody ServiceUpdateRequestDTO service)throws Exception {
+    public ResponseEntity<ServiceUpdateResponseDTO> updateService(@PathVariable Long id, @RequestBody ServiceUpdateRequestDTO service) throws Exception {
         ServiceUpdateResponseDTO service1 = new ServiceUpdateResponseDTO();
         service1.setId(1L);
         if (!Objects.equals(service1.getId(), id)) {
