@@ -1,8 +1,11 @@
 package com.team25.event.planner.offering.service.model;
 
 import com.team25.event.planner.offering.common.model.Offering;
+import com.team25.event.planner.user.model.User;
 import jakarta.persistence.*;
 import lombok.*;
+
+import java.util.List;
 
 @Entity
 @Getter
@@ -18,6 +21,9 @@ public class Service extends Offering{
 
     @Enumerated(EnumType.STRING)
     private ReservationType reservationType;
+
+    @ManyToMany(mappedBy = "favoriteServices")
+    private List<User> users;
 
 
 }
