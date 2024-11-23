@@ -8,12 +8,12 @@ import java.util.List;
 public class ServiceRepositoryImpl implements ServiceRepository {
 
     @Override
-    public Collection<ServiceResponseDTO> findAll() {
+    public Collection<ServiceResponseDTO> getAll() {
         return List.of();
     }
 
     @Override
-    public ServiceResponseDTO findOne(Long id) {
+    public ServiceResponseDTO getOne(Long id) {
         return null;
     }
 
