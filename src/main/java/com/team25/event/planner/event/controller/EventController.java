@@ -45,6 +45,14 @@ public class EventController {
         return ResponseEntity.ok(eventService.getAllEvents(filter, page, size, sortBy, sortDirection));
     }
 
+    @GetMapping("/home/top")
+    public ResponseEntity<Page<EventPreviewResponseDTO>> getTopEvents(
+            @RequestParam(defaultValue = "Republika Srbija") String country,
+            @RequestParam(defaultValue = "Uzice") String city
+    ) {
+        return ResponseEntity.ok(eventService.getTopEvents(country, city));
+    }
+
     @PostMapping
     public ResponseEntity<EventResponseDTO> createEvent(@Valid @RequestBody EventRequestDTO eventDto) {
         return ResponseEntity.status(HttpStatus.CREATED).body(eventService.createEvent(eventDto));

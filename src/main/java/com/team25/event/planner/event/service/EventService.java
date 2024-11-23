@@ -97,8 +97,21 @@ public class EventService {
     }
 
     public Page<EventPreviewResponseDTO> getAllEvents(EventFilterDTO filter, int page, int size, String sortBy, String sortDirection) {
-//        Specification<Event> spec = eventSpecification.createSpecification(filter);
+        return  getMockList();
+//      Specification<Event> spec = eventSpecification.createSpecification(filter);
+//      Sort.Direction direction = Sort.Direction.fromString(sortDirection);
+//      Pageable pageable = PageRequest.of(page, size, Sort.by(direction, sortBy));
+//      return eventRepository.findAll(spec, pageable).map(eventPreviewMapper::toDTO);
 
+    }
+
+    //should return the 5 most recently created events
+    public Page<EventPreviewResponseDTO> getTopEvents(String country, String city) {
+        return getMockList();
+    }
+
+
+    private Page<EventPreviewResponseDTO> getMockList(){
         Event event = new Event();
         event.setId(1L);
 
@@ -122,7 +135,6 @@ public class EventService {
         location.setCountry("Techland");
         event.setLocation(location);
 
-//        EventPreviewResponseDTO eventPreviewResponseDTO = eventPreviewMapper.toDTO(event);
         EventPreviewResponseDTO eventPreviewResponseDTO = new EventPreviewResponseDTO();
         eventPreviewResponseDTO.setId(event.getId());
         eventPreviewResponseDTO.setDescription(event.getDescription());
@@ -130,11 +142,7 @@ public class EventService {
         eventPreviewResponseDTO.setStartDate(event.getStartDate());
         eventPreviewResponseDTO.setStartTime(event.getStartTime());
 
-        List<EventPreviewResponseDTO> mockList = Collections.singletonList(eventPreviewResponseDTO);
-        return new PageImpl<>(mockList);
-//      Sort.Direction direction = Sort.Direction.fromString(sortDirection);
-//      Pageable pageable = PageRequest.of(page, size, Sort.by(direction, sortBy));
-//      return eventRepository.findAll(spec, pageable).map(eventPreviewMapper::toDTO);
-
+        return new PageImpl<>(Collections.singletonList(eventPreviewResponseDTO));
     }
+
 }
