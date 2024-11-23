@@ -23,6 +23,7 @@ import org.springframework.stereotype.Service;
 
 import java.time.LocalDate;
 import java.time.LocalTime;
+import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 
@@ -135,14 +136,10 @@ public class EventService {
         location.setCountry("Techland");
         event.setLocation(location);
 
-        EventPreviewResponseDTO eventPreviewResponseDTO = new EventPreviewResponseDTO();
-        eventPreviewResponseDTO.setId(event.getId());
-        eventPreviewResponseDTO.setDescription(event.getDescription());
-        eventPreviewResponseDTO.setName(event.getName());
-        eventPreviewResponseDTO.setStartDate(event.getStartDate());
-        eventPreviewResponseDTO.setStartTime(event.getStartTime());
+        EventPreviewResponseDTO eventPreviewResponseDTO = eventPreviewMapper.toDTO(event);
+        List<EventPreviewResponseDTO> eventPreviewResponseDTOList = Collections.singletonList(eventPreviewResponseDTO);
 
-        return new PageImpl<>(Collections.singletonList(eventPreviewResponseDTO));
+        return new PageImpl<>(eventPreviewResponseDTOList);
     }
 
 }
