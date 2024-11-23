@@ -3,6 +3,7 @@ package com.team25.event.planner.offering.service.controller;
 import com.team25.event.planner.offering.common.dto.OfferingCategoryServiceResponseDTO;
 import com.team25.event.planner.offering.event.dto.EventTypeServiceResponseDTO;
 import com.team25.event.planner.offering.service.dto.*;
+import com.team25.event.planner.offering.service.model.ReservationType;
 import com.team25.event.planner.offering.service.model.Service;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
@@ -27,11 +28,11 @@ public class ServiceController {
     }
 
     @GetMapping(value = "/{id}", produces = MediaType.APPLICATION_JSON_VALUE)
-    public ResponseEntity<ServiceResponseDTO> getService(@PathVariable Long id) {
-        ServiceResponseDTO service1 = new ServiceResponseDTO();
+    public ResponseEntity<ServiceDetailsResponseDTO> getService(@PathVariable Long id) {
+        ServiceDetailsResponseDTO service1 = new ServiceDetailsResponseDTO();
         service1.setId(1L);
         if (!Objects.equals(service1.getId(), id)) { // if the service exist => update else not found the service
-            return new ResponseEntity<ServiceResponseDTO>(HttpStatus.NOT_FOUND);
+            return new ResponseEntity<ServiceDetailsResponseDTO>(HttpStatus.NOT_FOUND);
         }
 
 
@@ -55,7 +56,13 @@ public class ServiceController {
 
         service1.setOfferingCategory(new OfferingCategoryServiceResponseDTO(1L, "Premium"));
 
-        return new ResponseEntity<ServiceResponseDTO>(service1, HttpStatus.OK);
+        service1.setReservationType(ReservationType.MANUAL);
+        service1.setSpecifics("Specifics service1");
+        service1.setDuration(5);
+        service1.setCancellationDeadline(2);
+        service1.setReservationDeadline(10);
+
+        return new ResponseEntity<ServiceDetailsResponseDTO>(service1, HttpStatus.OK);
     }
 
     @GetMapping(value = "/search", produces = MediaType.APPLICATION_JSON_VALUE)

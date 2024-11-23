@@ -4,8 +4,8 @@ import lombok.Data;
 
 // The class created because we are not using services and repo
 @Data
-public class UserServiceFavResponseDTO {
+public class UserOfferingFavResponseDTO {
     private Long id;
     private Long userId;
-    private Long serviceId;
+    private Long offeringId;
 }

@@ -3,7 +3,7 @@ package com.team25.event.planner.user.dto;
 import lombok.Data;
 
 @Data
-public class UserServiceFavRequestDTO {
+public class UserOfferingFavRequestDTO {
     private Long userId;
-    private Long serviceId;
+    private Long offeringId;
 }
