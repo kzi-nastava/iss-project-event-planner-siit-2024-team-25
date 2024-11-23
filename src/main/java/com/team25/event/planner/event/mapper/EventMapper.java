@@ -1,5 +1,6 @@
 package com.team25.event.planner.event.mapper;
 
+import com.team25.event.planner.event.dto.EventPreviewResponseDTO;
 import com.team25.event.planner.event.dto.EventRequestDTO;
 import com.team25.event.planner.event.dto.EventResponseDTO;
 import com.team25.event.planner.event.model.Event;
@@ -15,4 +16,7 @@ public interface EventMapper {
     @Mapping(target = "name", source = "eventRequestDTO.name")
     @Mapping(target = "description", source = "eventRequestDTO.description")
     Event toEvent(EventRequestDTO eventRequestDTO, EventType eventType);
+
+    EventPreviewResponseDTO toEventPreviewResponseDTO(Event event);
+
 }

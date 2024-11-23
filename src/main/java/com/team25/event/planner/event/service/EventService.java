@@ -8,7 +8,6 @@ import com.team25.event.planner.event.dto.EventPreviewResponseDTO;
 import com.team25.event.planner.event.dto.EventRequestDTO;
 import com.team25.event.planner.event.dto.EventResponseDTO;
 import com.team25.event.planner.event.mapper.EventMapper;
-import com.team25.event.planner.event.mapper.EventPreviewMapper;
 import com.team25.event.planner.event.model.Event;
 import com.team25.event.planner.event.model.EventType;
 import com.team25.event.planner.event.model.PrivacyType;
@@ -23,7 +22,6 @@ import org.springframework.stereotype.Service;
 
 import java.time.LocalDate;
 import java.time.LocalTime;
-import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 
@@ -34,7 +32,6 @@ public class EventService {
     private final EventTypeRepository eventTypeRepository;
     private final EventMapper eventMapper;
     private final EventSpecification eventSpecification;
-    private final EventPreviewMapper eventPreviewMapper;
 
 
     public EventResponseDTO getEventById(Long id) {
@@ -136,7 +133,7 @@ public class EventService {
         location.setCountry("Techland");
         event.setLocation(location);
 
-        EventPreviewResponseDTO eventPreviewResponseDTO = eventPreviewMapper.toDTO(event);
+        EventPreviewResponseDTO eventPreviewResponseDTO = eventMapper.toEventPreviewResponseDTO(event);
         List<EventPreviewResponseDTO> eventPreviewResponseDTOList = Collections.singletonList(eventPreviewResponseDTO);
 
         return new PageImpl<>(eventPreviewResponseDTOList);

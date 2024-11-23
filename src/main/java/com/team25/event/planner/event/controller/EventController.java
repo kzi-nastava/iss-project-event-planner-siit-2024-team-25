@@ -47,8 +47,8 @@ public class EventController {
 
     @GetMapping("/home/top")
     public ResponseEntity<Page<EventPreviewResponseDTO>> getTopEvents(
-            @RequestParam(defaultValue = "Republika Srbija") String country,
-            @RequestParam(defaultValue = "Uzice") String city
+            @RequestParam(required = false) String country,
+            @RequestParam(required = false) String city
     ) {
         return ResponseEntity.ok(eventService.getTopEvents(country, city));
     }
