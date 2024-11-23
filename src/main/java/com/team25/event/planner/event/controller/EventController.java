@@ -1,6 +1,7 @@
 package com.team25.event.planner.event.controller;
 
 import com.team25.event.planner.event.dto.EventFilterDTO;
+import com.team25.event.planner.event.dto.EventPreviewResponseDTO;
 import com.team25.event.planner.event.dto.EventRequestDTO;
 import com.team25.event.planner.event.dto.EventResponseDTO;
 import com.team25.event.planner.event.service.EventService;
@@ -31,6 +32,17 @@ public class EventController {
             @RequestParam(defaultValue = "asc") String sortDirection
     ) {
         return ResponseEntity.ok(eventService.getEvents(filter, page, size, sortBy, sortDirection));
+    }
+
+    @GetMapping("/home/all")
+    public ResponseEntity<Page<EventPreviewResponseDTO>> getAllEvents(
+            @ModelAttribute EventFilterDTO filter,
+            @RequestParam(defaultValue = "0") int page,
+            @RequestParam(defaultValue = "10") int size,
+            @RequestParam(defaultValue = "startDate") String sortBy,
+            @RequestParam(defaultValue = "asc") String sortDirection
+    ) {
+        return ResponseEntity.ok(eventService.getAllEvents(filter, page, size, sortBy, sortDirection));
     }
 
     @PostMapping
