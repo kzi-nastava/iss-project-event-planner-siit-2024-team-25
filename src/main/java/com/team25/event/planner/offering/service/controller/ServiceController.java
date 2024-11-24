@@ -4,6 +4,8 @@ import com.team25.event.planner.event.dto.EventTypePreviewResponseDTO;
 import com.team25.event.planner.offering.common.dto.OfferingCategoryServiceResponseDTO;
 
 import com.team25.event.planner.event.dto.EventTypeServiceResponseDTO;
+import com.team25.event.planner.offering.common.dto.OfferingFilterDTO;
+import com.team25.event.planner.offering.common.dto.OfferingPreviewResponseDTO;
 import com.team25.event.planner.offering.service.dto.*;
 import com.team25.event.planner.offering.service.model.ReservationType;
 
@@ -12,6 +14,9 @@ import com.team25.event.planner.offering.service.model.ReservationType;
 import com.team25.event.planner.offering.service.model.Service;
 
 
+import com.team25.event.planner.offering.service.service.ServiceService;
+import lombok.AllArgsConstructor;
+import org.springframework.data.domain.Page;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
@@ -24,13 +29,27 @@ import java.util.stream.Collectors;
 
 @RestController
 @RequestMapping("api/services")
+@AllArgsConstructor
 public class ServiceController {
+
+    private final ServiceService serviceService;
 
     @GetMapping(produces = MediaType.APPLICATION_JSON_VALUE)
     public ResponseEntity<Collection<ServiceResponseDTO>> getServices() {
         Collection<ServiceResponseDTO> services = SetMockData();
 
         return new ResponseEntity<Collection<ServiceResponseDTO>>(services, HttpStatus.OK);
+    }
+
+    @GetMapping("/all")
+    public ResponseEntity<Page<OfferingPreviewResponseDTO>> getServices(
+            @ModelAttribute OfferingFilterDTO filter,
+            @RequestParam(defaultValue = "0") int page,
+            @RequestParam(defaultValue = "10") int size,
+            @RequestParam(defaultValue = "name") String sortBy,
+            @RequestParam(defaultValue = "asc") String sortDirection
+    ){
+        return ResponseEntity.ok(serviceService.getServices(filter, page, size, sortBy, sortDirection));
     }
 
     @GetMapping(value = "/{id}", produces = MediaType.APPLICATION_JSON_VALUE)
@@ -135,9 +154,9 @@ public class ServiceController {
         images2.add("wedding2.jpg");
         service1.setImages(images2);
 
-        ArrayList<EventTypePreviewResponseDTO> eventTypes2 = new ArrayList<>();
-        EventTypePreviewResponseDTO eventType21 = new EventTypePreviewResponseDTO(3L, "Photography");
-        EventTypePreviewResponseDTO eventType22 = new EventTypePreviewResponseDTO(4L, "Videography");
+        ArrayList<EventTypeServiceResponseDTO> eventTypes2 = new ArrayList<>();
+        EventTypeServiceResponseDTO eventType21 = new EventTypeServiceResponseDTO(3L, "Photography");
+        EventTypeServiceResponseDTO eventType22 = new EventTypeServiceResponseDTO(4L, "Videography");
         eventTypes2.add(eventType21);
         eventTypes2.add(eventType22);
         service1.setEventTypes(eventTypes2);
@@ -157,9 +176,9 @@ public class ServiceController {
         images.add("corporate3.jpg");
         service2.setImages(images);
 
-        ArrayList<EventTypePreviewResponseDTO> eventTypes = new ArrayList<>();
-        EventTypePreviewResponseDTO eventType1 = new EventTypePreviewResponseDTO(3L, "Event Planning");
-        EventTypePreviewResponseDTO eventType2 = new EventTypePreviewResponseDTO(4L, "Catering");
+        ArrayList<EventTypeServiceResponseDTO> eventTypes = new ArrayList<>();
+        EventTypeServiceResponseDTO eventType1 = new EventTypeServiceResponseDTO(3L, "Event Planning");
+        EventTypeServiceResponseDTO eventType2 = new EventTypeServiceResponseDTO(4L, "Catering");
         eventTypes.add(eventType1);
         eventTypes.add(eventType2);
         service2.setEventTypes(eventTypes);
