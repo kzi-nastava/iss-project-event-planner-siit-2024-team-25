@@ -2,21 +2,25 @@ package com.team25.event.planner.offering.product;
 
 import com.team25.event.planner.offering.common.dto.OfferingCategoryServiceResponseDTO;
 import com.team25.event.planner.event.dto.EventTypeServiceResponseDTO;
+import com.team25.event.planner.offering.common.dto.OfferingFilterDTO;
+import com.team25.event.planner.offering.common.dto.OfferingPreviewResponseDTO;
 import com.team25.event.planner.offering.product.dto.ProductDetailsResponseDTO;
+import com.team25.event.planner.offering.product.service.ProductService;
+import lombok.AllArgsConstructor;
+import org.springframework.data.domain.Page;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.PathVariable;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
 
 import java.util.ArrayList;
 import java.util.Objects;
 
 @RestController
 @RequestMapping("api/products")
+@AllArgsConstructor
 public class ProductController {
+    private final ProductService productService;
 
     @GetMapping(value = "/{id}", produces = MediaType.APPLICATION_JSON_VALUE)
     public ResponseEntity<ProductDetailsResponseDTO> getProduct(@PathVariable("id") Long id) {
@@ -50,5 +54,16 @@ public class ProductController {
         productDetailsResponseDTO.setOfferingCategory(new OfferingCategoryServiceResponseDTO(1L, "Premium"));
 
         return new ResponseEntity<ProductDetailsResponseDTO>(productDetailsResponseDTO, HttpStatus.OK);
+    }
+
+    @GetMapping("/all")
+    public ResponseEntity<Page<OfferingPreviewResponseDTO>> getProducts(
+            @RequestParam(required = false) OfferingFilterDTO filter,
+            @RequestParam(defaultValue = "0") int page,
+            @RequestParam(defaultValue = "10") int size,
+            @RequestParam(defaultValue = "name") String sortBy,
+            @RequestParam(defaultValue = "asc") String sortDirection
+    ){
+        return ResponseEntity.ok(productService.getProducts(filter, page, size, sortBy, sortDirection));
     }
 }
