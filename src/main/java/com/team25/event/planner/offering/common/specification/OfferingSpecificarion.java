@@ -1,7 +1,7 @@
-package com.team25.event.planner.event.specification;
+package com.team25.event.planner.offering.common.specification;
 
-import com.team25.event.planner.event.dto.EventFilterDTO;
-import com.team25.event.planner.event.model.Event;
+import com.team25.event.planner.offering.common.dto.OfferingFilterDTO;
+import com.team25.event.planner.offering.common.model.Offering;
 import jakarta.persistence.criteria.Predicate;
 import org.springframework.data.jpa.domain.Specification;
 import org.springframework.stereotype.Component;
@@ -10,27 +10,22 @@ import java.util.ArrayList;
 import java.util.List;
 
 @Component
-public class EventSpecification {
-    public Specification<Event> createSpecification(EventFilterDTO filter) {
+public class OfferingSpecificarion {
+    public Specification<Offering> createSpecification(OfferingFilterDTO filter) {
         return (root, query, cb) -> {
             List<Predicate> predicates = new ArrayList<>();
 
-            if (filter.getNameContains() != null) {
+            if (filter.getName() != null) {
                 predicates.add(cb.like(cb.lower(root.get("name")),
-                        "%" + filter.getNameContains().toLowerCase() + "%"));
-            }
-
-            if (filter.getDescriptionContains() != null) {
-                predicates.add(cb.like(cb.lower(root.get("description")),
-                        "%" + filter.getDescriptionContains().toLowerCase() + "%"));
+                        "%" + filter.getName().toLowerCase() + "%"));
             }
 
             if (filter.getEventTypeId() != null) {
                 predicates.add(cb.equal(root.get("eventType").get("id"), filter.getEventTypeId()));
             }
 
-            if (filter.getPrivacyType() != null) {
-                predicates.add(cb.equal(root.get("privacyType"), filter.getPrivacyType()));
+            if (filter.getCategoryId() != null) {
+                predicates.add(cb.equal(root.get("offeringCategory"), filter.getCategoryId()));
             }
 
             if (filter.getStartDate() != null) {
@@ -49,12 +44,12 @@ public class EventSpecification {
                 predicates.add(cb.lessThanOrEqualTo(root.get("startTime"), filter.getEndTime()));
             }
 
-            if (filter.getMinParticipants() != null) {
-                predicates.add(cb.greaterThanOrEqualTo(root.get("minParticipants"), filter.getMinParticipants()));
+            if (filter.getMinPrice() != null) {
+                predicates.add(cb.greaterThanOrEqualTo(root.get("minPrice"), filter.getMinPrice()));
             }
 
-            if (filter.getMaxParticipants() != null) {
-                predicates.add(cb.lessThanOrEqualTo(root.get("maxParticipants"), filter.getMaxParticipants()));
+            if (filter.getMaxPrice() != null) {
+                predicates.add(cb.lessThanOrEqualTo(root.get("maxPrice"), filter.getMaxPrice()));
             }
 
             if (filter.getCountry() != null) {
