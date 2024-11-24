@@ -135,9 +135,9 @@ public class ServiceController {
         images2.add("wedding2.jpg");
         service1.setImages(images2);
 
-        ArrayList<EventTypePreviewResponseDTO> eventTypes2 = new ArrayList<>();
-        EventTypePreviewResponseDTO eventType21 = new EventTypePreviewResponseDTO(3L, "Photography");
-        EventTypePreviewResponseDTO eventType22 = new EventTypePreviewResponseDTO(4L, "Videography");
+        ArrayList<EventTypeServiceResponseDTO> eventTypes2 = new ArrayList<>();
+        EventTypeServiceResponseDTO eventType21 = new EventTypeServiceResponseDTO(3L, "Photography");
+        EventTypeServiceResponseDTO eventType22 = new EventTypeServiceResponseDTO(4L, "Videography");
         eventTypes2.add(eventType21);
         eventTypes2.add(eventType22);
         service1.setEventTypes(eventTypes2);
@@ -157,9 +157,9 @@ public class ServiceController {
         images.add("corporate3.jpg");
         service2.setImages(images);
 
-        ArrayList<EventTypePreviewResponseDTO> eventTypes = new ArrayList<>();
-        EventTypePreviewResponseDTO eventType1 = new EventTypePreviewResponseDTO(3L, "Event Planning");
-        EventTypePreviewResponseDTO eventType2 = new EventTypePreviewResponseDTO(4L, "Catering");
+        ArrayList<EventTypeServiceResponseDTO> eventTypes = new ArrayList<>();
+        EventTypeServiceResponseDTO eventType1 = new EventTypeServiceResponseDTO(3L, "Event Planning");
+        EventTypeServiceResponseDTO eventType2 = new EventTypeServiceResponseDTO(4L, "Catering");
         eventTypes.add(eventType1);
         eventTypes.add(eventType2);
         service2.setEventTypes(eventTypes);
