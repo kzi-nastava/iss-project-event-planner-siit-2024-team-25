@@ -1,4 +1,4 @@
-package com.team25.event.planner.offering.product;
+package com.team25.event.planner.offering.product.controllers;
 
 import com.team25.event.planner.offering.common.dto.OfferingCategoryServiceResponseDTO;
 import com.team25.event.planner.event.dto.EventTypeServiceResponseDTO;
