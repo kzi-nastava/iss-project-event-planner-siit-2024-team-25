@@ -58,7 +58,7 @@ public class ProductController {
 
     @GetMapping("/all")
     public ResponseEntity<Page<OfferingPreviewResponseDTO>> getProducts(
-            @RequestParam(required = false) OfferingFilterDTO filter,
+            @ModelAttribute OfferingFilterDTO filter,
             @RequestParam(defaultValue = "0") int page,
             @RequestParam(defaultValue = "10") int size,
             @RequestParam(defaultValue = "name") String sortBy,
