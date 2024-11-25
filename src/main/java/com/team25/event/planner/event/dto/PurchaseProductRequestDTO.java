@@ -1,13 +1,11 @@
-package com.team25.event.planner.offering.common.dto;
+package com.team25.event.planner.event.dto;
 
-import com.team25.event.planner.offering.common.model.OfferingCategory;
+import lombok.Data;
 
 import java.time.LocalDate;
 
+@Data
 public class PurchaseProductRequestDTO {
     private double price;
-    private LocalDate startDate;
-    private LocalDate endDate;
-    private double discount;
     private Long offeringCategoryId; // adding price to selected products category so that system can calculate budget for this category
 }
