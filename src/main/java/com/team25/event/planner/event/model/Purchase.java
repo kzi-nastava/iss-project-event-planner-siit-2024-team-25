@@ -20,9 +20,9 @@ public class Purchase {
     @Column(name = "id", nullable = false)
     private Long id;
 
-    @NotNull(message = "Peice is required")
-    @Column(nullable = false)
-    private double price;
+    @NotNull(message = "Price  is required")
+    @Embedded
+    private Money price;
 
     @NotNull(message = "Start date is required")
     @Column(nullable = false)

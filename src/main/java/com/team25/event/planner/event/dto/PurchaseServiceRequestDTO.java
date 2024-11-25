@@ -1,5 +1,6 @@
 package com.team25.event.planner.event.dto;
 
+import com.team25.event.planner.event.model.Money;
 import com.team25.event.planner.offering.common.model.OfferingCategory;
 import lombok.Data;
 
@@ -13,6 +14,6 @@ public class PurchaseServiceRequestDTO {
     private LocalTime startTime;
     private LocalDate endDate;
     private LocalTime endTime;
-    private double price;
+    private Money price;
     private Long offeringCategoryId;
 }
