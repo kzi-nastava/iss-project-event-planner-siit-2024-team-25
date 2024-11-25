@@ -4,6 +4,8 @@ import com.team25.event.planner.event.dto.EventTypePreviewResponseDTO;
 import com.team25.event.planner.offering.common.dto.OfferingCategoryServiceResponseDTO;
 
 import com.team25.event.planner.event.dto.EventTypeServiceResponseDTO;
+import com.team25.event.planner.offering.common.dto.OfferingFilterDTO;
+import com.team25.event.planner.offering.common.dto.OfferingPreviewResponseDTO;
 import com.team25.event.planner.offering.service.dto.*;
 import com.team25.event.planner.offering.service.model.ReservationType;
 
@@ -12,6 +14,9 @@ import com.team25.event.planner.offering.service.model.ReservationType;
 import com.team25.event.planner.offering.service.model.Service;
 
 
+import com.team25.event.planner.offering.service.service.ServiceService;
+import lombok.AllArgsConstructor;
+import org.springframework.data.domain.Page;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
@@ -24,13 +29,27 @@ import java.util.stream.Collectors;
 
 @RestController
 @RequestMapping("api/services")
+@AllArgsConstructor
 public class ServiceController {
+
+    private final ServiceService serviceService;
 
     @GetMapping(produces = MediaType.APPLICATION_JSON_VALUE)
     public ResponseEntity<Collection<ServiceResponseDTO>> getServices() {
         Collection<ServiceResponseDTO> services = SetMockData();
 
         return new ResponseEntity<Collection<ServiceResponseDTO>>(services, HttpStatus.OK);
+    }
+
+    @GetMapping("/all")
+    public ResponseEntity<Page<OfferingPreviewResponseDTO>> getServices(
+            @ModelAttribute OfferingFilterDTO filter,
+            @RequestParam(defaultValue = "0") int page,
+            @RequestParam(defaultValue = "10") int size,
+            @RequestParam(defaultValue = "name") String sortBy,
+            @RequestParam(defaultValue = "asc") String sortDirection
+    ){
+        return ResponseEntity.ok(serviceService.getServices(filter, page, size, sortBy, sortDirection));
     }
 
     @GetMapping(value = "/{id}", produces = MediaType.APPLICATION_JSON_VALUE)
