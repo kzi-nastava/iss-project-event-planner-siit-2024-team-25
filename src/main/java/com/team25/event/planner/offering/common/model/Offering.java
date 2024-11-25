@@ -3,6 +3,7 @@ package com.team25.event.planner.offering.common.model;
 import com.team25.event.planner.event.model.EventType;
 
 import jakarta.persistence.*;
+import jakarta.validation.constraints.NotNull;
 import lombok.*;
 
 import java.util.Collection;
@@ -18,9 +19,17 @@ public abstract class Offering {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
+
+    @NotNull(message = "Name is required")
+    @Column(nullable = false)
     private String name;
+
     private String description;
+
+    @NotNull(message = "Price is required")
+    @Column(nullable = false)
     private double price;
+
     private double discount;
 
     @ElementCollection
