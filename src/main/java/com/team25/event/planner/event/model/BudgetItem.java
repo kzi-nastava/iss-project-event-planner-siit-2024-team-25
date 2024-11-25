@@ -17,7 +17,7 @@ public class BudgetItem {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private long id;
 
-    @ManyToOne
+    @Embedded
     private Money money;
 
     @Enumerated(EnumType.STRING)
