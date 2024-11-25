@@ -1,20 +1,11 @@
 package com.team25.event.planner.offering.service.repository;
 
-import com.team25.event.planner.offering.service.dto.*;
+import com.team25.event.planner.offering.service.model.Service;
+import org.springframework.data.jpa.repository.JpaRepository;
+import org.springframework.data.jpa.repository.JpaSpecificationExecutor;
 
 import java.util.Collection;
 
-public interface ServiceRepository {
+public interface ServiceRepository extends JpaRepository<Service, Long>, JpaSpecificationExecutor<Service> {
 
-    Collection<ServiceResponseDTO> getAll();
-
-    ServiceResponseDTO getOne(Long id);
-
-    Collection<ServiceResponseDTO> search(String from);
-
-    ServiceCreateResponseDTO create(ServiceCreateRequestDTO createService);
-
-    ServiceUpdateResponseDTO update(ServiceUpdateRequestDTO updateService);
-
-    void delete(Long id);
 }

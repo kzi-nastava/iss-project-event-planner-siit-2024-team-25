@@ -15,5 +15,5 @@ public class PurchaseServiceResponseDTO {
     private double price;
     private Long offeringCategoryId;
     private Long eventId;
-    private Long productId;
+    private Long serviceId;
 }
