@@ -1,9 +1,6 @@
 package com.team25.event.planner.event.controller;
 
-import com.team25.event.planner.event.dto.EventFilterDTO;
-import com.team25.event.planner.event.dto.EventPreviewResponseDTO;
-import com.team25.event.planner.event.dto.EventRequestDTO;
-import com.team25.event.planner.event.dto.EventResponseDTO;
+import com.team25.event.planner.event.dto.*;
 import com.team25.event.planner.event.service.EventService;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
@@ -11,6 +8,8 @@ import org.springframework.data.domain.Page;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
+
+import java.util.List;
 
 @RestController
 @RequestMapping("/api/events")
@@ -70,5 +69,14 @@ public class EventController {
     public ResponseEntity<Void> deleteEventType(@PathVariable Long id) {
         eventService.deleteEvent(id);
         return ResponseEntity.noContent().build();
+    }
+
+    @PostMapping("/{eventId}/send-invitations")
+    public ResponseEntity<Void> sendInvitations(
+            @PathVariable("eventId") Long eventId,
+            @RequestBody List<EventInvitationRequestDTO> requestDTO
+    ){
+        eventService.sendInvitations(eventId,requestDTO);
+        return ResponseEntity.ok().build();
     }
 }
