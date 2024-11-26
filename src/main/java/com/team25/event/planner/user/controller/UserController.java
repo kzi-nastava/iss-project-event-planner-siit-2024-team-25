@@ -1,64 +1,86 @@
 package com.team25.event.planner.user.controller;
 
-import com.team25.event.planner.user.dto.FavouriteOfferingResponseDTO;
-import com.team25.event.planner.user.dto.UserOfferingFavRequestDTO;
-import com.team25.event.planner.user.dto.UserOfferingFavResponseDTO;
-import org.springframework.http.HttpStatus;
+import com.team25.event.planner.common.exception.ServerError;
+import com.team25.event.planner.user.dto.BlockRequestDTO;
+import com.team25.event.planner.user.dto.UserRequestDTO;
+import com.team25.event.planner.user.dto.UserResponseDTO;
+import com.team25.event.planner.user.service.UserService;
+import jakarta.validation.Valid;
+import lombok.RequiredArgsConstructor;
+import org.springframework.core.io.Resource;
+import org.springframework.http.HttpHeaders;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
-import java.util.ArrayList;
-import java.util.Collection;
-import java.util.Objects;
+import java.io.IOException;
+import java.nio.file.Files;
+import java.nio.file.Path;
 
 @RestController
-@RequestMapping("api/users")
+@RequestMapping("/api/users")
+@RequiredArgsConstructor
 public class UserController {
+    private final UserService userService;
 
-    @GetMapping(value = "/{id}/favourite-offerings", produces = MediaType.APPLICATION_JSON_VALUE)
-    public ResponseEntity<Collection<FavouriteOfferingResponseDTO>> getFavouriteOfferings(@PathVariable("id") Long id){
-        Collection<FavouriteOfferingResponseDTO> responseDTOS = new ArrayList<>();
-
-        FavouriteOfferingResponseDTO object1 = new FavouriteOfferingResponseDTO();
-        object1.setId(1L);
-        object1.setName("Basic Photography Package");
-        object1.setDescription("A simple package including essential photography services.");
-        object1.setPrice(300.00);
-
-        FavouriteOfferingResponseDTO object2 = new FavouriteOfferingResponseDTO();
-        object2.setId(2L);
-        object2.setName("Premium Photography Package");
-        object2.setDescription("An advanced package with additional features like drone photography.");
-        object2.setPrice(800.00);
-
-        responseDTOS.add(object1);
-        responseDTOS.add(object2);
-
-        return new ResponseEntity<Collection<FavouriteOfferingResponseDTO>>(responseDTOS, HttpStatus.OK);
+    @GetMapping("/{userId}")
+    public ResponseEntity<UserResponseDTO> getUser(@PathVariable Long userId) {
+        return ResponseEntity.ok(userService.getUser(userId));
     }
 
-    @PostMapping(value = "/{id}/favourite-offerings", consumes = MediaType.APPLICATION_JSON_VALUE, produces = MediaType.APPLICATION_JSON_VALUE)
-    public ResponseEntity<UserOfferingFavResponseDTO> addFavouriteOffering(@PathVariable("id") Long id, @RequestBody UserOfferingFavRequestDTO requestDTO) {
-        UserOfferingFavResponseDTO responseDTO = new UserOfferingFavResponseDTO();
-        responseDTO.setId(id);
-        if(!Objects.equals(id, requestDTO.getUserId())){
-            return new ResponseEntity<UserOfferingFavResponseDTO>(responseDTO, HttpStatus.FORBIDDEN);
-        }
-
-        responseDTO.setUserId(id);
-        responseDTO.setOfferingId(requestDTO.getOfferingId());
-
-        return new ResponseEntity<UserOfferingFavResponseDTO>(responseDTO, HttpStatus.CREATED);
+    @PutMapping("/{userId}")
+    public ResponseEntity<UserResponseDTO> updateUser(
+            @PathVariable Long userId,
+            @Valid @RequestBody UserRequestDTO userRequestDTO
+    ) {
+        return ResponseEntity.ok(userService.updateUser(userId, userRequestDTO));
     }
 
-    @DeleteMapping(value = "/{id}/favourite-offerings/{favId}")
-    public ResponseEntity<?> deleteOfferingFromFavourite(@PathVariable Long id,@PathVariable Long favId) {
-        FavouriteOfferingResponseDTO response = new FavouriteOfferingResponseDTO();
-        response.setId(1L);
-        if (!Objects.equals(response.getId(), favId)) {
-            return new ResponseEntity<FavouriteOfferingResponseDTO>(HttpStatus.NOT_FOUND);
+    @PostMapping("/{userId}/block")
+    public ResponseEntity<Void> blockUser(
+            @PathVariable Long userId,
+            @Valid @RequestBody BlockRequestDTO blockRequestDTO
+    ) {
+        return ResponseEntity.ok().build();
+    }
+
+    @GetMapping("/{userId}/profile-picture")
+    public ResponseEntity<Resource> getProfilePicture(@PathVariable Long userId) {
+        try {
+            Resource resource = userService.getProfilePicture(userId);
+
+            // Determine the content type (e.g., image/jpeg)
+            String contentType = Files.probeContentType(Path.of(resource.getFile().getAbsolutePath()));
+            if (contentType == null) {
+                contentType = "application/octet-stream"; // Fallback to binary stream
+            }
+
+            return ResponseEntity.ok()
+                    .contentType(MediaType.parseMediaType(contentType))
+                    .header(HttpHeaders.CONTENT_DISPOSITION, "inline; filename=\"" + resource.getFilename() + "\"")
+                    .body(resource);
+        } catch (IOException e) {
+            throw new ServerError("Could not load image", 500);
         }
-        return new ResponseEntity<>(HttpStatus.NO_CONTENT);
+    }
+
+    @GetMapping("/{userId}/pictures/{pictureId}")
+    public ResponseEntity<Resource> getOwnerPicture(@PathVariable Long userId, @PathVariable Long pictureId) {
+        try {
+            Resource resource = userService.getOwnerPicture(userId, pictureId);
+
+            // Determine the content type (e.g., image/jpeg)
+            String contentType = Files.probeContentType(Path.of(resource.getFile().getAbsolutePath()));
+            if (contentType == null) {
+                contentType = "application/octet-stream"; // Fallback to binary stream
+            }
+
+            return ResponseEntity.ok()
+                    .contentType(MediaType.parseMediaType(contentType))
+                    .header(HttpHeaders.CONTENT_DISPOSITION, "inline; filename=\"" + resource.getFilename() + "\"")
+                    .body(resource);
+        } catch (IOException e) {
+            throw new ServerError("Could not load image", 500);
+        }
     }
 }

@@ -1,6 +1,7 @@
 package com.team25.event.planner.event.model;
 
 import com.team25.event.planner.common.model.Location;
+import com.team25.event.planner.user.model.EventOrganizer;
 import jakarta.persistence.*;
 import jakarta.validation.constraints.NotNull;
 import lombok.AllArgsConstructor;
@@ -61,6 +62,11 @@ public class Event {
     @NotNull(message = "Location is required")
     @Column(nullable = false)
     private Location location;
+
+    @NotNull(message = "Organizer is required")
+    @ManyToOne
+    @JoinColumn(nullable = false)
+    private EventOrganizer organizer;
 
     @CreatedDate
     private Instant createdDate;
