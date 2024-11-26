@@ -1,9 +1,11 @@
 package com.team25.event.planner.common.controller;
 
+import com.team25.event.planner.common.dto.ReviewRequestDTO;
 import com.team25.event.planner.common.dto.ReviewResponseDTO;
 import com.team25.event.planner.common.repository.ReviewRepository;
 import com.team25.event.planner.common.service.ReviewService;
 import com.team25.event.planner.offering.common.dto.ReviewFilterDTO;
+import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
 import org.springframework.http.HttpStatus;
@@ -28,5 +30,12 @@ public class ReviewController {
             @RequestParam(defaultValue = "asc") String sortDirection
     ) {
         return new ResponseEntity<>(reviewService.getReviews(filter, page, size, sortBy, sortDirection), HttpStatus.OK);
+    }
+
+    @PutMapping("")
+    public ResponseEntity<ReviewResponseDTO> updateReviewStatus(
+            @Valid @RequestBody ReviewRequestDTO requestDTO
+            ){
+        return ResponseEntity.ok(reviewService.updateReviewStatus(requestDTO));
     }
 }

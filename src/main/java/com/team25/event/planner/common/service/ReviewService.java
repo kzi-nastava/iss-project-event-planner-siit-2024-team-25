@@ -1,11 +1,14 @@
 package com.team25.event.planner.common.service;
 
+import com.team25.event.planner.common.dto.ReviewRequestDTO;
 import com.team25.event.planner.common.dto.ReviewResponseDTO;
+import com.team25.event.planner.common.exception.NotFoundError;
 import com.team25.event.planner.common.mapper.ReviewMapper;
 import com.team25.event.planner.common.model.Review;
 import com.team25.event.planner.common.repository.ReviewRepository;
 import com.team25.event.planner.common.specification.ReviewSpecification;
 import com.team25.event.planner.offering.common.dto.ReviewFilterDTO;
+import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.*;
 import org.springframework.data.jpa.domain.Specification;
@@ -41,5 +44,14 @@ public class ReviewService {
         reviewResponseDTOList.add(reviewResponseDTO1);
 
         return new PageImpl<>(reviewResponseDTOList);
+    }
+
+    public ReviewResponseDTO updateReviewStatus(@Valid ReviewRequestDTO requestDTO) {
+//        Review review = reviewRepository.findById(requestDTO.getReviewId()).orElseThrow(()->new NotFoundError("Review not found"));
+        Review review = new Review();
+        review.setId(1L);
+        review.setStatus(requestDTO.getStatus());
+//        reviewRepository.save(review);
+        return reviewMapper.toDTO(review);
     }
 }
