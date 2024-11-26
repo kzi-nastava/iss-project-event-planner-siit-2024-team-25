@@ -7,6 +7,8 @@ import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
 
+import java.time.Instant;
+
 @Getter
 @Setter
 @AllArgsConstructor
@@ -23,5 +25,9 @@ public class Report {
     @ManyToOne
     private User user;
 
-    private String report;
+    private String reportMessage;
+
+    private Instant createdDate;
+
+    private boolean isViewed;
 }
