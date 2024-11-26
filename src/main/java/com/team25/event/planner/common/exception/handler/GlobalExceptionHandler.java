@@ -11,6 +11,7 @@ import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.HttpStatusCode;
 import org.springframework.http.ResponseEntity;
+import org.springframework.http.converter.HttpMessageNotReadableException;
 import org.springframework.security.access.AccessDeniedException;
 import org.springframework.security.authorization.AuthorizationDeniedException;
 import org.springframework.security.core.AuthenticationException;
@@ -88,6 +89,19 @@ public class GlobalExceptionHandler extends ResponseEntityExceptionHandler {
         logger.warn("AccessDenied: {}", exception.getMessage());
         return ResponseEntity.status(HttpStatus.FORBIDDEN).body(
                 new ErrorResponseDTO(HttpStatus.FORBIDDEN.value(), exception.getMessage())
+        );
+    }
+
+    @Override
+    protected ResponseEntity<Object> handleHttpMessageNotReadable(
+            final HttpMessageNotReadableException exception,
+            @NonNull final HttpHeaders headers,
+            @NonNull final HttpStatusCode status,
+            @NonNull final WebRequest request
+    ) {
+        logger.warn("HttpMessageNotReadableException: {}", exception.getMessage());
+        return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(
+                new ErrorResponseDTO(HttpStatus.BAD_REQUEST.value(), exception.getMessage())
         );
     }
 
