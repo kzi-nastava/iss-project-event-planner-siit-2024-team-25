@@ -25,6 +25,10 @@ public class Review {
     @Column(nullable = false)
     private String comment;
 
+    @NotNull(message = "Rating is required")
+    @Column(nullable = false)
+    private int rating;
+
     @Enumerated(EnumType.STRING)
     private ReviewStatus status;
 
