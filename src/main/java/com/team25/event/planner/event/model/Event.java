@@ -14,6 +14,7 @@ import java.time.Instant;
 import java.time.LocalDate;
 import java.time.LocalTime;
 import java.util.Collection;
+import java.util.List;
 
 @Getter
 @Setter
@@ -70,6 +71,9 @@ public class Event {
 
     @CreatedDate
     private Instant createdDate;
+
+    @OneToMany(cascade = {CascadeType.ALL}, mappedBy = "event")
+    private List<Activity> agenda;
 
     @OneToMany(cascade = {CascadeType.ALL}, mappedBy = "event")
     private Collection<BudgetItem> budgetItemCollection;

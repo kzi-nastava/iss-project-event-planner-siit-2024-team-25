@@ -3,15 +3,10 @@ package com.team25.event.planner.event.service;
 import com.team25.event.planner.common.exception.InvalidRequestError;
 import com.team25.event.planner.common.exception.NotFoundError;
 import com.team25.event.planner.common.model.Location;
-import com.team25.event.planner.event.dto.EventFilterDTO;
-import com.team25.event.planner.event.dto.EventPreviewResponseDTO;
-import com.team25.event.planner.event.dto.EventRequestDTO;
-import com.team25.event.planner.event.dto.EventResponseDTO;
+import com.team25.event.planner.event.dto.*;
+import com.team25.event.planner.event.mapper.ActivityMapper;
 import com.team25.event.planner.event.mapper.EventMapper;
-import com.team25.event.planner.event.model.BudgetItem;
-import com.team25.event.planner.event.model.Event;
-import com.team25.event.planner.event.model.EventType;
-import com.team25.event.planner.event.model.PrivacyType;
+import com.team25.event.planner.event.model.*;
 import com.team25.event.planner.event.repository.EventRepository;
 import com.team25.event.planner.event.repository.EventTypeRepository;
 import com.team25.event.planner.event.specification.EventSpecification;
@@ -34,8 +29,8 @@ public class EventService {
     private final EventRepository eventRepository;
     private final EventTypeRepository eventTypeRepository;
     private final EventMapper eventMapper;
+    private final ActivityMapper activityMapper;
     private final EventSpecification eventSpecification;
-
 
     public EventResponseDTO getEventById(Long id) {
         Event event = eventRepository.findById(id).orElseThrow(() -> new NotFoundError("Event not found"));
@@ -157,4 +152,13 @@ public class EventService {
         return false;
     }
 
+    public ActivityResponseDTO addActivityToAgenda(Long eventId, @Valid ActivityRequestDTO activityRequestDTO) {
+        Activity activity = activityMapper.toActivity(activityRequestDTO);
+        return activityMapper.toDTO(activity);
+    }
+
+    public List<ActivityResponseDTO> getEventAgenda(Long eventId) {
+        Event event = eventRepository.findById(eventId).orElseThrow(() -> new NotFoundError("Event not found"));
+        return event.getAgenda().stream().map(activityMapper::toDTO).toList();
+    }
 }
