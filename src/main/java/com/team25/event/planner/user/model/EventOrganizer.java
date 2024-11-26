@@ -32,7 +32,7 @@ public class EventOrganizer extends User {
                           Account account, List<User> blockedUsers, List<User> blockedByUsers,
                           List<Service> favoriteServices, List<Product> favoriteProducts,
                           Location livingAddress, PhoneNumber phoneNumber) {
-        super(id, firstName, lastName, profilePictureUrl, userRole, account, blockedUsers, blockedByUsers, favoriteServices, favoriteProducts);
+        super(id, firstName, lastName, profilePictureUrl, userRole, account, blockedUsers, blockedByUsers, favoriteServices, favoriteProducts, null);
         this.livingAddress = livingAddress;
         this.phoneNumber = phoneNumber;
     }

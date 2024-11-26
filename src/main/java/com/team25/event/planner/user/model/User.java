@@ -1,5 +1,6 @@
 package com.team25.event.planner.user.model;
 
+import com.team25.event.planner.event.model.Event;
 import com.team25.event.planner.offering.product.model.Product;
 import com.team25.event.planner.offering.service.model.Service;
 import jakarta.persistence.*;
@@ -59,6 +60,10 @@ public class User {
     @ManyToMany
     @JoinTable(name = "favorite_products")
     private List<Product> favoriteProducts;
+
+    @ManyToMany
+    @JoinTable(name = "favorite_events")
+    private List<Event> favoriteEvents;
 
     public String getFullName() {
         return firstName + " " + lastName;
