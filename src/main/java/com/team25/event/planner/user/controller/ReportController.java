@@ -11,7 +11,7 @@ import org.springframework.web.bind.annotation.*;
 @RestController
 @RequestMapping("api/users")
 @AllArgsConstructor
-public class UserReportController {
+public class ReportController {
     private final ReportService reportService;
 
     @PostMapping(value = "/{reportedUserId}/report")
