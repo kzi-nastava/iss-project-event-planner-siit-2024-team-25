@@ -46,6 +46,14 @@ public class UserController {
         return new ResponseEntity<>(HttpStatus.NO_CONTENT);
     }
 
+    @PostMapping("/{accountId}/suspend")
+    public ResponseEntity<Void> suspendUser(
+            @PathVariable Long accountId
+    ) {
+        userService.suspendUser(accountId);
+        return new ResponseEntity<>(HttpStatus.NO_CONTENT);
+    }
+
     @GetMapping("/{userId}/profile-picture")
     public ResponseEntity<Resource> getProfilePicture(@PathVariable Long userId) {
         try {

@@ -11,6 +11,8 @@ import com.team25.event.planner.user.mapper.EventOrganizerMapper;
 import com.team25.event.planner.user.mapper.OwnerMapper;
 import com.team25.event.planner.user.mapper.UserMapper;
 import com.team25.event.planner.user.model.*;
+import com.team25.event.planner.user.repository.AccountRepository;
+import com.team25.event.planner.user.repository.SuspensionRepository;
 import com.team25.event.planner.user.repository.UserRepository;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
@@ -28,6 +30,8 @@ public class UserService {
     private final EventOrganizerMapper eventOrganizerMapper;
     private final OwnerMapper ownerMapper;
     private final UserRepository userRepository;
+    private final SuspensionRepository suspensionRepository;
+    private final AccountRepository accountRepository;
 
     public UserResponseDTO getUser(Long userId) {
         User user = getDummyUser(userId);
@@ -132,5 +136,14 @@ public class UserService {
 
 //        userRepository.save(user);
 //        userRepository.save(blockedUser);
+    }
+
+    public void suspendUser(Long accountId) {
+
+        Suspension suspension = new Suspension();
+        suspensionRepository.save(suspension);
+        Account account = accountRepository.findById(accountId).orElseThrow(()-> new NotFoundError("Account not found"));
+        account.setSuspension(suspension);
+        accountRepository.save(account);
     }
 }
