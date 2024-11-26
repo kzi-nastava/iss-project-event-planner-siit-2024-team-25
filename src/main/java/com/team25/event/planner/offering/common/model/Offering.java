@@ -1,9 +1,13 @@
 package com.team25.event.planner.offering.common.model;
 
 import com.team25.event.planner.event.model.EventType;
-
+import com.team25.event.planner.user.model.Owner;
 import jakarta.persistence.*;
-import lombok.*;
+import jakarta.validation.constraints.NotNull;
+import lombok.AllArgsConstructor;
+import lombok.Getter;
+import lombok.NoArgsConstructor;
+import lombok.Setter;
 
 import java.util.Collection;
 import java.util.List;
@@ -38,4 +42,8 @@ public abstract class Offering {
     @ManyToOne
     private OfferingCategory offeringCategory;
 
+    @NotNull(message = "Owner is required")
+    @ManyToOne
+    @JoinColumn(nullable = false)
+    private Owner owner;
 }
