@@ -23,12 +23,8 @@ public class PurchaseController {
                                              @PathVariable("productsId") Long productId,
                                              @RequestBody PurchaseProductRequestDTO requestDTO) {
 
-        try {
-            PurchasedProductResponseDTO success = purchaseService.purchaseProduct(eventId, productId, requestDTO);
-            return ResponseEntity.status(HttpStatus.CREATED).body(success);
-        } catch (Exception e) {
-            throw new RuntimeException(e);
-        }
+       return ResponseEntity.status(HttpStatus.CREATED).body(purchaseService.purchaseProduct(eventId, productId, requestDTO));
+
     }
 
     @PostMapping(value = "/{eventId}/services/{serviceId}/purchase", consumes = MediaType.APPLICATION_JSON_VALUE)
