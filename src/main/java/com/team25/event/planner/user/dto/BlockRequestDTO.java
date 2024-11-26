@@ -4,6 +4,6 @@ import lombok.Data;
 
 @Data
 public class BlockRequestDTO {
-    private final Long blockerId;
-    private final Long blockedId;
+    private final Long blockedUserId;
+    private final String message;
 }

@@ -36,8 +36,11 @@ public class UserController {
         return ResponseEntity.ok(userService.updateUser(userId, userRequestDTO));
     }
 
-    @PostMapping("/block")
-    public ResponseEntity<Void> blockUser(@RequestBody @Valid BlockRequestDTO blockRequestDTO) {
+    @PostMapping("/{userId}/block")
+    public ResponseEntity<Void> blockUser(
+            @PathVariable Long userId,
+            @Valid @RequestBody BlockRequestDTO blockRequestDTO
+    ) {
         return ResponseEntity.ok().build();
     }
 
