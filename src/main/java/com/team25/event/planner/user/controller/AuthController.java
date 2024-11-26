@@ -1,8 +1,6 @@
 package com.team25.event.planner.user.controller;
 
-import com.team25.event.planner.user.dto.PasswordResetRequestDTO;
-import com.team25.event.planner.user.dto.RegisterRequestDTO;
-import com.team25.event.planner.user.dto.RegisterResponseDTO;
+import com.team25.event.planner.user.dto.*;
 import com.team25.event.planner.user.service.AuthService;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
@@ -21,10 +19,13 @@ public class AuthController {
         return ResponseEntity.status(HttpStatus.CREATED).body(authService.register(registerRequestDTO));
     }
 
-    // TODO: login and refresh
+    @PostMapping("/login")
+    public ResponseEntity<LoginResponseDTO> login(@Valid @RequestBody LoginRequestDTO loginRequestDTO) {
+        return ResponseEntity.ok(authService.login(loginRequestDTO));
+    }
 
     // password reset
-    @PutMapping ("/password-reset")
+    @PutMapping("/password-reset")
     public ResponseEntity<Void> resetPassword(@Valid @RequestBody PasswordResetRequestDTO passwordResetRequestDTO) {
         return ResponseEntity.noContent().build();
     }
