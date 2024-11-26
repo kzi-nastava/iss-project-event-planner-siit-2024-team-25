@@ -4,6 +4,7 @@ import com.team25.event.planner.event.dto.EventFilterDTO;
 import com.team25.event.planner.user.dto.ReportFilterDTO;
 import com.team25.event.planner.user.dto.ReportRequestDTO;
 import com.team25.event.planner.user.dto.ReportResponseDTO;
+import com.team25.event.planner.user.dto.ReportUpdateRequestDTO;
 import com.team25.event.planner.user.service.ReportService;
 import lombok.AllArgsConstructor;
 import org.springframework.data.domain.Page;
@@ -35,5 +36,12 @@ public class ReportController {
             @RequestParam(defaultValue = "asc") String sortDirection
     ){
         return  ResponseEntity.ok(reportService.getReports(filter, page, size, sortBy, sortDirection));
+    }
+
+    @PutMapping(value = "/reports")
+    public ResponseEntity<ReportResponseDTO> updateReport(
+            @RequestBody ReportUpdateRequestDTO requestDTO
+    ){
+        return ResponseEntity.status(HttpStatus.CREATED).body(reportService.updateReport(requestDTO));
     }
 }

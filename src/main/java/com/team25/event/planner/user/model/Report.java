@@ -29,5 +29,5 @@ public class Report {
 
     private Instant createdDate;
 
-    private boolean isViewed;
+    private Boolean isViewed;
 }
