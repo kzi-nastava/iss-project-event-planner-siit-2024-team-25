@@ -19,6 +19,8 @@ import java.util.List;
 @NoArgsConstructor
 @AllArgsConstructor
 @Inheritance(strategy = InheritanceType.TABLE_PER_CLASS)
+
+// demo class
 public class Product extends Offering {
     @ManyToMany(mappedBy = "favoriteProducts")
     private List<User> users;

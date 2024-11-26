@@ -8,12 +8,14 @@ import com.team25.event.planner.event.dto.EventPreviewResponseDTO;
 import com.team25.event.planner.event.dto.EventRequestDTO;
 import com.team25.event.planner.event.dto.EventResponseDTO;
 import com.team25.event.planner.event.mapper.EventMapper;
+import com.team25.event.planner.event.model.BudgetItem;
 import com.team25.event.planner.event.model.Event;
 import com.team25.event.planner.event.model.EventType;
 import com.team25.event.planner.event.model.PrivacyType;
 import com.team25.event.planner.event.repository.EventRepository;
 import com.team25.event.planner.event.repository.EventTypeRepository;
 import com.team25.event.planner.event.specification.EventSpecification;
+import com.team25.event.planner.offering.common.model.OfferingCategoryType;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.*;
@@ -22,6 +24,7 @@ import org.springframework.stereotype.Service;
 
 import java.time.LocalDate;
 import java.time.LocalTime;
+import java.util.Collection;
 import java.util.Collections;
 import java.util.List;
 
@@ -137,6 +140,21 @@ public class EventService {
         List<EventPreviewResponseDTO> eventPreviewResponseDTOList = Collections.singletonList(eventPreviewResponseDTO);
 
         return new PageImpl<>(eventPreviewResponseDTOList);
+    }
+
+    public boolean isProductSuitable(double price, OfferingCategoryType offeringCategoryType, Long eventId) {
+        Event event = eventRepository.findById(eventId).orElseThrow(() -> new NotFoundError("Event not found"));
+        Collection<BudgetItem> items = event.getBudgetItemCollection();
+        for (BudgetItem item : items) {
+            if (item.getOfferingCategoryType().equals(offeringCategoryType)) {
+                if (price <= item.getMoney().getAmount()) {
+                    item.getMoney().setAmount(item.getMoney().getAmount()-price);// save to repo
+                    return true;
+                }
+                return false;
+            }
+        }
+        return false;
     }
 
 }

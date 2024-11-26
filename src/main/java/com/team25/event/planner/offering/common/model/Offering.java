@@ -22,9 +22,17 @@ public abstract class Offering {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
+
+    @NotNull(message = "Name is required")
+    @Column(nullable = false)
     private String name;
+
     private String description;
+
+    @NotNull(message = "Price is required")
+    @Column(nullable = false)
     private double price;
+
     private double discount;
 
     @ElementCollection
