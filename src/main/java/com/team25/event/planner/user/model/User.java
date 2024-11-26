@@ -60,7 +60,7 @@ public class User {
     @JoinTable(name = "favorite_products")
     private List<Product> favoriteProducts;
 
-    private String getFullName() {
+    public String getFullName() {
         return firstName + " " + lastName;
     }
 }
