@@ -2,20 +2,16 @@ package com.team25.event.planner.user.dto;
 
 import com.team25.event.planner.common.util.ValidationPatterns;
 import com.team25.event.planner.user.model.UserRole;
-import com.team25.event.planner.user.validation.ValidRoleBasedRegistration;
-import jakarta.annotation.Nullable;
-import jakarta.persistence.Column;
-import jakarta.validation.Valid;
+import com.team25.event.planner.user.validation.AllowedRoles;
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.NotEmpty;
-import jakarta.validation.constraints.NotNull;
 import jakarta.validation.constraints.Pattern;
-import lombok.Data;
-import org.springframework.web.multipart.MultipartFile;
+import lombok.Getter;
+import lombok.Setter;
 
-@Data
-@ValidRoleBasedRegistration
-public class RegisterRequestDTO {
+@Getter
+@Setter
+public class RegisterRequestDTO extends UserRequestDTO {
     @NotBlank(message = "Email is required")
     @Pattern(
             regexp = ValidationPatterns.EMAIL_REGEX,
@@ -30,22 +26,12 @@ public class RegisterRequestDTO {
     )
     private String password;
 
-    @NotBlank(message = "First name is required")
-    private String firstName;
-
-    @NotBlank(message = "Last name is required")
-    private String lastName;
-
-    private MultipartFile profilePicture;
-
-    @NotNull(message = "User role is required")
-    private UserRole userRole;
-
-    @Nullable
-    @Valid
-    private EventOrganizerRequestDTO eventOrganizerFields;
-
-    @Nullable
-    @Valid
-    private OwnerRequestDTO ownerFields;
+    @AllowedRoles(
+            value = {UserRole.EVENT_ORGANIZER, UserRole.OWNER},
+            message = "Only EVENT_ORGANIZER and OWNER roles are allowed"
+    )
+    @Override
+    public UserRole getUserRole() {
+        return super.getUserRole();
+    }
 }
