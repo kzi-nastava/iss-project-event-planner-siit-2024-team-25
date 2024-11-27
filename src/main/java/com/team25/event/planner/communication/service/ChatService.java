@@ -14,10 +14,14 @@ import com.team25.event.planner.event.repository.EventRepository;
 import com.team25.event.planner.user.model.EventOrganizer;
 import com.team25.event.planner.user.model.User;
 import lombok.AllArgsConstructor;
+import org.mapstruct.control.MappingControl;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.context.support.MessageSourceAccessor;
 import org.springframework.stereotype.Service;
 
 import java.time.LocalDateTime;
+import java.util.ArrayList;
+import java.util.Collection;
 import java.util.Objects;
 
 @Service
@@ -98,5 +102,70 @@ public class ChatService {
         message.setTimestamp(LocalDateTime.now());
         //messageRepository.save(message);
         return messageMapper.toDTO(message);
+    }
+
+    public Collection<SendMessageResponseDTO> getChat(Long id){
+        // with repo
+        /*
+        * find chat if exist
+        * chat would have messages where senderId have two different values for id, one for sender and one for receiver
+        * get all messages
+        * transform message to DTOs
+        * returns list of DTOs
+        * finish */
+
+        // prepare data
+        User user1 = new User();
+        user1.setId(1L);
+        user1.setFirstName("Milos");
+
+        EventOrganizer user2 = new EventOrganizer();
+        user2.setId(2L);
+        user2.setFirstName("Mirko");
+
+        Chat chat = new Chat();
+        chat.setId(1L);
+        chat.setUser( user1);
+        chat.setEventOrganizer(user2);
+
+        if(chat.getId()!= id){
+            throw new InvalidRequestError("Error with communication");
+        }
+        Collection<Message> messages = mockData(chat,user1,user2);
+        Collection<SendMessageResponseDTO> responseDTOs = new ArrayList<>();
+        for(Message message: messages){
+            responseDTOs.add(messageMapper.toDTO(message));
+        }
+
+        return responseDTOs;
+    }
+
+    public Collection<Message> mockData(Chat chat, User user1, User user2){
+        Collection<Message> messages = new ArrayList<>();
+        Message message1 = new Message();
+        message1.setId(1L);
+        message1.setChat(chat);
+        message1.setContent("Hello, I have a question about the event.");
+        message1.setTimestamp(LocalDateTime.now());
+        message1.setSender(user1);
+
+        Message message2 = new Message();
+        message2.setId(2L);
+        message2.setChat(chat);
+        message2.setContent("Of course, feel free to ask.");
+        message2.setTimestamp(LocalDateTime.now().plusMinutes(2));
+        message2.setSender(user2);
+
+        Message message3 = new Message();
+        message3.setId(3L);
+        message3.setChat(chat);
+        message3.setContent("Thank you! What time does it start?");
+        message3.setTimestamp(LocalDateTime.now().plusMinutes(5));
+        message3.setSender(user1);
+
+        messages.add(message1);
+        messages.add(message2);
+        messages.add(message3);
+        return messages;
     }
 }
