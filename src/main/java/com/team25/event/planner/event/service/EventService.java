@@ -4,13 +4,18 @@ import com.team25.event.planner.common.exception.InvalidRequestError;
 import com.team25.event.planner.common.exception.NotFoundError;
 import com.team25.event.planner.common.model.Location;
 import com.team25.event.planner.event.dto.*;
-import com.team25.event.planner.event.mapper.ActivityMapper;
+import com.team25.event.planner.event.mapper.EventInvitationMapper;
 import com.team25.event.planner.event.mapper.EventMapper;
+import com.team25.event.planner.event.model.*;
+import com.team25.event.planner.event.repository.EventInvitationRepository;
+import com.team25.event.planner.event.mapper.ActivityMapper;
 import com.team25.event.planner.event.model.*;
 import com.team25.event.planner.event.repository.EventRepository;
 import com.team25.event.planner.event.repository.EventTypeRepository;
 import com.team25.event.planner.event.specification.EventSpecification;
 import com.team25.event.planner.offering.common.model.OfferingCategoryType;
+import com.team25.event.planner.user.model.Account;
+import com.team25.event.planner.user.repository.AccountRepository;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.*;
@@ -31,6 +36,9 @@ public class EventService {
     private final EventMapper eventMapper;
     private final ActivityMapper activityMapper;
     private final EventSpecification eventSpecification;
+    private final AccountRepository accountRepository;
+    private final EventInvitationMapper eventInvitationMapper;
+    private final EventInvitationRepository eventInvitationRepository;
 
     public EventResponseDTO getEventById(Long id) {
         Event event = eventRepository.findById(id).orElseThrow(() -> new NotFoundError("Event not found"));
@@ -152,6 +160,20 @@ public class EventService {
         return false;
     }
 
+    public void sendInvitations(Long eventId, List<EventInvitationRequestDTO> requestDTO) {
+        Event event = eventRepository.findById(eventId).orElseThrow(() -> new NotFoundError("Event not found"));
+        requestDTO.stream().forEach(eventInvitationRequestDTO -> {
+            Account account = accountRepository.findByEmail(eventInvitationRequestDTO.getGuestEmail());
+            if(account != null) {
+                EventInvitation eventInvitation = eventInvitationMapper.toEventInvitation(eventInvitationRequestDTO, event, EventInvitationStatus.PENDING);
+                eventInvitationRepository.save(eventInvitation);
+                //TO-DO send email on guestEmail
+            }else{
+                //TO-DO quick registration
+            }
+        });
+    }
+  
     public ActivityResponseDTO addActivityToAgenda(Long eventId, @Valid ActivityRequestDTO activityRequestDTO) {
         Activity activity = activityMapper.toActivity(activityRequestDTO);
         return activityMapper.toDTO(activity);

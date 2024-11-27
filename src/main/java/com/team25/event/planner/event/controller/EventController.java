@@ -71,6 +71,15 @@ public class EventController {
         return ResponseEntity.noContent().build();
     }
 
+    @PostMapping("/{eventId}/send-invitations")
+    public ResponseEntity<Void> sendInvitations(
+            @PathVariable("eventId") Long eventId,
+            @RequestBody List<EventInvitationRequestDTO> requestDTO
+    ){
+        eventService.sendInvitations(eventId,requestDTO);
+        return ResponseEntity.ok().build();
+    }
+  
     @PostMapping("/{id}/agenda")
     public ResponseEntity<ActivityResponseDTO> addActivityToAgenda(
             @PathVariable("id") Long eventId,
