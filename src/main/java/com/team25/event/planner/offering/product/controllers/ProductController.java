@@ -5,7 +5,10 @@ import com.team25.event.planner.event.dto.EventTypeServiceResponseDTO;
 import com.team25.event.planner.offering.common.dto.OfferingFilterDTO;
 import com.team25.event.planner.offering.common.dto.OfferingPreviewResponseDTO;
 import com.team25.event.planner.offering.product.dto.ProductDetailsResponseDTO;
+import com.team25.event.planner.offering.product.dto.ProductRequestDTO;
+import com.team25.event.planner.offering.product.dto.ProductResponseDTO;
 import com.team25.event.planner.offering.product.service.ProductService;
+import jakarta.validation.Valid;
 import lombok.AllArgsConstructor;
 import org.springframework.data.domain.Page;
 import org.springframework.http.HttpStatus;
@@ -65,5 +68,24 @@ public class ProductController {
             @RequestParam(defaultValue = "asc") String sortDirection
     ){
         return ResponseEntity.ok(productService.getProducts(filter, page, size, sortBy, sortDirection));
+    }
+
+    @PostMapping
+    public ResponseEntity<ProductResponseDTO> createProduct(@Valid @RequestBody ProductRequestDTO productDto) {
+        return ResponseEntity.status(HttpStatus.CREATED).body(productService.createProduct(productDto));
+    }
+
+    @PutMapping("/{id}")
+    public ResponseEntity<ProductResponseDTO> updateProduct(
+            @PathVariable Long id,
+            @Valid @RequestBody ProductRequestDTO productDto
+    ) {
+        return ResponseEntity.ok(productService.updateProduct(id, productDto));
+    }
+
+    @DeleteMapping("/{id}")
+    public ResponseEntity<Void> deleteProduct(@PathVariable Long id) {
+        productService.deleteProduct(id);
+        return ResponseEntity.noContent().build();
     }
 }

@@ -3,7 +3,10 @@ package com.team25.event.planner.offering.product.service;
 import com.team25.event.planner.offering.common.dto.OfferingFilterDTO;
 import com.team25.event.planner.offering.common.dto.OfferingPreviewResponseDTO;
 import com.team25.event.planner.offering.common.mapper.OfferingMapper;
+import com.team25.event.planner.offering.product.dto.ProductRequestDTO;
+import com.team25.event.planner.offering.product.dto.ProductResponseDTO;
 import com.team25.event.planner.offering.product.model.Product;
+import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageImpl;
@@ -27,7 +30,7 @@ public class ProductService {
 //        return offeringRepository.findAll(spec, pageable).map(offeringMapper::toDTO);
     }
 
-    private Page<OfferingPreviewResponseDTO> getMockList(){
+    private Page<OfferingPreviewResponseDTO> getMockList() {
 
         Product product = new Product();
         product.setId(1L);
@@ -37,5 +40,17 @@ public class ProductService {
         List<OfferingPreviewResponseDTO> offerings = new ArrayList<>();
         offerings.add(offeringMapper.toDTO(product));
         return new PageImpl<>(offerings);
+    }
+
+    public ProductResponseDTO createProduct(@Valid ProductRequestDTO productDto) {
+        return null;
+    }
+
+    public ProductResponseDTO updateProduct(Long id, @Valid ProductRequestDTO productDto) {
+        return null;
+    }
+
+    public void deleteProduct(Long id) {
+
     }
 }
