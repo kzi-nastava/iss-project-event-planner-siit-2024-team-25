@@ -1,5 +1,6 @@
 package com.team25.event.planner.user.model;
 
+import com.team25.event.planner.communication.model.Notification;
 import com.team25.event.planner.event.model.Event;
 import com.team25.event.planner.offering.product.model.Product;
 import com.team25.event.planner.offering.service.model.Service;
@@ -64,6 +65,9 @@ public class User {
     @ManyToMany
     @JoinTable(name = "favorite_events")
     private List<Event> favoriteEvents;
+
+    @ManyToMany
+    private List<Notification> notifications;
 
     public String getFullName() {
         return firstName + " " + lastName;

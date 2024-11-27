@@ -9,6 +9,6 @@ public class ReportResponseDTO {
     private Long reportedUserId;
     private String reportedUserFirstName;
     private String reportedUserLastName;
-    private boolean isViewed;
+    private Boolean isViewed;
 
 }
