@@ -15,6 +15,7 @@ import com.team25.event.planner.offering.service.model.Service;
 
 
 import com.team25.event.planner.offering.service.service.ServiceService;
+import jakarta.validation.Valid;
 import lombok.AllArgsConstructor;
 import org.springframework.data.domain.Page;
 import org.springframework.http.HttpStatus;
@@ -191,8 +192,8 @@ public class ServiceController {
     }
 
     @PostMapping(consumes = MediaType.APPLICATION_JSON_VALUE, produces = MediaType.APPLICATION_JSON_VALUE)
-    public ResponseEntity<ServiceCreateResponseDTO> createService(@RequestBody ServiceCreateRequestDTO service) throws Exception {
-        ServiceCreateResponseDTO service1 = new ServiceCreateResponseDTO();
+    public ResponseEntity<ServiceCreateResponseDTO> createService(@Valid @RequestBody ServiceCreateRequestDTO service) throws Exception {
+        /*ServiceCreateResponseDTO service1 = new ServiceCreateResponseDTO();
 
         service1.setId(10L);
         service1.setName(service.getName());
@@ -211,7 +212,9 @@ public class ServiceController {
         service1.setEventTypesIDs(service.getEventTypesIDs());
         service1.setOfferingCategoryID(service.getOfferingCategoryID());
 
-        return new ResponseEntity<ServiceCreateResponseDTO>(service1, HttpStatus.CREATED);
+        return new ResponseEntity<ServiceCreateResponseDTO>(service1, HttpStatus.CREATED);*/
+
+        return new ResponseEntity<ServiceCreateResponseDTO>(serviceService.createService(service), HttpStatus.CREATED);
     }
 
     @PutMapping(value = "/{id}", consumes = MediaType.APPLICATION_JSON_VALUE, produces = MediaType.APPLICATION_JSON_VALUE)

@@ -3,9 +3,16 @@ package com.team25.event.planner.offering.service.service;
 import com.team25.event.planner.offering.common.dto.OfferingFilterDTO;
 import com.team25.event.planner.offering.common.dto.OfferingPreviewResponseDTO;
 import com.team25.event.planner.offering.common.mapper.OfferingMapper;
+import com.team25.event.planner.offering.service.dto.ServiceCreateRequestDTO;
+import com.team25.event.planner.offering.service.dto.ServiceCreateResponseDTO;
+import com.team25.event.planner.offering.service.mapper.ServiceMapper;
+import com.team25.event.planner.offering.service.repository.ServiceRepository;
+import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageImpl;
+import org.springframework.http.HttpStatus;
+import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
 
 import java.util.ArrayList;
@@ -16,7 +23,16 @@ import java.util.List;
 public class ServiceService {
 
     private final OfferingMapper offeringMapper;
+    private final ServiceRepository serviceRepository;
+    private final ServiceMapper serviceMapper;
 
+    public ServiceCreateResponseDTO createService(ServiceCreateRequestDTO requestDTO){
+        com.team25.event.planner.offering.service.model.Service service = serviceMapper.toEntity(requestDTO);
+        service = serviceRepository.save(service);
+        System.out.println(service.toString());
+        return serviceMapper.toDTO(service);
+
+    }
 
     public Page<OfferingPreviewResponseDTO> getServices(OfferingFilterDTO filter, int page, int size, String sortBy, String sortDirection) {
         return getMockList();

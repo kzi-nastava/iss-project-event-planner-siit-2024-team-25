@@ -15,6 +15,7 @@ import java.util.List;
 @NoArgsConstructor
 @AllArgsConstructor
 @MappedSuperclass
+@ToString
 public abstract class Offering {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
@@ -42,6 +43,7 @@ public abstract class Offering {
     private OfferingType status;
 
     @ManyToMany
+    @ToString.Exclude
     private Collection<EventType> eventType;
 
     @ManyToOne
