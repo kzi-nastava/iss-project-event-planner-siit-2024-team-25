@@ -66,7 +66,7 @@ public class EventController {
     }
 
     @DeleteMapping("/{id}")
-    public ResponseEntity<Void> deleteEventType(@PathVariable Long id) {
+    public ResponseEntity<Void> deleteEvent(@PathVariable Long id) {
         eventService.deleteEvent(id);
         return ResponseEntity.noContent().build();
     }
@@ -78,5 +78,20 @@ public class EventController {
     ){
         eventService.sendInvitations(eventId,requestDTO);
         return ResponseEntity.ok().build();
+    }
+  
+    @PostMapping("/{id}/agenda")
+    public ResponseEntity<ActivityResponseDTO> addActivityToAgenda(
+            @PathVariable("id") Long eventId,
+            @Valid @RequestBody ActivityRequestDTO activityRequestDTO
+    ) {
+        return ResponseEntity.status(HttpStatus.CREATED).body(
+                eventService.addActivityToAgenda(eventId, activityRequestDTO)
+        );
+    }
+
+    @GetMapping("/{id}/agenda")
+    public ResponseEntity<List<ActivityResponseDTO>> getAgenda(@PathVariable Long id) {
+        return ResponseEntity.ok(eventService.getEventAgenda(id));
     }
 }

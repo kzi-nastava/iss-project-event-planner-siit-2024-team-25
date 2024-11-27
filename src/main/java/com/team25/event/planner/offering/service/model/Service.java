@@ -8,10 +8,12 @@ import lombok.*;
 import java.util.List;
 
 @Entity
+@Table
 @Getter
 @Setter
 @NoArgsConstructor
 @AllArgsConstructor
+@ToString
 @Inheritance(strategy = InheritanceType.TABLE_PER_CLASS)
 public class Service extends Offering{
     private String specifics;
@@ -23,6 +25,7 @@ public class Service extends Offering{
     private ReservationType reservationType;
 
     @ManyToMany(mappedBy = "favoriteServices")
+    @ToString.Exclude
     private List<User> users;
 
 

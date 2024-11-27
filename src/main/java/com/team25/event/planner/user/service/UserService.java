@@ -1,6 +1,9 @@
 package com.team25.event.planner.user.service;
 
+import com.team25.event.planner.common.exception.NotFoundError;
+import com.team25.event.planner.common.mapper.LocationMapper;
 import com.team25.event.planner.common.model.Location;
+import com.team25.event.planner.user.dto.BlockRequestDTO;
 import com.team25.event.planner.user.dto.RegisterRequestDTO;
 import com.team25.event.planner.user.dto.UserRequestDTO;
 import com.team25.event.planner.user.dto.UserResponseDTO;
@@ -8,9 +11,13 @@ import com.team25.event.planner.user.mapper.EventOrganizerMapper;
 import com.team25.event.planner.user.mapper.OwnerMapper;
 import com.team25.event.planner.user.mapper.UserMapper;
 import com.team25.event.planner.user.model.*;
+import com.team25.event.planner.user.repository.AccountRepository;
+import com.team25.event.planner.user.repository.SuspensionRepository;
+import com.team25.event.planner.user.repository.UserRepository;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.core.io.Resource;
+import org.springframework.data.crossstore.ChangeSetPersister;
 import org.springframework.stereotype.Service;
 
 import java.util.ArrayList;
@@ -22,6 +29,9 @@ public class UserService {
     private final UserMapper userMapper;
     private final EventOrganizerMapper eventOrganizerMapper;
     private final OwnerMapper ownerMapper;
+    private final UserRepository userRepository;
+    private final SuspensionRepository suspensionRepository;
+    private final AccountRepository accountRepository;
 
     public UserResponseDTO getUser(Long userId) {
         User user = getDummyUser(userId);
@@ -111,8 +121,30 @@ public class UserService {
                     null,
                     null,
                     null,
+                    null,
                     null
             );
         };
+    }
+
+    public void blockUser(Long userId, BlockRequestDTO blockRequestDTO) {
+//        User user = userRepository.findById(userId).orElseThrow(()->new NotFoundError("User not found"));
+//        User blockedUser = userRepository.findById(blockRequestDTO.getBlockedUserId()).orElseThrow(()->new NotFoundError("User not found"));
+        User user = getDummyUser(userId);
+        User blockedUser = getDummyUser(blockRequestDTO.getBlockedUserId());
+        user.getBlockedUsers().add(blockedUser);
+        blockedUser.getBlockedByUsers().add(user);
+
+//        userRepository.save(user);
+//        userRepository.save(blockedUser);
+    }
+
+    public void suspendUser(Long accountId) {
+
+        Suspension suspension = new Suspension();
+        suspensionRepository.save(suspension);
+        Account account = accountRepository.findById(accountId).orElseThrow(()-> new NotFoundError("Account not found"));
+        account.setSuspension(suspension);
+        accountRepository.save(account);
     }
 }
