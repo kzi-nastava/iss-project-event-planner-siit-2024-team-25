@@ -4,10 +4,7 @@ import com.team25.event.planner.event.model.EventType;
 import com.team25.event.planner.user.model.Owner;
 import jakarta.persistence.*;
 import jakarta.validation.constraints.NotNull;
-import lombok.AllArgsConstructor;
-import lombok.Getter;
-import lombok.NoArgsConstructor;
-import lombok.Setter;
+import lombok.*;
 
 import java.util.Collection;
 import java.util.List;
