@@ -58,7 +58,7 @@ public class Owner extends User {
             String description,
             List<String> companyPictures
     ) {
-        super(id, firstName, lastName, profilePictureUrl, userRole, account, blockedUsers, blockedByUsers, favoriteServices, favoriteProducts, null);
+        super(id, firstName, lastName, profilePictureUrl, userRole, account, blockedUsers, blockedByUsers, favoriteServices, favoriteProducts, null,null);
         this.companyName = companyName;
         this.companyAddress = companyAddress;
         this.contactPhone = contactPhone;
