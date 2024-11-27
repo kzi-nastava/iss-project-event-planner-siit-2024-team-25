@@ -3,6 +3,8 @@ package com.team25.event.planner.common.model;
 import com.team25.event.planner.event.model.Purchase;
 import com.team25.event.planner.offering.common.model.Offering;
 import jakarta.persistence.*;
+import jakarta.validation.constraints.Max;
+import jakarta.validation.constraints.Min;
 import jakarta.validation.constraints.NotNull;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
@@ -27,6 +29,8 @@ public class Review {
 
     @NotNull(message = "Rating is required")
     @Column(nullable = false)
+    @Min(0)
+    @Max(5)
     private int rating;
 
     @Enumerated(EnumType.STRING)
