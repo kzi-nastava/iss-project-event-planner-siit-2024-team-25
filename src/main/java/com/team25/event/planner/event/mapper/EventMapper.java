@@ -22,6 +22,9 @@ public interface EventMapper {
     Event toEvent(EventRequestDTO eventRequestDTO, EventType eventType);
 
     @Mapping(target = "startDateTime", expression = "java(combineDateAndTime(event.getStartDate(), event.getStartTime()))")
+    @Mapping(target = "country", source = "event.location.country")
+    @Mapping(target = "city", source = "event.location.city")
+    @Mapping(target = "organizerName", source = "event.organizer.firstName")
     EventPreviewResponseDTO toEventPreviewResponseDTO(Event event);
 
     default LocalDateTime combineDateAndTime(LocalDate date, LocalTime time) {

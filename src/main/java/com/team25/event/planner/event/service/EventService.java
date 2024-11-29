@@ -14,16 +14,21 @@ import com.team25.event.planner.event.repository.EventRepository;
 import com.team25.event.planner.event.repository.EventTypeRepository;
 import com.team25.event.planner.event.specification.EventSpecification;
 import com.team25.event.planner.offering.common.model.OfferingCategoryType;
-import com.team25.event.planner.user.model.Account;
+import com.team25.event.planner.offering.product.model.Product;
+import com.team25.event.planner.user.model.*;
 import com.team25.event.planner.user.repository.AccountRepository;
+import com.team25.event.planner.user.repository.EventOrganizerRepository;
+import com.team25.event.planner.user.repository.UserRepository;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.*;
 import org.springframework.data.jpa.domain.Specification;
 import org.springframework.stereotype.Service;
 
+import java.time.Instant;
 import java.time.LocalDate;
 import java.time.LocalTime;
+import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.List;
@@ -39,6 +44,7 @@ public class EventService {
     private final AccountRepository accountRepository;
     private final EventInvitationMapper eventInvitationMapper;
     private final EventInvitationRepository eventInvitationRepository;
+    private final UserRepository userRepository;
 
     public EventResponseDTO getEventById(Long id) {
         Event event = eventRepository.findById(id).orElseThrow(() -> new NotFoundError("Event not found"));
@@ -101,7 +107,7 @@ public class EventService {
     }
 
     public Page<EventPreviewResponseDTO> getAllEvents(EventFilterDTO filter, int page, int size, String sortBy, String sortDirection) {
-        return  getMockList();
+        return  null;
 //      Specification<Event> spec = eventSpecification.createSpecification(filter);
 //      Sort.Direction direction = Sort.Direction.fromString(sortDirection);
 //      Pageable pageable = PageRequest.of(page, size, Sort.by(direction, sortBy));
@@ -111,38 +117,8 @@ public class EventService {
 
     //should return the 5 most recently created events
     public Page<EventPreviewResponseDTO> getTopEvents(String country, String city) {
-        return getMockList();
-    }
-
-
-    private Page<EventPreviewResponseDTO> getMockList(){
-        Event event = new Event();
-        event.setId(1L);
-
-        EventType eventType = new EventType();
-        eventType.setId(1L);
-        eventType.setName("Conference");
-        event.setEventType(eventType);
-
-        event.setName("Tech Conference 2024");
-        event.setDescription("A conference discussing the latest in technology.");
-        event.setMaxParticipants(200);
-        event.setPrivacyType(PrivacyType.Public);
-        event.setStartDate(LocalDate.of(2024, 12, 1));
-        event.setEndDate(LocalDate.of(2024, 12, 3));
-        event.setStartTime(LocalTime.of(9, 0));
-        event.setEndTime(LocalTime.of(17, 0));
-
-        Location location = new Location();
-        location.setAddress("123 Tech Avenue");
-        location.setCity("Tech City");
-        location.setCountry("Techland");
-        event.setLocation(location);
-
-        EventPreviewResponseDTO eventPreviewResponseDTO = eventMapper.toEventPreviewResponseDTO(event);
-        List<EventPreviewResponseDTO> eventPreviewResponseDTOList = Collections.singletonList(eventPreviewResponseDTO);
-
-        return new PageImpl<>(eventPreviewResponseDTOList);
+        PageRequest pageable = PageRequest.of(0, 5);
+        return eventRepository.findAllByOrderByCreatedDateDesc(pageable).map(eventMapper::toEventPreviewResponseDTO);
     }
 
     public boolean isProductSuitable(double price, OfferingCategoryType offeringCategoryType, Long eventId) {

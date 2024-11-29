@@ -12,4 +12,7 @@ public class EventPreviewResponseDTO {
     private String name;
     private String description;
     private LocalDateTime startDateTime;
+    private String city;
+    private String country;
+    private String organizerName;
 }
