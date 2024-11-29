@@ -8,6 +8,10 @@ import com.team25.event.planner.event.model.EventType;
 import org.mapstruct.Mapper;
 import org.mapstruct.Mapping;
 
+import java.time.LocalDate;
+import java.time.LocalDateTime;
+import java.time.LocalTime;
+
 @Mapper(componentModel = "spring", uses = EventTypeMapper.class)
 public interface EventMapper {
     EventResponseDTO toDTO(Event event);
@@ -17,6 +21,13 @@ public interface EventMapper {
     @Mapping(target = "description", source = "eventRequestDTO.description")
     Event toEvent(EventRequestDTO eventRequestDTO, EventType eventType);
 
+    @Mapping(target = "startDateTime", expression = "java(combineDateAndTime(event.getStartDate(), event.getStartTime()))")
     EventPreviewResponseDTO toEventPreviewResponseDTO(Event event);
 
+    default LocalDateTime combineDateAndTime(LocalDate date, LocalTime time) {
+        if (date == null || time == null) {
+            return null;
+        }
+        return LocalDateTime.of(date, time);
+    }
 }
