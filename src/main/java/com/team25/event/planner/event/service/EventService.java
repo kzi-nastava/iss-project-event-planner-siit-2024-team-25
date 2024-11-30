@@ -115,10 +115,12 @@ public class EventService {
 
     }
 
-    //should return the 5 most recently created events
+
     public Page<EventPreviewResponseDTO> getTopEvents(String country, String city) {
         PageRequest pageable = PageRequest.of(0, 5);
-        return eventRepository.findAllByOrderByCreatedDateDesc(pageable).map(eventMapper::toEventPreviewResponseDTO);
+        return eventRepository
+                .findTopEventsByCountryAndCity(country, city, pageable)
+                .map(eventMapper::toEventPreviewResponseDTO);
     }
 
     public boolean isProductSuitable(double price, OfferingCategoryType offeringCategoryType, Long eventId) {
