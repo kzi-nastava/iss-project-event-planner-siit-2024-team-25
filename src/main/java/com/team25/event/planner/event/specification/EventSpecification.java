@@ -2,6 +2,7 @@ package com.team25.event.planner.event.specification;
 
 import com.team25.event.planner.event.dto.EventFilterDTO;
 import com.team25.event.planner.event.model.Event;
+import com.team25.event.planner.event.model.PrivacyType;
 import jakarta.persistence.criteria.Predicate;
 import org.springframework.data.jpa.domain.Specification;
 import org.springframework.stereotype.Component;
@@ -63,6 +64,10 @@ public class EventSpecification {
 
             if (filter.getCity() != null) {
                 predicates.add(cb.equal(root.get("location").get("city"), filter.getCity()));
+            }
+
+            if(filter.getPrivacyType() == null) {
+                predicates.add(cb.equal(root.get("privacyType"), PrivacyType.Public));
             }
 
             return cb.and(predicates.toArray(new Predicate[0]));
