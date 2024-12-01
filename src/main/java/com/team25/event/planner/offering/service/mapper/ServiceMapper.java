@@ -3,6 +3,7 @@ package com.team25.event.planner.offering.service.mapper;
 
 import com.team25.event.planner.event.model.EventType;
 import com.team25.event.planner.offering.common.model.OfferingCategory;
+import com.team25.event.planner.offering.service.dto.ServiceCardResponseDTO;
 import com.team25.event.planner.offering.service.dto.ServiceCreateRequestDTO;
 import com.team25.event.planner.offering.service.dto.ServiceCreateResponseDTO;
 import com.team25.event.planner.offering.service.model.Service;
@@ -43,6 +44,16 @@ public interface ServiceMapper {
             return null;
         }
         return entities.stream().map(this::mapEventTypeToId).toList();
+    }
+
+    @Mapping(source = "images", target = "image")
+    ServiceCardResponseDTO toCardDTO(Service service);
+
+    default String mapFirstImage(List<String> images) {
+        if (images == null || images.isEmpty()) {
+            return null;
+        }
+        return images.getFirst();
     }
 
 }

@@ -1,5 +1,6 @@
 package com.team25.event.planner.offering.service.controller;
 
+import com.team25.event.planner.event.dto.EventFilterDTO;
 import com.team25.event.planner.event.dto.EventTypePreviewResponseDTO;
 import com.team25.event.planner.offering.common.dto.OfferingCategoryServiceResponseDTO;
 
@@ -42,15 +43,26 @@ public class ServiceController {
         return new ResponseEntity<Collection<ServiceResponseDTO>>(services, HttpStatus.OK);
     }
 
+    @GetMapping
+    public ResponseEntity<Page<ServiceCardResponseDTO>> getServices(
+            @ModelAttribute ServiceFilterDTO filter,
+            @RequestParam(defaultValue = "0") int page,
+            @RequestParam(defaultValue = "5") int size,
+            @RequestParam(defaultValue = "name") String sortBy,
+            @RequestParam(defaultValue = "asc") String sortDirection
+    ){
+        return ResponseEntity.ok(serviceService.getServices(filter, page, size, sortBy, sortDirection));
+    }
+
     @GetMapping("/all")
-    public ResponseEntity<Page<OfferingPreviewResponseDTO>> getServices(
+    public ResponseEntity<Page<OfferingPreviewResponseDTO>> getAllServices(
             @ModelAttribute OfferingFilterDTO filter,
             @RequestParam(defaultValue = "0") int page,
             @RequestParam(defaultValue = "10") int size,
             @RequestParam(defaultValue = "name") String sortBy,
             @RequestParam(defaultValue = "asc") String sortDirection
     ){
-        return ResponseEntity.ok(serviceService.getServices(filter, page, size, sortBy, sortDirection));
+        return ResponseEntity.ok(serviceService.getAllServices(filter, page, size, sortBy, sortDirection));
     }
 
     @GetMapping(value = "/{id}", produces = MediaType.APPLICATION_JSON_VALUE)

@@ -12,10 +12,13 @@ import com.team25.event.planner.offering.common.model.OfferingCategoryType;
 import com.team25.event.planner.offering.common.model.OfferingType;
 import com.team25.event.planner.offering.common.repository.OfferingCategoryRepository;
 import com.team25.event.planner.offering.product.model.Product;
+import com.team25.event.planner.offering.service.dto.ServiceCardResponseDTO;
 import com.team25.event.planner.offering.service.dto.ServiceCreateRequestDTO;
 import com.team25.event.planner.offering.service.dto.ServiceCreateResponseDTO;
+import com.team25.event.planner.offering.service.dto.ServiceFilterDTO;
 import com.team25.event.planner.offering.service.mapper.ServiceMapper;
 import com.team25.event.planner.offering.service.repository.ServiceRepository;
+import com.team25.event.planner.offering.service.specification.ServiceSpecification;
 import com.team25.event.planner.user.model.*;
 import com.team25.event.planner.user.repository.AccountRepository;
 import com.team25.event.planner.user.repository.UserRepository;
@@ -24,8 +27,8 @@ import lombok.RequiredArgsConstructor;
 import org.mapstruct.AfterMapping;
 import org.mapstruct.MappingTarget;
 import org.mapstruct.control.MappingControl;
-import org.springframework.data.domain.Page;
-import org.springframework.data.domain.PageImpl;
+import org.springframework.data.domain.*;
+import org.springframework.data.jpa.domain.Specification;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
@@ -42,6 +45,7 @@ public class ServiceService {
     private final OfferingMapper offeringMapper;
     private final ServiceRepository serviceRepository;
     private final ServiceMapper serviceMapper;
+    private final ServiceSpecification serviceSpecification;
 
     public ServiceCreateResponseDTO createService(ServiceCreateRequestDTO requestDTO){
 
@@ -58,7 +62,14 @@ public class ServiceService {
 
     }
 
-    public Page<OfferingPreviewResponseDTO> getServices(OfferingFilterDTO filter, int page, int size, String sortBy, String sortDirection) {
+    public Page<ServiceCardResponseDTO> getServices(ServiceFilterDTO filter, int page, int size, String sortBy, String sortDirection){
+        Specification<com.team25.event.planner.offering.service.model.Service> specification = serviceSpecification.createSpecification(filter);
+        Sort.Direction direction = Sort.Direction.fromString(sortDirection);
+        Pageable pageable = PageRequest.of(page, size, Sort.by(direction, sortBy));
+        return serviceRepository.findAll(specification, pageable).map(serviceMapper::toCardDTO);
+    }
+
+    public Page<OfferingPreviewResponseDTO> getAllServices(OfferingFilterDTO filter, int page, int size, String sortBy, String sortDirection) {
         return getMockList();
 
 //        Specification<Offering> spec = offeringSpecificarion.createSpecification(filter);
