@@ -119,7 +119,7 @@ public class EventService {
     public Page<EventPreviewResponseDTO> getTopEvents(String country, String city) {
         PageRequest pageable = PageRequest.of(0, 5);
         return eventRepository
-                .findTopEventsByCountryAndCity(country, city, pageable)
+                .findTopEvents(country, city, pageable)
                 .map(eventMapper::toEventPreviewResponseDTO);
     }
 
