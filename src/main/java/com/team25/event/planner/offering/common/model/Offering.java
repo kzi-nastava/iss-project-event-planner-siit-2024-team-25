@@ -3,6 +3,7 @@ package com.team25.event.planner.offering.common.model;
 import com.team25.event.planner.event.model.EventType;
 import com.team25.event.planner.user.model.Owner;
 import jakarta.persistence.*;
+import jakarta.validation.constraints.NotEmpty;
 import jakarta.validation.constraints.NotNull;
 import lombok.*;
 
@@ -25,26 +26,34 @@ public abstract class Offering {
     @Column(nullable = false)
     private String name;
 
+    @NotNull(message = "Description is required")
+    @Column(nullable = false)
     private String description;
 
     @NotNull(message = "Price is required")
     @Column(nullable = false)
     private double price;
 
-    private double discount;
+    private double discount = 0.0;
 
     @ElementCollection
     @Column(name = "images_url")
+    @NotEmpty(message = "Service images must contain at least one element.")
     private List<String> images;
 
 
-    private boolean isVisible;
-    private boolean isAvailable;
+    private boolean isVisible = false;
+    private boolean isAvailable = false;
+
+    @NotNull(message = "Status is required")
+    @Column(nullable = false)
+    //@Enumerated(EnumType.STRING)
     private OfferingType status;
 
     @ManyToMany
     @ToString.Exclude
-    private Collection<EventType> eventType;
+    @NotEmpty(message = "Service must contain at least one event type.")
+    private Collection<EventType> eventTypes;
 
     @ManyToOne
     private OfferingCategory offeringCategory;

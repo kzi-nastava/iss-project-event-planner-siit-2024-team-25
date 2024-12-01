@@ -1,14 +1,29 @@
 package com.team25.event.planner.offering.service.service;
 
+import com.team25.event.planner.common.exception.InvalidRequestError;
+import com.team25.event.planner.common.model.Location;
+import com.team25.event.planner.event.model.EventType;
+import com.team25.event.planner.event.repository.EventTypeRepository;
 import com.team25.event.planner.offering.common.dto.OfferingFilterDTO;
 import com.team25.event.planner.offering.common.dto.OfferingPreviewResponseDTO;
 import com.team25.event.planner.offering.common.mapper.OfferingMapper;
+import com.team25.event.planner.offering.common.model.OfferingCategory;
+import com.team25.event.planner.offering.common.model.OfferingCategoryType;
+import com.team25.event.planner.offering.common.model.OfferingType;
+import com.team25.event.planner.offering.common.repository.OfferingCategoryRepository;
+import com.team25.event.planner.offering.product.model.Product;
 import com.team25.event.planner.offering.service.dto.ServiceCreateRequestDTO;
 import com.team25.event.planner.offering.service.dto.ServiceCreateResponseDTO;
 import com.team25.event.planner.offering.service.mapper.ServiceMapper;
 import com.team25.event.planner.offering.service.repository.ServiceRepository;
+import com.team25.event.planner.user.model.*;
+import com.team25.event.planner.user.repository.AccountRepository;
+import com.team25.event.planner.user.repository.UserRepository;
 import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
+import org.mapstruct.AfterMapping;
+import org.mapstruct.MappingTarget;
+import org.mapstruct.control.MappingControl;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageImpl;
 import org.springframework.http.HttpStatus;
@@ -16,7 +31,9 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
 
 import java.util.ArrayList;
+import java.util.Collection;
 import java.util.List;
+import java.util.Optional;
 
 @Service
 @RequiredArgsConstructor
@@ -27,9 +44,16 @@ public class ServiceService {
     private final ServiceMapper serviceMapper;
 
     public ServiceCreateResponseDTO createService(ServiceCreateRequestDTO requestDTO){
+
         com.team25.event.planner.offering.service.model.Service service = serviceMapper.toEntity(requestDTO);
+
+        if(service.getOfferingCategory() == null){
+            service.setStatus(OfferingType.PENDING);
+        }else{
+            service.setStatus(OfferingType.ACCEPTED);
+        }
+
         service = serviceRepository.save(service);
-        System.out.println(service.toString());
         return serviceMapper.toDTO(service);
 
     }

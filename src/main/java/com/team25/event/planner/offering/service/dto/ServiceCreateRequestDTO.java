@@ -19,14 +19,14 @@ public class ServiceCreateRequestDTO {
     private double price;
     private double discount;
     private List<String> images;
-    private boolean isActive;
+    private boolean isVisible;
     private boolean isAvailable;
     private String specifics;
-    private OfferingType status;
     private ReservationType reservationType;
     private int duration;
     private int reservationDeadline;
     private int cancellationDeadline;
     private List<Long> eventTypesIDs;
-    private Long OfferingCategoryID;
+    private Long offeringCategoryID;
+    private Long ownerId;
 }
