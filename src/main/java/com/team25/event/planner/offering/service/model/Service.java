@@ -14,7 +14,6 @@ import java.util.List;
 @NoArgsConstructor
 @AllArgsConstructor
 @ToString
-@Inheritance(strategy = InheritanceType.TABLE_PER_CLASS)
 public class Service extends Offering{
     private String specifics;
     private int duration;
