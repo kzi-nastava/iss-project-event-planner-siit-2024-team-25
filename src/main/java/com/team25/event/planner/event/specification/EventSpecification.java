@@ -7,6 +7,7 @@ import jakarta.persistence.criteria.Predicate;
 import org.springframework.data.jpa.domain.Specification;
 import org.springframework.stereotype.Component;
 
+import java.time.LocalDate;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -36,6 +37,9 @@ public class EventSpecification {
 
             if (filter.getStartDate() != null) {
                 predicates.add(cb.greaterThanOrEqualTo(root.get("startDate"), filter.getStartDate()));
+            }
+            else{
+                predicates.add(cb.greaterThanOrEqualTo(root.get("startDate"), LocalDate.now()));
             }
 
             if (filter.getEndDate() != null) {
