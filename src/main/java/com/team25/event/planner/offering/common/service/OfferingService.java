@@ -1,6 +1,5 @@
 package com.team25.event.planner.offering.common.service;
 
-import com.team25.event.planner.event.model.Event;
 import com.team25.event.planner.offering.common.dto.OfferingFilterDTO;
 import com.team25.event.planner.offering.common.dto.OfferingPreviewResponseDTO;
 import com.team25.event.planner.offering.common.mapper.OfferingMapper;
@@ -26,12 +25,10 @@ public class OfferingService {
     private final OfferingSpecificarion offeringSpecificarion;
 
     public Page<OfferingPreviewResponseDTO> getOfferings(OfferingFilterDTO filter, int page, int size, String sortBy, String sortDirection) {
-        return getMockList();
-
-//        Specification<Offering> spec = offeringSpecificarion.createSpecification(filter);
-//        Sort.Direction direction = Sort.Direction.fromString(sortDirection);
-//        Pageable pageable = PageRequest.of(page, size, Sort.by(direction, sortBy));
-//        return offeringRepository.findAll(spec, pageable).map(offeringMapper::toDTO);
+        Specification<Offering> spec = offeringSpecificarion.createSpecification(filter);
+        Sort.Direction direction = Sort.Direction.fromString(sortDirection);
+        Pageable pageable = PageRequest.of(page, size, Sort.by(direction, sortBy));
+        return offeringRepository.findAll(spec, pageable).map(offeringMapper::toDTO);
     }
     public Page<OfferingPreviewResponseDTO> getTopOfferings(String country, String city) {
         return getMockList();

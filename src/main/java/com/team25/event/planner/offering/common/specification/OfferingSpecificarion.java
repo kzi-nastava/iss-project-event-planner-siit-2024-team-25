@@ -11,7 +11,7 @@ import java.util.List;
 
 @Component
 public class OfferingSpecificarion {
-    public Specification<Offering> createspecification(OfferingFilterDTO filter) {
+    public Specification<Offering> createSpecification(OfferingFilterDTO filter) {
         return (root, query, cb) -> {
             List<Predicate> predicates = new ArrayList<>();
 
