@@ -19,6 +19,10 @@ import com.team25.event.planner.user.model.*;
 import com.team25.event.planner.user.repository.AccountRepository;
 import com.team25.event.planner.user.repository.EventOrganizerRepository;
 import com.team25.event.planner.user.repository.UserRepository;
+import jakarta.persistence.criteria.CriteriaBuilder;
+import jakarta.persistence.criteria.CriteriaQuery;
+import jakarta.persistence.criteria.Predicate;
+import jakarta.persistence.criteria.Root;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.*;
@@ -107,12 +111,10 @@ public class EventService {
     }
 
     public Page<EventPreviewResponseDTO> getAllEvents(EventFilterDTO filter, int page, int size, String sortBy, String sortDirection) {
-        return  null;
-//      Specification<Event> spec = eventSpecification.createSpecification(filter);
-//      Sort.Direction direction = Sort.Direction.fromString(sortDirection);
-//      Pageable pageable = PageRequest.of(page, size, Sort.by(direction, sortBy));
-//      return eventRepository.findAll(spec, pageable).map(eventPreviewMapper::toDTO);
-
+      Specification<Event> spec = eventSpecification.createSpecification(filter);
+      Sort.Direction direction = Sort.Direction.fromString(sortDirection);
+      Pageable pageable = PageRequest.of(page, size, Sort.by(direction, sortBy));
+      return eventRepository.findAll(spec, pageable).map(eventMapper::toEventPreviewResponseDTO);
     }
 
 
