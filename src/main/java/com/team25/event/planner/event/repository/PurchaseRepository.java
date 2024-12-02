@@ -13,7 +13,7 @@ public interface PurchaseRepository extends JpaRepository<Purchase, Long> {
     @Query("""
     SELECT CASE WHEN COUNT(p) = 0 THEN true ELSE false END
     FROM Purchase p
-    WHERE p.service.id = :serviceId
+    WHERE p.offering.id = :serviceId
       AND(
           (p.startDate < :endDate AND p.endDate > :startDate)
           OR (p.startDate = :endDate AND p.startTime < :endTime)

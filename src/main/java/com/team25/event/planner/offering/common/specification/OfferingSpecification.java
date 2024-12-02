@@ -10,7 +10,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 @Component
-public class OfferingSpecificarion {
+public class OfferingSpecification {
     public Specification<Offering> createSpecification(OfferingFilterDTO filter) {
         return (root, query, cb) -> {
             List<Predicate> predicates = new ArrayList<>();
