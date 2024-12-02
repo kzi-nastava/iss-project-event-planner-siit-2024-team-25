@@ -16,7 +16,7 @@ public class ServiceCreateResponseDTO {
     private double price;
     private double discount;
     private List<String> images;
-    private boolean isActive;
+    private boolean isVisible;
     private boolean isAvailable;
     private String specifics;
     private OfferingType status;
@@ -26,4 +26,5 @@ public class ServiceCreateResponseDTO {
     private int cancellationDeadline;
     private List<Long> eventTypesIDs;
     private Long OfferingCategoryID;
+    private Long ownerID;
 }

@@ -1,5 +1,6 @@
 package com.team25.event.planner.offering.service.controller;
 
+import com.team25.event.planner.event.dto.EventFilterDTO;
 import com.team25.event.planner.event.dto.EventTypePreviewResponseDTO;
 import com.team25.event.planner.offering.common.dto.OfferingCategoryServiceResponseDTO;
 
@@ -42,15 +43,26 @@ public class ServiceController {
         return new ResponseEntity<Collection<ServiceResponseDTO>>(services, HttpStatus.OK);
     }
 
+    @GetMapping
+    public ResponseEntity<Page<ServiceCardResponseDTO>> getServices(
+            @ModelAttribute ServiceFilterDTO filter,
+            @RequestParam(defaultValue = "0") int page,
+            @RequestParam(defaultValue = "5") int size,
+            @RequestParam(defaultValue = "name") String sortBy,
+            @RequestParam(defaultValue = "asc") String sortDirection
+    ){
+        return ResponseEntity.ok(serviceService.getServices(filter, page, size, sortBy, sortDirection));
+    }
+
     @GetMapping("/all")
-    public ResponseEntity<Page<OfferingPreviewResponseDTO>> getServices(
+    public ResponseEntity<Page<OfferingPreviewResponseDTO>> getAllServices(
             @ModelAttribute OfferingFilterDTO filter,
             @RequestParam(defaultValue = "0") int page,
             @RequestParam(defaultValue = "10") int size,
             @RequestParam(defaultValue = "name") String sortBy,
             @RequestParam(defaultValue = "asc") String sortDirection
     ){
-        return ResponseEntity.ok(serviceService.getServices(filter, page, size, sortBy, sortDirection));
+        return ResponseEntity.ok(serviceService.getAllServices(filter, page, size, sortBy, sortDirection));
     }
 
     @GetMapping(value = "/{id}", produces = MediaType.APPLICATION_JSON_VALUE)
@@ -192,29 +204,9 @@ public class ServiceController {
     }
 
     @PostMapping(consumes = MediaType.APPLICATION_JSON_VALUE, produces = MediaType.APPLICATION_JSON_VALUE)
-    public ResponseEntity<ServiceCreateResponseDTO> createService(@Valid @RequestBody ServiceCreateRequestDTO service) throws Exception {
-        /*ServiceCreateResponseDTO service1 = new ServiceCreateResponseDTO();
+    public ResponseEntity<ServiceCreateResponseDTO> createService(@Valid @RequestBody ServiceCreateRequestDTO serviceDTO) throws Exception {
 
-        service1.setId(10L);
-        service1.setName(service.getName());
-        service1.setDescription(service.getDescription());
-        service1.setPrice(service.getPrice());
-        service1.setDiscount(service.getDiscount());
-        service1.setImages(service.getImages());
-        service1.setActive(service.isActive());
-        service1.setAvailable(service.isAvailable());
-        service1.setSpecifics(service.getSpecifics());
-        service1.setStatus(service.getStatus());
-        service1.setReservationType(service.getReservationType());
-        service1.setDuration(service.getDuration());
-        service1.setReservationDeadline(service.getReservationDeadline());
-        service1.setCancellationDeadline(service.getCancellationDeadline());
-        service1.setEventTypesIDs(service.getEventTypesIDs());
-        service1.setOfferingCategoryID(service.getOfferingCategoryID());
-
-        return new ResponseEntity<ServiceCreateResponseDTO>(service1, HttpStatus.CREATED);*/
-
-        return new ResponseEntity<ServiceCreateResponseDTO>(serviceService.createService(service), HttpStatus.CREATED);
+        return new ResponseEntity<ServiceCreateResponseDTO>(serviceService.createService(serviceDTO), HttpStatus.CREATED);
     }
 
     @PutMapping(value = "/{id}", consumes = MediaType.APPLICATION_JSON_VALUE, produces = MediaType.APPLICATION_JSON_VALUE)

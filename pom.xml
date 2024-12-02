@@ -132,6 +132,7 @@
 					<cleanDisabled>false</cleanDisabled>
 				</configuration>
 			</plugin>
+
 		</plugins>
 	</build>
 
