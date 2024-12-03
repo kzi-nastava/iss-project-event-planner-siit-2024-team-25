@@ -9,7 +9,6 @@ import org.mapstruct.Mapping;
 @Mapper(componentModel = "spring")
 public interface UserMapper {
     @Mapping(target = "id", ignore = true)
-    @Mapping(target = "profilePictureUrl", ignore = true)
     User toUser(UserRequestDTO userRequestDTO);
 
     UserResponseDTO toDTO(User user);

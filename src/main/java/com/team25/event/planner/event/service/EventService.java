@@ -2,39 +2,30 @@ package com.team25.event.planner.event.service;
 
 import com.team25.event.planner.common.exception.InvalidRequestError;
 import com.team25.event.planner.common.exception.NotFoundError;
-import com.team25.event.planner.common.model.Location;
 import com.team25.event.planner.event.dto.*;
+import com.team25.event.planner.event.mapper.ActivityMapper;
 import com.team25.event.planner.event.mapper.EventInvitationMapper;
 import com.team25.event.planner.event.mapper.EventMapper;
 import com.team25.event.planner.event.model.*;
 import com.team25.event.planner.event.repository.EventInvitationRepository;
-import com.team25.event.planner.event.mapper.ActivityMapper;
-import com.team25.event.planner.event.model.*;
 import com.team25.event.planner.event.repository.EventRepository;
 import com.team25.event.planner.event.repository.EventTypeRepository;
 import com.team25.event.planner.event.specification.EventSpecification;
 import com.team25.event.planner.offering.common.model.OfferingCategoryType;
-import com.team25.event.planner.offering.product.model.Product;
-import com.team25.event.planner.user.model.*;
+import com.team25.event.planner.user.model.Account;
 import com.team25.event.planner.user.repository.AccountRepository;
-import com.team25.event.planner.user.repository.EventOrganizerRepository;
 import com.team25.event.planner.user.repository.UserRepository;
-import jakarta.persistence.criteria.CriteriaBuilder;
-import jakarta.persistence.criteria.CriteriaQuery;
-import jakarta.persistence.criteria.Predicate;
-import jakarta.persistence.criteria.Root;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
-import org.springframework.data.domain.*;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
+import org.springframework.data.domain.Sort;
 import org.springframework.data.jpa.domain.Specification;
 import org.springframework.stereotype.Service;
 
-import java.time.Instant;
 import java.time.LocalDate;
-import java.time.LocalTime;
-import java.util.ArrayList;
 import java.util.Collection;
-import java.util.Collections;
 import java.util.List;
 
 @Service
@@ -143,7 +134,7 @@ public class EventService {
     public void sendInvitations(Long eventId, List<EventInvitationRequestDTO> requestDTO) {
         Event event = eventRepository.findById(eventId).orElseThrow(() -> new NotFoundError("Event not found"));
         requestDTO.stream().forEach(eventInvitationRequestDTO -> {
-            Account account = accountRepository.findByEmail(eventInvitationRequestDTO.getGuestEmail());
+            Account account = accountRepository.findByEmail(eventInvitationRequestDTO.getGuestEmail()).orElse(null);
             if(account != null) {
                 EventInvitation eventInvitation = eventInvitationMapper.toEventInvitation(eventInvitationRequestDTO, event, EventInvitationStatus.PENDING);
                 eventInvitationRepository.save(eventInvitation);
@@ -153,7 +144,7 @@ public class EventService {
             }
         });
     }
-  
+
     public ActivityResponseDTO addActivityToAgenda(Long eventId, @Valid ActivityRequestDTO activityRequestDTO) {
         Activity activity = activityMapper.toActivity(activityRequestDTO);
         return activityMapper.toDTO(activity);

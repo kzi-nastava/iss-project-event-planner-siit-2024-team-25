@@ -4,15 +4,13 @@ import com.team25.event.planner.common.util.ValidationPatterns;
 import jakarta.persistence.*;
 import jakarta.validation.constraints.NotNull;
 import jakarta.validation.constraints.Pattern;
-import lombok.AllArgsConstructor;
-import lombok.Getter;
-import lombok.NoArgsConstructor;
-import lombok.Setter;
+import lombok.*;
 
 @Getter
 @Setter
 @NoArgsConstructor
 @AllArgsConstructor
+@Builder
 @Entity
 @Table(name = "accounts")
 public class Account {
@@ -25,20 +23,16 @@ public class Account {
             regexp = ValidationPatterns.EMAIL_REGEX,
             message = "Email must be valid"
     )
-    @Column(nullable = false)
+    @Column(nullable = false, unique = true)
     private String email;
 
     @NotNull(message = "Password is required")
-    @Pattern(
-            regexp = ValidationPatterns.PASSWORD_REGEX,
-            message = "Password must contain at least 8 characters, at least one letter and one number"
-    )
     @Column(nullable = false)
     private String password;
 
     @NotNull(message = "Account status is required")
     @Column(nullable = false)
-    @Enumerated(EnumType.ORDINAL)
+    @Enumerated(EnumType.STRING)
     private AccountStatus status;
 
     @OneToOne

@@ -5,5 +5,5 @@ import lombok.Data;
 @Data
 public class TestEmailBodyDTO {
     private final String recipientName;
-    private final String loginUrlPath;
+    private final String loginUrl;
 }
