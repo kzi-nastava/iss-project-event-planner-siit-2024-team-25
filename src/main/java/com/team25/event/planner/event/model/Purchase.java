@@ -1,5 +1,6 @@
 package com.team25.event.planner.event.model;
 
+import com.team25.event.planner.offering.common.model.Offering;
 import com.team25.event.planner.offering.product.model.Product;
 import com.team25.event.planner.offering.service.model.Service;
 import jakarta.persistence.*;
@@ -14,6 +15,7 @@ import java.time.LocalTime;
 @Setter
 @NoArgsConstructor
 @AllArgsConstructor
+@Table(name = "purchases")
 public class Purchase {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
@@ -43,12 +45,6 @@ public class Purchase {
     @ManyToOne
     private Event event;
 
-    // Attribute should not be mapped super class
     @ManyToOne
-    private Product product;
-
-    @ManyToOne
-    private Service service;
-
-
+    private Offering offering;
 }

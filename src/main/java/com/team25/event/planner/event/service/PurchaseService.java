@@ -88,6 +88,6 @@ public class PurchaseService {
 
 
     private boolean isServiceAvailable(Purchase purchase){
-        return purchaseRepository.isAvailable(purchase.getService().getId(),purchase.getStartDate(), purchase.getStartTime(), purchase.getEndDate(), purchase.getEndTime());
+        return purchaseRepository.isAvailable(purchase.getOffering().getId(),purchase.getStartDate(), purchase.getStartTime(), purchase.getEndDate(), purchase.getEndTime());
     }
 }

@@ -10,9 +10,9 @@ import org.mapstruct.Mapping;
 
 @Mapper(componentModel = "spring")
 public interface PurchaseMapper {
-    @Mapping(target = "offeringCategoryId", source = "purchase.service.offeringCategory.id")
+    @Mapping(target = "offeringCategoryId", source = "purchase.offering.offeringCategory.id")
     @Mapping(target = "eventId", source = "purchase.event.id")
-    @Mapping(target = "serviceId", source = "purchase.service.id")
+    @Mapping(target = "serviceId", source = "purchase.offering.id")
     PurchaseServiceResponseDTO toServiceResponseDTO(Purchase purchase);
 
     @Mapping(target = "id", ignore = true)
@@ -22,6 +22,6 @@ public interface PurchaseMapper {
     @Mapping(target = "startTime", source = "purchaseServiceRequestDTO.startTime")
     @Mapping(target = "endTime", source = "purchaseServiceRequestDTO.endTime")
     @Mapping(target = "event", source = "event")
-    @Mapping(target = "service", source = "service")
+    @Mapping(target = "offering", source = "service")
     Purchase toPurchase(PurchaseServiceRequestDTO purchaseServiceRequestDTO, Event event, Service service);
 }
