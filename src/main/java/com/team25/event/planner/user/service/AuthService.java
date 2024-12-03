@@ -76,7 +76,7 @@ public class AuthService {
     public void activateAccount(@Valid VerificationCodeDTO dto) {
         RegistrationRequest registrationRequest
                 = registrationRequestRepository.findByVerificationCode(dto.getVerificationCode())
-                .orElseThrow(NotFoundError::new);
+                .orElseThrow(() -> new NotFoundError("Activation code invalid or expired"));
 
         if (accountRepository.existsByEmail(registrationRequest.getEmail())) {
             throw new InvalidRequestError("Email address is already taken");
@@ -84,7 +84,7 @@ public class AuthService {
 
         if (registrationRequest.getExpirationTime().isBefore(Instant.now())) {
             registrationRequestRepository.delete(registrationRequest);
-            throw new NotFoundError();
+            throw new NotFoundError("Activation code invalid or expired");
         }
 
         Account account = Account.builder()
