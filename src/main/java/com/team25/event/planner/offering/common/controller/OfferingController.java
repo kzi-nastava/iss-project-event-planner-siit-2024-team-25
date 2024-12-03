@@ -29,8 +29,8 @@ public class OfferingController {
 
     @GetMapping("/top")
     public ResponseEntity<Page<OfferingPreviewResponseDTO>> getTopOfferings(
-            @RequestParam String country,
-            @RequestParam String city
+            @RequestParam(required = false) String country,
+            @RequestParam(required = false) String city
     ){
         return ResponseEntity.ok(offeringService.getTopOfferings(country, city));
     }
