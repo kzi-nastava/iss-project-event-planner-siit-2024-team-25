@@ -8,18 +8,22 @@ import com.team25.event.planner.user.dto.*;
 import com.team25.event.planner.user.model.*;
 import com.team25.event.planner.user.repository.AccountRepository;
 import com.team25.event.planner.user.repository.RegistrationRequestRepository;
+import com.team25.event.planner.user.repository.UserRepository;
 import jakarta.validation.Valid;
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.time.Duration;
 import java.time.Instant;
+import java.util.Collection;
 
 @Service
 public class AuthService {
     private static final int VERIFICATION_CODE_LENGTH = 64;
+    private static final long REGISTRATION_REQUEST_CLEANUP_PERIOD_MILLIS = 1000 * 60 * 60 * 24; // 1 day
 
     private final UserService userService;
     private final PasswordEncoder passwordEncoder;
@@ -28,6 +32,7 @@ public class AuthService {
     private final EmailService emailService;
 
     private final Duration activationTimeLimit;
+    private final UserRepository userRepository;
 
     public AuthService(
             UserService userService,
@@ -35,14 +40,15 @@ public class AuthService {
             AccountRepository accountRepository,
             RegistrationRequestRepository registrationRequestRepository,
             EmailService emailService,
-            @Value("${activation.duration-minutes}") Long activationMinutesTimeLimit
-    ) {
+            @Value("${activation.duration-minutes}") Long activationMinutesTimeLimit,
+            UserRepository userRepository) {
         this.userService = userService;
         this.passwordEncoder = passwordEncoder;
         this.accountRepository = accountRepository;
         this.registrationRequestRepository = registrationRequestRepository;
         this.emailService = emailService;
         this.activationTimeLimit = Duration.ofMinutes(activationMinutesTimeLimit);
+        this.userRepository = userRepository;
     }
 
     @Transactional
@@ -96,6 +102,16 @@ public class AuthService {
 
         accountRepository.save(account);
         registrationRequestRepository.delete(registrationRequest);
+    }
+
+    @Scheduled(fixedRate = REGISTRATION_REQUEST_CLEANUP_PERIOD_MILLIS)
+    @Transactional
+    public void cleanExpiredRequests() {
+        Collection<Long> userIds = registrationRequestRepository.findExpiredUserIds();
+        registrationRequestRepository.deleteAllExpired();
+        if (!userIds.isEmpty()) {
+            userRepository.deleteAllByIds(userIds);
+        }
     }
 
     public LoginResponseDTO login(@Valid LoginRequestDTO loginRequestDTO) {
