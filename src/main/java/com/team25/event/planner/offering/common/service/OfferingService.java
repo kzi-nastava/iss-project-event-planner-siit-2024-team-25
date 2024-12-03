@@ -1,12 +1,11 @@
 package com.team25.event.planner.offering.common.service;
 
-import com.team25.event.planner.event.model.Event;
 import com.team25.event.planner.offering.common.dto.OfferingFilterDTO;
 import com.team25.event.planner.offering.common.dto.OfferingPreviewResponseDTO;
 import com.team25.event.planner.offering.common.mapper.OfferingMapper;
 import com.team25.event.planner.offering.common.model.Offering;
 import com.team25.event.planner.offering.common.repository.OfferingRepository;
-import com.team25.event.planner.offering.common.specification.OfferingSpecificarion;
+import com.team25.event.planner.offering.common.specification.OfferingSpecification;
 import com.team25.event.planner.offering.product.model.Product;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.*;
@@ -23,15 +22,15 @@ public class OfferingService {
 
     private final OfferingMapper offeringMapper;
     private final OfferingRepository offeringRepository;
-    private final OfferingSpecificarion offeringSpecificarion;
+    private final OfferingSpecification offeringSpecification;
 
     public Page<OfferingPreviewResponseDTO> getOfferings(OfferingFilterDTO filter, int page, int size, String sortBy, String sortDirection) {
-        return getMockList();
-
-//        Specification<Offering> spec = offeringSpecificarion.createSpecification(filter);
-//        Sort.Direction direction = Sort.Direction.fromString(sortDirection);
-//        Pageable pageable = PageRequest.of(page, size, Sort.by(direction, sortBy));
-//        return offeringRepository.findAll(spec, pageable).map(offeringMapper::toDTO);
+        Specification<Offering> spec = offeringSpecification.createSpecification(filter);
+        Sort.Direction direction = Sort.Direction.fromString(sortDirection);
+        Pageable pageable = PageRequest.of(page, size, Sort.by(direction, sortBy));
+        Page<Offering> offeringPage = offeringRepository.findAll(spec, pageable);
+        List<OfferingPreviewResponseDTO> offeringsWithRatings = offeringRepository.findOfferingsWithAverageRating(offeringPage.getContent());
+        return new PageImpl<>(offeringsWithRatings, pageable, offeringPage.getTotalElements());
     }
     public Page<OfferingPreviewResponseDTO> getTopOfferings(String country, String city) {
         return getMockList();

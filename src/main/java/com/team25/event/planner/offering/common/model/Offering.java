@@ -15,9 +15,10 @@ import java.util.List;
 @Setter
 @NoArgsConstructor
 @AllArgsConstructor
-@MappedSuperclass
-@ToString
-public abstract class Offering {
+@Entity
+@Inheritance(strategy = InheritanceType.JOINED)
+@Table(name = "offerings")
+public class Offering {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;

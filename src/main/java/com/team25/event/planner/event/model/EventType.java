@@ -1,5 +1,6 @@
 package com.team25.event.planner.event.model;
 
+import com.team25.event.planner.offering.common.model.OfferingCategory;
 import jakarta.persistence.*;
 
 import lombok.*;
@@ -9,6 +10,8 @@ import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
+
+import java.util.List;
 
 @Getter
 @Setter
@@ -31,4 +34,7 @@ public class EventType {
     @NotNull(message = "Active status is required")
     @Column(nullable = false)
     private Boolean isActive;
+
+    @ManyToMany
+    private List<OfferingCategory> offeringCategories;
 }
