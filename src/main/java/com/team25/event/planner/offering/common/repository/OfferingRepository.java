@@ -44,7 +44,6 @@ public interface OfferingRepository extends JpaRepository<Offering, Long>, JpaSp
             "WHERE " +
             "(:country IS NULL OR :country = '' OR o.owner.companyAddress.country = :country) AND " +
             "(:city IS NULL OR :city = '' OR o.owner.companyAddress.city = :city) " +
-            "AND (r.status = com.team25.event.planner.common.model.ReviewStatus.APPROVED)"+
             "GROUP BY o.id, o.name, o.owner.firstName, o.owner.lastName, o.description, o.owner.companyAddress.country, o.owner.companyAddress.city, o.price " +
             "ORDER BY COALESCE(AVG(r.rating), 0) DESC")
     Page<OfferingPreviewResponseDTO> findTopOfferings(String country, String city, Pageable pageable);
