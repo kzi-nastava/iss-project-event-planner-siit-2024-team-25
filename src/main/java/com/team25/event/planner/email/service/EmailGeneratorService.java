@@ -1,22 +1,46 @@
 package com.team25.event.planner.email.service;
 
+import com.team25.event.planner.email.dto.ActivationEmailBodyDTO;
 import com.team25.event.planner.email.dto.EmailDTO;
 import com.team25.event.planner.email.dto.TestEmailBodyDTO;
-import lombok.RequiredArgsConstructor;
+import com.team25.event.planner.user.model.RegistrationRequest;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 
 @Service
-@RequiredArgsConstructor
 public class EmailGeneratorService {
     private final TemplateProcessorService templateProcessorService;
+
+    private final String frontendUrl;
+
+    public EmailGeneratorService(
+            TemplateProcessorService templateProcessorService,
+            @Value("${frontend-url}") String frontendUrl
+    ) {
+        this.templateProcessorService = templateProcessorService;
+        this.frontendUrl = frontendUrl;
+    }
 
     public EmailDTO getTestEmail(String recipientEmail, String recipientName) {
         // Here goes the logic of converting domain data (recipientEmail, recipientName)
         // into a dto with the information that the template service needs.
-        TestEmailBodyDTO bodyDto = new TestEmailBodyDTO(recipientName, "/user/login");
+        TestEmailBodyDTO bodyDto = new TestEmailBodyDTO(recipientName, frontendUrl + "/user/login");
 
         String body = templateProcessorService.getTestEmailBody(bodyDto);
 
         return new EmailDTO(recipientEmail, "Test Email", body);
+    }
+
+    public EmailDTO getAccountActivationEmail(RegistrationRequest registrationRequest) {
+        final String email = registrationRequest.getEmail();
+
+        final String activationUrl = frontendUrl + "/user/activate?code=" + registrationRequest.getVerificationCode();
+        final ActivationEmailBodyDTO bodyDTO = new ActivationEmailBodyDTO(
+                registrationRequest.getUser().getFullName(),
+                activationUrl
+        );
+        final String body = templateProcessorService.getAccountActivationEmailBody(bodyDTO);
+
+        return new EmailDTO(email, "Activate your Account at Event Planner", body);
     }
 }

@@ -25,6 +25,7 @@ import org.springframework.web.bind.annotation.ControllerAdvice;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.context.request.WebRequest;
 import org.springframework.web.method.annotation.MethodArgumentTypeMismatchException;
+import org.springframework.web.multipart.MaxUploadSizeExceededException;
 import org.springframework.web.multipart.support.MissingServletRequestPartException;
 import org.springframework.web.servlet.NoHandlerFoundException;
 import org.springframework.web.servlet.mvc.method.annotation.ResponseEntityExceptionHandler;
@@ -188,6 +189,22 @@ public class GlobalExceptionHandler extends ResponseEntityExceptionHandler {
         logger.warn("HttpMediaTypeNotSupportedException: {}", exception.getMessage());
         return ResponseEntity.status(HttpStatus.UNSUPPORTED_MEDIA_TYPE).body(
                 new ErrorResponseDTO(HttpStatus.UNSUPPORTED_MEDIA_TYPE.value(), exception.getMessage())
+        );
+    }
+
+    @Override
+    protected ResponseEntity<Object> handleMaxUploadSizeExceededException(
+            @NonNull final MaxUploadSizeExceededException exception,
+            @NonNull HttpHeaders headers,
+            @NonNull HttpStatusCode status,
+            @NonNull WebRequest request
+    ) {
+        logger.warn("MaxUploadSizeExceededException: {}", exception.getMessage());
+        return ResponseEntity.status(HttpStatus.PAYLOAD_TOO_LARGE).body(
+                new ErrorResponseDTO(
+                        HttpStatus.PAYLOAD_TOO_LARGE.value(),
+                        "Uploaded file size exceeds the allowed limit. Please upload a smaller file."
+                )
         );
     }
 

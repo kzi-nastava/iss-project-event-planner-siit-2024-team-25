@@ -2,6 +2,7 @@ package com.team25.event.planner.email.service;
 
 import com.team25.event.planner.email.dto.EmailDTO;
 import com.team25.event.planner.email.exception.EmailSendFailedException;
+import com.team25.event.planner.user.model.RegistrationRequest;
 import lombok.RequiredArgsConstructor;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -17,12 +18,23 @@ public class EmailService {
     private final EmailSenderService emailSenderService;
 
     @Async
+    @SuppressWarnings("unused")
     public void sendTestEmail(String recipientEmail, String recipientName) {
         EmailDTO email = emailGeneratorService.getTestEmail(recipientEmail, recipientName);
         try {
             emailSenderService.sendEmail(email);
         } catch (EmailSendFailedException e) {
             logger.error("Failed to send test email.");
+        }
+    }
+
+    @Async
+    public void sendAccountActivationEmail(RegistrationRequest registrationRequest) {
+        EmailDTO email = emailGeneratorService.getAccountActivationEmail(registrationRequest);
+        try {
+            emailSenderService.sendEmail(email);
+        } catch (EmailSendFailedException e) {
+            logger.warn("Failed to send account activation email for request: {}", registrationRequest.getId());
         }
     }
 }

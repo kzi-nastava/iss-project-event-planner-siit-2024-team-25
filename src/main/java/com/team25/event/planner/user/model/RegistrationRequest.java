@@ -1,11 +1,10 @@
 package com.team25.event.planner.user.model;
 
+import com.team25.event.planner.common.util.ValidationPatterns;
 import jakarta.persistence.*;
 import jakarta.validation.constraints.NotNull;
-import lombok.AllArgsConstructor;
-import lombok.Getter;
-import lombok.NoArgsConstructor;
-import lombok.Setter;
+import jakarta.validation.constraints.Pattern;
+import lombok.*;
 
 import java.time.Instant;
 
@@ -13,6 +12,7 @@ import java.time.Instant;
 @Setter
 @NoArgsConstructor
 @AllArgsConstructor
+@Builder
 @Entity
 @Table(name = "register_requests")
 public class RegistrationRequest {
@@ -21,13 +21,25 @@ public class RegistrationRequest {
     private Long id;
 
     @NotNull
+    @Column(nullable = false, unique = true)
     private String verificationCode;
 
     @NotNull
     @Column(nullable = false, columnDefinition = "TIMESTAMP")
     private Instant expirationTime;
 
-    @OneToOne
-    @JoinColumn(nullable = false, unique = true)
-    private Account account;
+    @NotNull(message = "Email is required")
+    @Pattern(
+            regexp = ValidationPatterns.EMAIL_REGEX,
+            message = "Email must be valid"
+    )
+    @Column(nullable = false)
+    private String email;
+
+    @NotNull(message = "Password is required")
+    @Column(nullable = false)
+    private String password;
+
+    @OneToOne(fetch = FetchType.LAZY)
+    private User user;
 }

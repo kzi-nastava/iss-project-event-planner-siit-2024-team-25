@@ -40,8 +40,8 @@ public class User {
     @Enumerated(EnumType.ORDINAL)
     private UserRole userRole;
 
-    @OneToOne
-    @JoinColumn(nullable = false, unique = true)
+    @OneToOne(fetch = FetchType.LAZY)
+    @JoinColumn(unique = true)
     private Account account;
 
     @ManyToMany

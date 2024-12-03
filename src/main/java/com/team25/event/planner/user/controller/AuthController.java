@@ -15,8 +15,14 @@ public class AuthController {
     private final AuthService authService;
 
     @PostMapping("/register")
-    public ResponseEntity<RegisterResponseDTO> register(@Valid @RequestBody RegisterRequestDTO registerRequestDTO) {
+    public ResponseEntity<RegisterResponseDTO> register(@Valid @ModelAttribute RegisterRequestDTO registerRequestDTO) {
         return ResponseEntity.status(HttpStatus.CREATED).body(authService.register(registerRequestDTO));
+    }
+
+    @PostMapping("/activate")
+    public ResponseEntity<Void> activateAccount(@Valid @RequestBody VerificationCodeDTO dto) {
+        authService.activateAccount(dto);
+        return ResponseEntity.noContent().build();
     }
 
     @PostMapping("/login")
@@ -24,13 +30,11 @@ public class AuthController {
         return ResponseEntity.ok(authService.login(loginRequestDTO));
     }
 
-    // password reset
     @PutMapping("/password-reset")
     public ResponseEntity<Void> resetPassword(@Valid @RequestBody PasswordResetRequestDTO passwordResetRequestDTO) {
         return ResponseEntity.noContent().build();
     }
 
-    // deactivate
     @DeleteMapping("/deactivate")
     public ResponseEntity<Void> deactivateAccount() {
         return ResponseEntity.noContent().build();

@@ -34,3 +34,6 @@ build/
 
 ### profile-specific configuration ###
 **/src/main/resources/application-*.properties
+
+### Servier filestorage ###
+file-storage/

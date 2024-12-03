@@ -1,5 +1,6 @@
 package com.team25.event.planner.infrastructure;
 
+import com.team25.event.planner.email.dto.ActivationEmailBodyDTO;
 import com.team25.event.planner.email.dto.TestEmailBodyDTO;
 import com.team25.event.planner.email.service.TemplateProcessorService;
 import org.springframework.beans.factory.annotation.Value;
@@ -12,17 +13,14 @@ import java.time.LocalDate;
 @Service
 public class ThymeleafTemplateProcessorService implements TemplateProcessorService {
     private final String resourceUrl;
-    private final String frontendUrl;
 
     private final SpringTemplateEngine templateEngine;
 
     public ThymeleafTemplateProcessorService(
             @Value("${email.static.resource-url}") String resourceUrl,
-            @Value("${frontend-url}") String frontendUrl,
             SpringTemplateEngine templateEngine
     ) {
         this.resourceUrl = resourceUrl;
-        this.frontendUrl = frontendUrl;
         this.templateEngine = templateEngine;
     }
 
@@ -37,8 +35,17 @@ public class ThymeleafTemplateProcessorService implements TemplateProcessorServi
     public String getTestEmailBody(TestEmailBodyDTO dto) {
         Context context = getEmailTemplateContext();
         context.setVariable("name", dto.getRecipientName());
-        context.setVariable("loginUrl", frontendUrl + dto.getLoginUrlPath());
+        context.setVariable("loginUrl", dto.getLoginUrl());
 
         return templateEngine.process("test", context);
+    }
+
+    @Override
+    public String getAccountActivationEmailBody(ActivationEmailBodyDTO dto) {
+        Context context = getEmailTemplateContext();
+        context.setVariable("name", dto.getName());
+        context.setVariable("activationUrl", dto.getActivationUrl());
+
+        return templateEngine.process("activate", context);
     }
 }

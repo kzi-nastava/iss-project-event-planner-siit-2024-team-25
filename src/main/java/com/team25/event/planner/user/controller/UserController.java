@@ -75,7 +75,7 @@ public class UserController {
     }
 
     @GetMapping("/{userId}/pictures/{pictureId}")
-    public ResponseEntity<Resource> getOwnerPicture(@PathVariable Long userId, @PathVariable Long pictureId) {
+    public ResponseEntity<Resource> getOwnerPicture(@PathVariable Long userId, @PathVariable String pictureId) {
         try {
             Resource resource = userService.getOwnerPicture(userId, pictureId);
 
