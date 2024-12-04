@@ -3,6 +3,7 @@ package com.team25.event.planner.email.service;
 import com.team25.event.planner.email.dto.ActivationEmailBodyDTO;
 import com.team25.event.planner.email.dto.EmailDTO;
 import com.team25.event.planner.email.dto.TestEmailBodyDTO;
+import com.team25.event.planner.event.dto.EventInvitationEmailDTO;
 import com.team25.event.planner.user.model.RegistrationRequest;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
@@ -42,5 +43,12 @@ public class EmailGeneratorService {
         final String body = templateProcessorService.getAccountActivationEmailBody(bodyDTO);
 
         return new EmailDTO(email, "Activate your Account at Event Planner", body);
+    }
+
+    public EmailDTO getEventInvitationEmail(String guestEmail, EventInvitationEmailDTO eventInvitationEmailDTO) {
+        final String email = guestEmail;
+        final String url = frontendUrl + "/";
+        final String body = templateProcessorService.getEventInvitationEmailBody(url, eventInvitationEmailDTO);
+        return new EmailDTO(email, "Event invitation", body);
     }
 }

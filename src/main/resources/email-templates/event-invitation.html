@@ -1,0 +1,85 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org" lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>You're Invited to an Event!</title>
+    <style>
+
+        .email-container {
+            border-radius: 8px;
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+            padding: 30px;
+        }
+
+        .header {
+            text-align: center;
+            margin-bottom: 20px;
+        }
+
+        .header img {
+            max-width: 150px;
+            margin-bottom: 20px;
+        }
+
+        .button {
+            display: inline-block;
+            padding: 12px 24px;
+            text-decoration: none;
+            border-radius: 5px;
+            font-weight: bold;
+            margin: 20px 0;
+            text-align: center;
+            border: 5px #303c6c;
+        }
+
+        .button:hover {
+            background-color: #303c6c;
+            color: white;
+        }
+
+        .footer {
+            text-align: center;
+            color: #888;
+            font-size: 0.9em;
+            margin-top: 20px;
+            padding-top: 10px;
+            border-top: 1px solid #eee;
+        }
+
+        .logo {
+            display: block;
+            max-width: 100px;
+            height: auto;
+            margin: 0 auto;
+        }
+    </style>
+</head>
+<body>
+<div class="email-container">
+    <div class="header">
+        <img th:src="|${resourceUrl}logo.png|" alt="Logo" class="logo" />
+        <h1>You are Invited!</h1>
+    </div>
+
+    <p>Dear <span th:text="${guestFirstName}">Guest</span> <span th:text="${guestLastName}">LastName</span>,</p>
+
+    <p>You are cordially invited to join us for the event <strong th:text="${eventName}">Event Name</strong>.</p>
+
+    <p><strong>Event Details:</strong></p>
+    <ul>
+        <li><strong>Location:</strong>         <span th:text="${eventCountry + ',' + eventCity + ',' + eventAddress}">Event Location</span></li>
+        <li><strong>Description:</strong> <span th:text="${eventDescription}">Event Description</span></li>
+        <li><strong>Date:</strong> <span th:text="${eventDate}">Event Date</span></li>
+        <li><strong>Time:</strong> <span th:text="${eventTime}">Event Time</span></li>
+    </ul>
+
+    <p>We hope to see you there!</p>
+
+    <a th:href="${eventLink}" class="button">View Event Details</a>
+
+    <footer class="footer">
+        <p>© <span th:text="${currentYear}">2024</span> Event Planner. All rights reserved.</p>
+    </footer>
+</div>
+</body>
+</html>
