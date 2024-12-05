@@ -7,8 +7,9 @@ import com.team25.event.planner.event.model.EventType;
 import org.mapstruct.Mapper;
 import org.mapstruct.Mapping;
 
-@Mapper(componentModel = "spring")
+@Mapper(componentModel = "spring", uses = OfferingCategoryMapper.class)
 public interface EventTypeMapper {
+    @Mapping(target = "categories", source = "offeringCategories")
     EventTypeResponseDTO toDTO(EventType eventType);
 
     EventTypePreviewResponseDTO toPreviewDTO(EventType eventType);

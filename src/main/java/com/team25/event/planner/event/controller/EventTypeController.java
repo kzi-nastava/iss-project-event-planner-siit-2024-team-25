@@ -39,10 +39,4 @@ public class EventTypeController {
     ) {
         return ResponseEntity.ok(eventTypeService.updateEventType(id, eventTypeDto));
     }
-
-    @DeleteMapping("/{id}")
-    public ResponseEntity<Void> deleteEventType(@PathVariable Long id) {
-        eventTypeService.deleteEventType(id);
-        return ResponseEntity.noContent().build();
-    }
 }
