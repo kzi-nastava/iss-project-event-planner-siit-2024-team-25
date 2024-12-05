@@ -6,6 +6,8 @@ import com.team25.event.planner.event.dto.EventTypeResponseDTO;
 import com.team25.event.planner.event.mapper.EventTypeMapper;
 import com.team25.event.planner.event.model.EventType;
 import com.team25.event.planner.event.repository.EventTypeRepository;
+import com.team25.event.planner.offering.common.model.OfferingCategory;
+import com.team25.event.planner.offering.common.repository.OfferingCategoryRepository;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
@@ -17,6 +19,7 @@ import java.util.List;
 public class EventTypeService {
     private final EventTypeRepository eventTypeRepository;
     private final EventTypeMapper eventTypeMapper;
+    private final OfferingCategoryRepository offeringCategoryRepository;
 
     public EventTypeResponseDTO getEventTypeById(Long id) {
         EventType eventType = eventTypeRepository.findById(id)
@@ -30,6 +33,10 @@ public class EventTypeService {
 
     public EventTypeResponseDTO createEventType(@Valid EventTypeRequestDTO eventTypeDto) {
         EventType eventType = eventTypeMapper.toEventType(eventTypeDto);
+
+        List<OfferingCategory> categories = offeringCategoryRepository.findAllById(eventTypeDto.getCategories());
+        eventType.setOfferingCategories(categories);
+
         eventType = eventTypeRepository.save(eventType);
         return eventTypeMapper.toDTO(eventType);
     }
@@ -38,15 +45,14 @@ public class EventTypeService {
         EventType eventType = eventTypeRepository.findById(id)
                 .orElseThrow(() -> new NotFoundError("Event type not found"));
 
-        eventType.setName(eventTypeDto.getName());
+        List<OfferingCategory> categories = offeringCategoryRepository.findAllById(eventTypeDto.getCategories());
+
         eventType.setDescription(eventTypeDto.getDescription());
+        eventType.setOfferingCategories(categories);
+        eventType.setIsActive(eventTypeDto.getIsActive());
 
         eventType = eventTypeRepository.save(eventType);
 
         return eventTypeMapper.toDTO(eventType);
-    }
-
-    public void deleteEventType(Long id) {
-        eventTypeRepository.deleteById(id);
     }
 }
