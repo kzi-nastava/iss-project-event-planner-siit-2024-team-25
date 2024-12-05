@@ -8,9 +8,7 @@ import java.time.LocalTime;
 
 @Data
 @AllArgsConstructor
-public class EventInvitationEmailDTO {
-    private String guestFirstName;
-    private String guestLastName;
+public class EventInvitationShortEmailDTO {
     private String eventName;
     private String eventDescription;
     private LocalDate eventDate;

@@ -2,6 +2,7 @@ package com.team25.event.planner.event.mapper;
 
 import com.team25.event.planner.event.dto.EventInvitationEmailDTO;
 import com.team25.event.planner.event.dto.EventInvitationRequestDTO;
+import com.team25.event.planner.event.dto.EventInvitationShortEmailDTO;
 import com.team25.event.planner.event.model.Event;
 import com.team25.event.planner.event.model.EventInvitation;
 import com.team25.event.planner.event.model.EventInvitationStatus;
@@ -27,5 +28,17 @@ public interface EventInvitationMapper {
     @Mapping(target = "eventCountry", source = "event.location.country")
     @Mapping(target = "eventCity", source = "event.location.city")
     @Mapping(target = "eventAddress", source = "event.location.address")
-    EventInvitationEmailDTO toEventInvitationEmailDTO(User user, Event event);
+    @Mapping(target = "eventInvitationCode", source = "eventInvitation")
+    EventInvitationEmailDTO toEventInvitationEmailDTO(User user, Event event, String eventInvitation);
+
+
+    @Mapping(target = "eventName", source = "event.name")
+    @Mapping(target = "eventDescription", source = "event.description")
+    @Mapping(target = "eventDate", source = "event.startDate")
+    @Mapping(target = "eventTime", source = "event.startTime")
+    @Mapping(target = "eventCountry", source = "event.location.country")
+    @Mapping(target = "eventCity", source = "event.location.city")
+    @Mapping(target = "eventAddress", source = "event.location.address")
+    @Mapping(target = "eventInvitationCode", source = "eventInvitation")
+    EventInvitationShortEmailDTO toEventInvitationShortEmailDto( Event event, String eventInvitation);
 }

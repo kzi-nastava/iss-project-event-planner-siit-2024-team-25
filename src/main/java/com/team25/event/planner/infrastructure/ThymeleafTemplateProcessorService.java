@@ -4,6 +4,7 @@ import com.team25.event.planner.email.dto.ActivationEmailBodyDTO;
 import com.team25.event.planner.email.dto.TestEmailBodyDTO;
 import com.team25.event.planner.email.service.TemplateProcessorService;
 import com.team25.event.planner.event.dto.EventInvitationEmailDTO;
+import com.team25.event.planner.event.dto.EventInvitationShortEmailDTO;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 import org.thymeleaf.context.Context;
@@ -55,6 +56,20 @@ public class ThymeleafTemplateProcessorService implements TemplateProcessorServi
         Context context = getEmailTemplateContext();
         context.setVariable("guestFirstName", dto.getGuestFirstName());
         context.setVariable("guestLastName", dto.getGuestLastName());
+        context.setVariable("eventName", dto.getEventName());
+        context.setVariable("eventDescription", dto.getEventDescription());
+        context.setVariable("eventDate", dto.getEventDate().toString());
+        context.setVariable("eventTime", dto.getEventTime().toString());
+        context.setVariable("eventLink", url);
+        context.setVariable("eventCountry", dto.getEventCountry());
+        context.setVariable("eventCity", dto.getEventCity());
+        context.setVariable("eventAddress", dto.getEventAddress());
+        return templateEngine.process("event-invitation", context);
+    }
+
+    @Override
+    public String getEventInvitationShortEmailBody(String url, EventInvitationShortEmailDTO dto) {
+        Context context = getEmailTemplateContext();
         context.setVariable("eventName", dto.getEventName());
         context.setVariable("eventDescription", dto.getEventDescription());
         context.setVariable("eventDate", dto.getEventDate().toString());

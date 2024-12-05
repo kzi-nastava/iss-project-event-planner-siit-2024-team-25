@@ -20,7 +20,7 @@ public class AuthController {
         return ResponseEntity.status(HttpStatus.CREATED).body(authService.register(registerRequestDTO));
     }
 
-    @PostMapping("/quick-register")
+    @PostMapping("/register/quick")
     public ResponseEntity<RegisterResponseDTO> quickRegister(@Valid @ModelAttribute QuickRegisterRequestDTO quickRegisterRequestDTO) {
         return ResponseEntity.status(HttpStatus.CREATED).body(authService.quickRegister(quickRegisterRequestDTO));
     }

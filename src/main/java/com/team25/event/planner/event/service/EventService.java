@@ -143,15 +143,16 @@ public class EventService {
     public void sendInvitations(Long eventId, List<EventInvitationRequestDTO> requestDTO) {
         Event event = eventRepository.findById(eventId).orElseThrow(() -> new NotFoundError("Event not found"));
         requestDTO.stream().forEach(eventInvitationRequestDTO -> {
+            EventInvitation eventInvitation = eventInvitationMapper.toEventInvitation(eventInvitationRequestDTO, event, EventInvitationStatus.PENDING);
+            eventInvitation.setInvitationCode(VerificationCodeGenerator.generateVerificationCode(VERIFICATION_CODE_LENGTH));
+            eventInvitationRepository.save(eventInvitation);
             Optional<Account> account = accountRepository.findByEmail(eventInvitationRequestDTO.getGuestEmail());
             if(!account.isEmpty()) {
-                EventInvitation eventInvitation = eventInvitationMapper.toEventInvitation(eventInvitationRequestDTO, event, EventInvitationStatus.PENDING);
-                eventInvitation.setInvitationCode(VerificationCodeGenerator.generateVerificationCode(VERIFICATION_CODE_LENGTH));
-                eventInvitationRepository.save(eventInvitation);
-                EventInvitationEmailDTO eventInvitationEmailDTO = eventInvitationMapper.toEventInvitationEmailDTO(account.get().getUser(), event);
+                EventInvitationEmailDTO eventInvitationEmailDTO = eventInvitationMapper.toEventInvitationEmailDTO(account.get().getUser(), event, eventInvitation.getInvitationCode());
                 emailService.sendEventInvitationEmail(account.get().getEmail(), eventInvitationEmailDTO);
             }else{
-                //TO-DO quick registration
+                EventInvitationShortEmailDTO dto = eventInvitationMapper.toEventInvitationShortEmailDto( event, eventInvitation.getInvitationCode());
+                emailService.sendQuickRegisterEmail(eventInvitationRequestDTO.getGuestEmail(), dto);
             }
         });
     }
