@@ -7,6 +7,7 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
+import org.springframework.web.multipart.MultipartFile;
 
 @RestController
 @RequestMapping("/api/auth")
@@ -17,6 +18,11 @@ public class AuthController {
     @PostMapping("/register")
     public ResponseEntity<RegisterResponseDTO> register(@Valid @ModelAttribute RegisterRequestDTO registerRequestDTO) {
         return ResponseEntity.status(HttpStatus.CREATED).body(authService.register(registerRequestDTO));
+    }
+
+    @PostMapping("/quick-register")
+    public ResponseEntity<RegisterResponseDTO> quickRegister(@Valid @ModelAttribute QuickRegisterRequestDTO quickRegisterRequestDTO) {
+        return ResponseEntity.status(HttpStatus.CREATED).body(authService.quickRegister(quickRegisterRequestDTO));
     }
 
     @PostMapping("/activate")

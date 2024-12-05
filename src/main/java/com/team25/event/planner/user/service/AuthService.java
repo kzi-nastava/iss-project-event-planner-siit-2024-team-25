@@ -5,6 +5,7 @@ import com.team25.event.planner.common.exception.NotFoundError;
 import com.team25.event.planner.common.util.VerificationCodeGenerator;
 import com.team25.event.planner.email.service.EmailService;
 import com.team25.event.planner.user.dto.*;
+import com.team25.event.planner.user.mapper.UserMapper;
 import com.team25.event.planner.user.model.*;
 import com.team25.event.planner.user.repository.AccountRepository;
 import com.team25.event.planner.user.repository.RegistrationRequestRepository;
@@ -34,6 +35,8 @@ public class AuthService {
     private final Duration activationTimeLimit;
     private final UserRepository userRepository;
 
+    private final UserMapper userMapper;
+
     public AuthService(
             UserService userService,
             PasswordEncoder passwordEncoder,
@@ -41,7 +44,8 @@ public class AuthService {
             RegistrationRequestRepository registrationRequestRepository,
             EmailService emailService,
             @Value("${activation.duration-minutes}") Long activationMinutesTimeLimit,
-            UserRepository userRepository) {
+            UserRepository userRepository,
+            UserMapper userMapper) {
         this.userService = userService;
         this.passwordEncoder = passwordEncoder;
         this.accountRepository = accountRepository;
@@ -49,6 +53,7 @@ public class AuthService {
         this.emailService = emailService;
         this.activationTimeLimit = Duration.ofMinutes(activationMinutesTimeLimit);
         this.userRepository = userRepository;
+        this.userMapper = userMapper;
     }
 
     @Transactional
@@ -73,6 +78,29 @@ public class AuthService {
 
         return new RegisterResponseDTO(
                 registrationRequest.getEmail(),
+                user.getFullName(),
+                user.getUserRole()
+        );
+    }
+
+    @Transactional
+    public RegisterResponseDTO quickRegister(@Valid QuickRegisterRequestDTO quickRegisterRequestDTO){
+        if (accountRepository.existsByEmail(quickRegisterRequestDTO.getEmail())) {
+            throw new InvalidRequestError("Email address is already taken");
+        }
+
+        RegisterRequestDTO requestDTO  = userMapper.toRegisterRequestDto(quickRegisterRequestDTO);
+        User user = userService.createUser(requestDTO);
+
+        Account account = Account.builder()
+                .email(quickRegisterRequestDTO.getEmail())
+                .password(passwordEncoder.encode(quickRegisterRequestDTO
+                .getPassword())).status(AccountStatus.ACTIVE)
+                .user(user).build();
+        accountRepository.save(account);
+
+        return new RegisterResponseDTO(
+                quickRegisterRequestDTO.getEmail(),
                 user.getFullName(),
                 user.getUserRole()
         );
