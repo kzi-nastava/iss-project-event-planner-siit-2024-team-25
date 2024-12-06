@@ -77,4 +77,7 @@ public class Event {
 
     @OneToMany(cascade = {CascadeType.ALL}, mappedBy = "event")
     private Collection<BudgetItem> budgetItemCollection;
+
+    @OneToMany(mappedBy = "event")
+    private List<EventInvitation> eventInvitations;
 }

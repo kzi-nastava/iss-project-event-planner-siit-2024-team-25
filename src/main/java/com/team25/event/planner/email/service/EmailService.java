@@ -2,6 +2,9 @@ package com.team25.event.planner.email.service;
 
 import com.team25.event.planner.email.dto.EmailDTO;
 import com.team25.event.planner.email.exception.EmailSendFailedException;
+import com.team25.event.planner.event.dto.EventInvitationEmailDTO;
+import com.team25.event.planner.event.dto.EventInvitationRequestDTO;
+import com.team25.event.planner.event.dto.EventInvitationShortEmailDTO;
 import com.team25.event.planner.user.model.RegistrationRequest;
 import lombok.RequiredArgsConstructor;
 import org.slf4j.Logger;
@@ -35,6 +38,26 @@ public class EmailService {
             emailSenderService.sendEmail(email);
         } catch (EmailSendFailedException e) {
             logger.warn("Failed to send account activation email for request: {}", registrationRequest.getId());
+        }
+    }
+
+    @Async
+    public void sendEventInvitationEmail(String guestEmail, EventInvitationEmailDTO eventInvitationEmailDTO) {
+        EmailDTO email = emailGeneratorService.getEventInvitationEmail(guestEmail, eventInvitationEmailDTO);
+        try {
+            emailSenderService.sendEmail(email);
+        } catch (EmailSendFailedException e) {
+            logger.warn("Failed to send event invitation email for user: {} for event: {}",guestEmail, eventInvitationEmailDTO.getEventName());
+        }
+    }
+
+    @Async
+    public void sendQuickRegisterEmail(String guestEmail, EventInvitationShortEmailDTO eventInvitationShortEmailDTO) {
+        EmailDTO email = emailGeneratorService.getQuickRegisterEmail(guestEmail, eventInvitationShortEmailDTO);
+        try {
+            emailSenderService.sendEmail(email);
+        } catch (EmailSendFailedException e) {
+            logger.warn("Failed to send event invitation email for unregistered user for event: {}",guestEmail);
         }
     }
 }

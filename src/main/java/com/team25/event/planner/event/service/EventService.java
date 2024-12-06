@@ -2,6 +2,8 @@ package com.team25.event.planner.event.service;
 
 import com.team25.event.planner.common.exception.InvalidRequestError;
 import com.team25.event.planner.common.exception.NotFoundError;
+import com.team25.event.planner.common.util.VerificationCodeGenerator;
+import com.team25.event.planner.email.service.EmailService;
 import com.team25.event.planner.event.dto.*;
 import com.team25.event.planner.event.mapper.ActivityMapper;
 import com.team25.event.planner.event.mapper.EventInvitationMapper;
@@ -13,6 +15,9 @@ import com.team25.event.planner.event.repository.EventTypeRepository;
 import com.team25.event.planner.event.specification.EventSpecification;
 import com.team25.event.planner.offering.common.model.OfferingCategoryType;
 import com.team25.event.planner.user.model.Account;
+import com.team25.event.planner.user.model.AccountStatus;
+import com.team25.event.planner.user.model.User;
+import com.team25.event.planner.user.model.UserRole;
 import com.team25.event.planner.user.repository.AccountRepository;
 import com.team25.event.planner.user.repository.UserRepository;
 import jakarta.validation.Valid;
@@ -27,10 +32,13 @@ import org.springframework.stereotype.Service;
 import java.time.LocalDate;
 import java.util.Collection;
 import java.util.List;
+import java.util.Optional;
 
 @Service
 @RequiredArgsConstructor
 public class EventService {
+    private final static int VERIFICATION_CODE_LENGTH = 64;
+
     private final EventRepository eventRepository;
     private final EventTypeRepository eventTypeRepository;
     private final EventMapper eventMapper;
@@ -40,6 +48,7 @@ public class EventService {
     private final EventInvitationMapper eventInvitationMapper;
     private final EventInvitationRepository eventInvitationRepository;
     private final UserRepository userRepository;
+    private final EmailService emailService;
 
     public EventResponseDTO getEventById(Long id) {
         Event event = eventRepository.findById(id).orElseThrow(() -> new NotFoundError("Event not found"));
@@ -134,13 +143,16 @@ public class EventService {
     public void sendInvitations(Long eventId, List<EventInvitationRequestDTO> requestDTO) {
         Event event = eventRepository.findById(eventId).orElseThrow(() -> new NotFoundError("Event not found"));
         requestDTO.stream().forEach(eventInvitationRequestDTO -> {
-            Account account = accountRepository.findByEmail(eventInvitationRequestDTO.getGuestEmail()).orElse(null);
-            if(account != null) {
-                EventInvitation eventInvitation = eventInvitationMapper.toEventInvitation(eventInvitationRequestDTO, event, EventInvitationStatus.PENDING);
-                eventInvitationRepository.save(eventInvitation);
-                //TO-DO send email on guestEmail
+            EventInvitation eventInvitation = eventInvitationMapper.toEventInvitation(eventInvitationRequestDTO, event, EventInvitationStatus.PENDING);
+            eventInvitation.setInvitationCode(VerificationCodeGenerator.generateVerificationCode(VERIFICATION_CODE_LENGTH));
+            eventInvitationRepository.save(eventInvitation);
+            Optional<Account> account = accountRepository.findByEmail(eventInvitationRequestDTO.getGuestEmail());
+            if(!account.isEmpty()) {
+                EventInvitationEmailDTO eventInvitationEmailDTO = eventInvitationMapper.toEventInvitationEmailDTO(account.get().getUser(), event, eventInvitation.getInvitationCode());
+                emailService.sendEventInvitationEmail(account.get().getEmail(), eventInvitationEmailDTO);
             }else{
-                //TO-DO quick registration
+                EventInvitationShortEmailDTO dto = eventInvitationMapper.toEventInvitationShortEmailDto( event, eventInvitation.getInvitationCode());
+                emailService.sendQuickRegisterEmail(eventInvitationRequestDTO.getGuestEmail(), dto);
             }
         });
     }
