@@ -1,0 +1,6 @@
+security:
+  public-endpoints:
+    - path: /api/auth/login
+    - path: /api/auth/register
+      methods: [POST]
+    - path: /api/auth/activate

@@ -1,6 +1,8 @@
 package com.team25.event.planner.user.controller;
 
+import com.team25.event.planner.common.dto.ErrorResponseDTO;
 import com.team25.event.planner.user.dto.*;
+import com.team25.event.planner.user.exception.UnauthenticatedError;
 import com.team25.event.planner.user.service.AuthService;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
@@ -38,5 +40,12 @@ public class AuthController {
     @DeleteMapping("/deactivate")
     public ResponseEntity<Void> deactivateAccount() {
         return ResponseEntity.noContent().build();
+    }
+
+    @ExceptionHandler(UnauthenticatedError.class)
+    public ResponseEntity<ErrorResponseDTO> handleUnauthenticatedError(UnauthenticatedError error) {
+        return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body(
+                new ErrorResponseDTO(HttpStatus.UNAUTHORIZED.value(), error.getMessage())
+        );
     }
 }
