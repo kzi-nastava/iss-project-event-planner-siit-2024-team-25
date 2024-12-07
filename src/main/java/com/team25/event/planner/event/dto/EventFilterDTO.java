@@ -16,7 +16,6 @@ public class EventFilterDTO {
     private final LocalDate endDate;
     private final LocalTime startTime;
     private final LocalTime endTime;
-    private final Integer minParticipants;
     private final Integer maxParticipants;
     private final String country;
     private final String city;
