@@ -1,5 +1,7 @@
 package com.team25.event.planner.user.mapper;
 
+import com.team25.event.planner.user.dto.QuickRegisterRequestDTO;
+import com.team25.event.planner.user.dto.RegisterRequestDTO;
 import com.team25.event.planner.user.dto.UserRequestDTO;
 import com.team25.event.planner.user.dto.UserResponseDTO;
 import com.team25.event.planner.user.model.User;
@@ -12,4 +14,6 @@ public interface UserMapper {
     User toUser(UserRequestDTO userRequestDTO);
 
     UserResponseDTO toDTO(User user);
+
+    RegisterRequestDTO toRegisterRequestDto(QuickRegisterRequestDTO quickRegisterRequestDTO);
 }

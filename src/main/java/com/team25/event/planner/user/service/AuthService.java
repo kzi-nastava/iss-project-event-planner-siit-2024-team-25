@@ -8,6 +8,7 @@ import com.team25.event.planner.security.jwt.JwtService;
 import com.team25.event.planner.security.user.UserDetailsImpl;
 import com.team25.event.planner.user.dto.*;
 import com.team25.event.planner.user.exception.UnauthenticatedError;
+import com.team25.event.planner.user.mapper.UserMapper;
 import com.team25.event.planner.user.model.Account;
 import com.team25.event.planner.user.model.AccountStatus;
 import com.team25.event.planner.user.model.RegistrationRequest;
@@ -46,6 +47,7 @@ public class AuthService {
     private final AuthenticationManager authenticationManager;
     private final JwtService jwtService;
     private final UserRepository userRepository;
+    private final UserMapper userMapper;
 
     private final Duration activationTimeLimit;
 
@@ -58,6 +60,7 @@ public class AuthService {
             AuthenticationManager authenticationManager,
             JwtService jwtService,
             UserRepository userRepository,
+            UserMapper userMapper,
             @Value("${activation.duration-minutes}") Long activationMinutesTimeLimit
     ) {
         this.userService = userService;
@@ -68,6 +71,7 @@ public class AuthService {
         this.authenticationManager = authenticationManager;
         this.jwtService = jwtService;
         this.userRepository = userRepository;
+        this.userMapper = userMapper;
         this.activationTimeLimit = Duration.ofMinutes(activationMinutesTimeLimit);
     }
 
@@ -93,6 +97,29 @@ public class AuthService {
 
         return new RegisterResponseDTO(
                 registrationRequest.getEmail(),
+                user.getFullName(),
+                user.getUserRole()
+        );
+    }
+
+    @Transactional
+    public RegisterResponseDTO quickRegister(@Valid QuickRegisterRequestDTO quickRegisterRequestDTO){
+        if (accountRepository.existsByEmail(quickRegisterRequestDTO.getEmail())) {
+            throw new InvalidRequestError("Email address is already taken");
+        }
+
+        RegisterRequestDTO requestDTO  = userMapper.toRegisterRequestDto(quickRegisterRequestDTO);
+        User user = userService.createUser(requestDTO);
+
+        Account account = Account.builder()
+                .email(quickRegisterRequestDTO.getEmail())
+                .password(passwordEncoder.encode(quickRegisterRequestDTO
+                .getPassword())).status(AccountStatus.ACTIVE)
+                .user(user).build();
+        accountRepository.save(account);
+
+        return new RegisterResponseDTO(
+                quickRegisterRequestDTO.getEmail(),
                 user.getFullName(),
                 user.getUserRole()
         );

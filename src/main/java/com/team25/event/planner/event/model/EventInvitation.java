@@ -15,6 +15,7 @@ import lombok.Setter;
 @NoArgsConstructor
 @AllArgsConstructor
 @Entity
+@Table(name = "event_invitations")
 public class EventInvitation {
 
     @Id
@@ -29,13 +30,15 @@ public class EventInvitation {
     private String guestEmail;
 
     @NotNull(message = "Invitation code is required")
+    @Column(nullable = false, unique = true)
     private String invitationCode;
 
     @NotNull(message = "Event invitation status is required")
     @Enumerated(EnumType.STRING)
     private EventInvitationStatus status;
 
-    @OneToOne
+    @ManyToOne
+    @JoinColumn(name = "event_id", nullable = false)
     private Event event;
 
 }

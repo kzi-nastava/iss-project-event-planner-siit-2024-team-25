@@ -1,8 +1,11 @@
 package com.team25.event.planner.event.dto;
 
-import lombok.Data;
+import lombok.*;
 
-@Data
+@Getter
+@Setter
+@AllArgsConstructor
+@NoArgsConstructor
 public class EventInvitationRequestDTO {
-    private final String guestEmail;
+    private String guestEmail;
 }
