@@ -14,19 +14,19 @@ import java.util.List;
 @AllArgsConstructor
 @NoArgsConstructor
 public class ServiceCreateRequestDTO {
-    private String name;
-    private String description;
-    private double price;
-    private double discount;
-    private List<String> images;
-    private boolean isVisible;
-    private boolean isAvailable;
-    private String specifics;
-    private ReservationType reservationType;
-    private int duration;
-    private int reservationDeadline;
-    private int cancellationDeadline;
-    private List<Long> eventTypesIDs;
-    private Long offeringCategoryID;
-    private Long ownerId;
+        private String name;
+        private String description;
+        private double price;
+        private double discount;
+        private List<String> images;
+        private boolean isVisible;
+        private boolean isAvailable;
+        private String specifics;
+        private ReservationType reservationType;
+        private int duration;
+        private int reservationDeadline;
+        private int cancellationDeadline;
+        private List<Long> eventTypesIDs;
+        private Long offeringCategoryID;
+        private Long ownerId;
 }

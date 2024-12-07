@@ -1,7 +1,7 @@
 package com.team25.event.planner.offering.product.dto;
 
 import com.team25.event.planner.event.dto.EventTypePreviewResponseDTO;
-import com.team25.event.planner.offering.common.dto.OfferingCategoryServiceResponseDTO;
+import com.team25.event.planner.offering.common.dto.OfferingCategoryResponseDTO;
 import lombok.Data;
 
 import java.util.List;
@@ -17,5 +17,5 @@ public class ProductResponseDTO {
     private boolean isVisible;
     private boolean isAvailable;
     private List<EventTypePreviewResponseDTO> eventTypes;
-    private OfferingCategoryServiceResponseDTO offeringCategory;
+    private OfferingCategoryResponseDTO offeringCategory;
 }

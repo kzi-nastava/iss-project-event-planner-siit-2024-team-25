@@ -1,6 +1,6 @@
 package com.team25.event.planner.offering.service.dto;
 
-import com.team25.event.planner.offering.common.dto.OfferingCategoryServiceResponseDTO;
+import com.team25.event.planner.offering.common.dto.OfferingCategoryResponseDTO;
 import com.team25.event.planner.event.dto.EventTypeServiceResponseDTO;
 import com.team25.event.planner.offering.service.model.ReservationType;
 import lombok.Data;
@@ -17,7 +17,7 @@ public class ServiceDetailsResponseDTO {
     private List<String> images;
     private boolean isAvailable;
     private List<EventTypeServiceResponseDTO> eventTypes;
-    private OfferingCategoryServiceResponseDTO offeringCategory;
+    private OfferingCategoryResponseDTO offeringCategory;
     private ReservationType reservationType;
     private String specifics;
     private int duration;
