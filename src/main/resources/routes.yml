@@ -2,6 +2,7 @@ security:
   public-endpoints:
     - path: /api/auth/login
     - path: /api/auth/register
+    - path: /api/auth/register/quick
     - path: /api/auth/activate
     - path: /api/reviews
       methods: [ GET ]
