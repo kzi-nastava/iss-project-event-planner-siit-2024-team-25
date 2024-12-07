@@ -1,20 +1,11 @@
 package com.team25.event.planner.offering.service.controller;
 
-import com.team25.event.planner.event.dto.EventFilterDTO;
-import com.team25.event.planner.event.dto.EventTypePreviewResponseDTO;
-import com.team25.event.planner.offering.common.dto.OfferingCategoryServiceResponseDTO;
-
 import com.team25.event.planner.event.dto.EventTypeServiceResponseDTO;
+import com.team25.event.planner.offering.common.dto.OfferingCategoryServiceResponseDTO;
 import com.team25.event.planner.offering.common.dto.OfferingFilterDTO;
 import com.team25.event.planner.offering.common.dto.OfferingPreviewResponseDTO;
 import com.team25.event.planner.offering.service.dto.*;
 import com.team25.event.planner.offering.service.model.ReservationType;
-
-import com.team25.event.planner.offering.service.dto.*;
-import com.team25.event.planner.offering.service.model.ReservationType;
-import com.team25.event.planner.offering.service.model.Service;
-
-
 import com.team25.event.planner.offering.service.service.ServiceService;
 import jakarta.validation.Valid;
 import lombok.AllArgsConstructor;
@@ -22,6 +13,7 @@ import org.springframework.data.domain.Page;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.access.annotation.Secured;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.ArrayList;
@@ -204,12 +196,14 @@ public class ServiceController {
     }
 
     @PostMapping(consumes = MediaType.APPLICATION_JSON_VALUE, produces = MediaType.APPLICATION_JSON_VALUE)
+    @Secured("ROLE_OWNER")
     public ResponseEntity<ServiceCreateResponseDTO> createService(@Valid @RequestBody ServiceCreateRequestDTO serviceDTO) throws Exception {
 
         return new ResponseEntity<ServiceCreateResponseDTO>(serviceService.createService(serviceDTO), HttpStatus.CREATED);
     }
 
     @PutMapping(value = "/{id}", consumes = MediaType.APPLICATION_JSON_VALUE, produces = MediaType.APPLICATION_JSON_VALUE)
+    @Secured("ROLE_OWNER")
     public ResponseEntity<ServiceUpdateResponseDTO> updateService(@PathVariable Long id, @RequestBody ServiceUpdateRequestDTO service) throws Exception {
         ServiceUpdateResponseDTO service1 = new ServiceUpdateResponseDTO();
         service1.setId(1L);
@@ -236,6 +230,7 @@ public class ServiceController {
     }
 
     @DeleteMapping(value = "/{id}")
+    @Secured("ROLE_OWNER")
     public ResponseEntity<?> deleteService(@PathVariable Long id) {
         ServiceResponseDTO service1 = new ServiceResponseDTO();
         service1.setId(1L);

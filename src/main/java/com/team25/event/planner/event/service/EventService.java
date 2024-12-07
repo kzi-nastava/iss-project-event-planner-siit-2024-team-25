@@ -2,6 +2,7 @@ package com.team25.event.planner.event.service;
 
 import com.team25.event.planner.common.exception.InvalidRequestError;
 import com.team25.event.planner.common.exception.NotFoundError;
+import com.team25.event.planner.common.exception.UnauthorizedError;
 import com.team25.event.planner.event.dto.*;
 import com.team25.event.planner.event.mapper.ActivityMapper;
 import com.team25.event.planner.event.mapper.EventInvitationMapper;
@@ -13,8 +14,11 @@ import com.team25.event.planner.event.repository.EventTypeRepository;
 import com.team25.event.planner.event.specification.EventSpecification;
 import com.team25.event.planner.offering.common.model.OfferingCategoryType;
 import com.team25.event.planner.user.model.Account;
+import com.team25.event.planner.user.model.EventOrganizer;
 import com.team25.event.planner.user.repository.AccountRepository;
+import com.team25.event.planner.user.repository.EventOrganizerRepository;
 import com.team25.event.planner.user.repository.UserRepository;
+import com.team25.event.planner.user.service.CurrentUserService;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
@@ -40,6 +44,8 @@ public class EventService {
     private final EventInvitationMapper eventInvitationMapper;
     private final EventInvitationRepository eventInvitationRepository;
     private final UserRepository userRepository;
+    private final EventOrganizerRepository eventOrganizerRepository;
+    private final CurrentUserService currentUserService;
 
     public EventResponseDTO getEventById(Long id) {
         Event event = eventRepository.findById(id).orElseThrow(() -> new NotFoundError("Event not found"));
@@ -71,13 +77,16 @@ public class EventService {
         }
     }
 
-    public EventResponseDTO createEvent(@Valid EventRequestDTO eventDto) {
+    public EventResponseDTO createEvent(@Valid EventRequestDTO eventDto, Long userId) {
         validateDto(eventDto);
 
         EventType eventType = eventTypeRepository.findById(eventDto.getEventTypeId())
                 .orElseThrow(() -> new NotFoundError("Event type not found"));
 
-        Event event = eventMapper.toEvent(eventDto, eventType);
+        EventOrganizer eventOrganizer = eventOrganizerRepository.findById(userId)
+                .orElseThrow(() -> new UnauthorizedError("You must be event organizer to create an event"));
+
+        Event event = eventMapper.toEvent(eventDto, eventType, eventOrganizer);
         event = eventRepository.save(event);
 
         return eventMapper.toDTO(event);
@@ -88,6 +97,11 @@ public class EventService {
 
         Event event = eventRepository.findById(id).orElseThrow(() -> new NotFoundError("Event not found"));
 
+        Long currentUserId = currentUserService.getCurrentUserId();
+        if (!event.getOrganizer().getId().equals(currentUserId)) {
+            throw new UnauthorizedError();
+        }
+
         // only certain fields are allowed to change
         event.setDescription(eventDto.getDescription());
         event.setMaxParticipants(eventDto.getMaxParticipants());
@@ -97,15 +111,11 @@ public class EventService {
         return eventMapper.toDTO(event);
     }
 
-    public void deleteEvent(Long id) {
-        eventRepository.deleteById(id);
-    }
-
     public Page<EventPreviewResponseDTO> getAllEvents(EventFilterDTO filter, int page, int size, String sortBy, String sortDirection) {
-      Specification<Event> spec = eventSpecification.createSpecification(filter);
-      Sort.Direction direction = Sort.Direction.fromString(sortDirection);
-      Pageable pageable = PageRequest.of(page, size, Sort.by(direction, sortBy));
-      return eventRepository.findAll(spec, pageable).map(eventMapper::toEventPreviewResponseDTO);
+        Specification<Event> spec = eventSpecification.createSpecification(filter);
+        Sort.Direction direction = Sort.Direction.fromString(sortDirection);
+        Pageable pageable = PageRequest.of(page, size, Sort.by(direction, sortBy));
+        return eventRepository.findAll(spec, pageable).map(eventMapper::toEventPreviewResponseDTO);
     }
 
 
@@ -122,7 +132,7 @@ public class EventService {
         for (BudgetItem item : items) {
             if (item.getOfferingCategoryType().equals(offeringCategoryType)) {
                 if (price <= item.getMoney().getAmount()) {
-                    item.getMoney().setAmount(item.getMoney().getAmount()-price);// save to repo
+                    item.getMoney().setAmount(item.getMoney().getAmount() - price);// save to repo
                     return true;
                 }
                 return false;
@@ -133,13 +143,19 @@ public class EventService {
 
     public void sendInvitations(Long eventId, List<EventInvitationRequestDTO> requestDTO) {
         Event event = eventRepository.findById(eventId).orElseThrow(() -> new NotFoundError("Event not found"));
+
+        Long currentUserId = currentUserService.getCurrentUserId();
+        if (!event.getOrganizer().getId().equals(currentUserId)) {
+            throw new UnauthorizedError();
+        }
+
         requestDTO.stream().forEach(eventInvitationRequestDTO -> {
             Account account = accountRepository.findByEmail(eventInvitationRequestDTO.getGuestEmail()).orElse(null);
-            if(account != null) {
+            if (account != null) {
                 EventInvitation eventInvitation = eventInvitationMapper.toEventInvitation(eventInvitationRequestDTO, event, EventInvitationStatus.PENDING);
                 eventInvitationRepository.save(eventInvitation);
                 //TO-DO send email on guestEmail
-            }else{
+            } else {
                 //TO-DO quick registration
             }
         });

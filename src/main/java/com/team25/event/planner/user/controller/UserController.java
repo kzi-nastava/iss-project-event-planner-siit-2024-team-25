@@ -12,6 +12,8 @@ import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.access.annotation.Secured;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
 
 import java.io.IOException;
@@ -30,6 +32,7 @@ public class UserController {
     }
 
     @PutMapping("/{userId}")
+    @PreAuthorize("authentication.principal.userId = #userId")
     public ResponseEntity<UserResponseDTO> updateUser(
             @PathVariable Long userId,
             @Valid @RequestBody UserRequestDTO userRequestDTO
@@ -38,6 +41,7 @@ public class UserController {
     }
 
     @PostMapping("/{userId}/block")
+    @PreAuthorize("authentication.principal.userId = #userId")
     public ResponseEntity<Void> blockUser(
             @PathVariable Long userId,
             @Valid @RequestBody BlockRequestDTO blockRequestDTO
@@ -47,6 +51,7 @@ public class UserController {
     }
 
     @PostMapping("/{accountId}/suspend")
+    @Secured("ROLE_ADMIN")
     public ResponseEntity<Void> suspendUser(
             @PathVariable Long accountId
     ) {
