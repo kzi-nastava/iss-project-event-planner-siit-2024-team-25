@@ -9,6 +9,7 @@ import com.team25.event.planner.event.mapper.ActivityMapper;
 import com.team25.event.planner.event.mapper.EventInvitationMapper;
 import com.team25.event.planner.event.mapper.EventMapper;
 import com.team25.event.planner.event.model.*;
+import com.team25.event.planner.event.repository.EventAttendanceRepository;
 import com.team25.event.planner.event.repository.EventInvitationRepository;
 import com.team25.event.planner.event.repository.EventRepository;
 import com.team25.event.planner.event.repository.EventTypeRepository;
@@ -21,6 +22,7 @@ import com.team25.event.planner.user.model.UserRole;
 import com.team25.event.planner.user.repository.AccountRepository;
 import com.team25.event.planner.user.repository.UserRepository;
 import jakarta.validation.Valid;
+import jakarta.validation.constraints.NotNull;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
@@ -47,8 +49,8 @@ public class EventService {
     private final AccountRepository accountRepository;
     private final EventInvitationMapper eventInvitationMapper;
     private final EventInvitationRepository eventInvitationRepository;
-    private final UserRepository userRepository;
     private final EmailService emailService;
+    private final EventAttendanceRepository eventAttendanceRepository;
 
     public EventResponseDTO getEventById(Long id) {
         Event event = eventRepository.findById(id).orElseThrow(() -> new NotFoundError("Event not found"));
@@ -157,6 +159,16 @@ public class EventService {
         });
     }
 
+    public boolean checkInvitation(String guestEmail, String invitationCode){
+        Optional<EventInvitation> eventInvitation = eventInvitationRepository.findEventInvitationByGuestEmailAndInvitationCode(guestEmail, invitationCode);
+        if(eventInvitation.isPresent()){
+            eventInvitation.get().setStatus(EventInvitationStatus.ACCEPTED);
+            eventInvitationRepository.save(eventInvitation.get());
+            return true;
+        }
+        return false;
+    }
+
     public ActivityResponseDTO addActivityToAgenda(Long eventId, @Valid ActivityRequestDTO activityRequestDTO) {
         Activity activity = activityMapper.toActivity(activityRequestDTO);
         return activityMapper.toDTO(activity);
@@ -165,5 +177,19 @@ public class EventService {
     public List<ActivityResponseDTO> getEventAgenda(Long eventId) {
         Event event = eventRepository.findById(eventId).orElseThrow(() -> new NotFoundError("Event not found"));
         return event.getAgenda().stream().map(activityMapper::toDTO).toList();
+    }
+
+    public void createEventAttendance(User user, String invitationCode) {
+        EventAttendance eventAttendance = new EventAttendance();
+        EventAttendanceId eventAttendanceId = new EventAttendanceId();
+        eventAttendanceId.setUserId(user.getId());
+        Optional<EventInvitation> eventInvitation = eventInvitationRepository.findEventInvitationByGuestEmailAndInvitationCode(user.getAccount().getEmail(), invitationCode);
+        if(eventInvitation.isPresent()){
+            eventAttendanceId.setEventId(eventInvitation.get().getEvent().getId());
+            eventAttendance.setId(eventAttendanceId);
+            eventAttendance.setEvent(eventInvitation.get().getEvent());
+        }
+        eventAttendance.setAttendee(user);
+        eventAttendanceRepository.save(eventAttendance);
     }
 }

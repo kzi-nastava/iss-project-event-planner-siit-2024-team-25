@@ -46,4 +46,7 @@ public class QuickRegisterRequestDTO {
         return this.userRole;
     }
 
+    @NotNull(message = "Invitation code is required")
+    private String invitationCode;
+
 }
