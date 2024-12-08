@@ -1,6 +1,7 @@
 package com.team25.event.planner.offering.common.repository;
 
 import com.team25.event.planner.offering.common.dto.OfferingPreviewResponseDTO;
+import com.team25.event.planner.offering.common.dto.OfferingSubmittedResponseDTO;
 import com.team25.event.planner.offering.common.model.Offering;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
@@ -12,6 +13,18 @@ import org.springframework.data.repository.query.Param;
 import java.util.List;
 
 public interface OfferingRepository extends JpaRepository<Offering, Long>, JpaSpecificationExecutor<Offering> {
+
+    @Query("SELECT new com.team25.event.planner.offering.common.dto.OfferingSubmittedResponseDTO("+
+            "o.id,"+
+            " o.name,"+
+            " ot.id,"+
+            " ot.name,"+
+            " ot.description,"+
+            " ot.status) " +
+            "FROM Offering o " +
+            "LEFT JOIN OfferingCategory ot ON o.offeringCategory.id = ot.id " +
+            "WHERE ot.status = 'PENDING'")
+    List<OfferingSubmittedResponseDTO> getOfferingSubmittedResponseDTOs();
 
     @Query("SELECT new com.team25.event.planner.offering.common.dto.OfferingPreviewResponseDTO(" +
             "o.id, " +

@@ -3,6 +3,7 @@ package com.team25.event.planner.offering.common.controller;
 import com.team25.event.planner.offering.common.dto.OfferingCategoryCreateRequestDTO;
 import com.team25.event.planner.offering.common.dto.OfferingCategoryResponseDTO;
 import com.team25.event.planner.offering.common.dto.OfferingCategoryUpdateRequestDTO;
+import com.team25.event.planner.offering.common.model.OfferingCategoryType;
 import com.team25.event.planner.offering.common.service.OfferingCategoryService;
 import lombok.AllArgsConstructor;
 import org.springframework.http.MediaType;
@@ -22,17 +23,32 @@ public class OfferingCategoryController {
         return offeringCategoryService.getOfferingCategories();
     }
 
+    @GetMapping(value = "submitted", produces = MediaType.APPLICATION_JSON_VALUE)
+    public List<OfferingCategoryResponseDTO> getSubmittedOfferingCategories() {
+        return offeringCategoryService.getSubmittedOfferingCategories();
+    }
+
     @GetMapping(value = "{id}", produces = MediaType.APPLICATION_JSON_VALUE)
     public OfferingCategoryResponseDTO getOfferingCategory(@PathVariable("id") Long id) {
         return offeringCategoryService.getOfferingCategory(id);
     }
 
-    @PostMapping(consumes = MediaType.APPLICATION_JSON_VALUE, produces = MediaType.APPLICATION_JSON_VALUE)
-    public OfferingCategoryResponseDTO createOfferingCategory(@RequestBody OfferingCategoryCreateRequestDTO offeringCategoryCreateRequestDTO){
-        return offeringCategoryService.createOfferingCategory(offeringCategoryCreateRequestDTO);
+    @GetMapping(value = "/submitted/{id}", produces = MediaType.APPLICATION_JSON_VALUE)
+    public OfferingCategoryResponseDTO getSubmittedOfferingCategory(@PathVariable("id") Long id) {
+        return offeringCategoryService.getOfferingCategorySubmitted(id);
     }
 
-    @PutMapping(value = "{id}/", consumes = MediaType.APPLICATION_JSON_VALUE, produces = MediaType.APPLICATION_JSON_VALUE)
+    @PostMapping(consumes = MediaType.APPLICATION_JSON_VALUE, produces = MediaType.APPLICATION_JSON_VALUE)
+    public OfferingCategoryResponseDTO createOfferingCategory(@RequestBody OfferingCategoryCreateRequestDTO offeringCategoryCreateRequestDTO){
+        return offeringCategoryService.createOfferingCategory(offeringCategoryCreateRequestDTO, OfferingCategoryType.ACCEPTED);
+    }
+
+    @PostMapping(value = "submitted", consumes = MediaType.APPLICATION_JSON_VALUE, produces = MediaType.APPLICATION_JSON_VALUE)
+    public OfferingCategoryResponseDTO createSubmittedOfferingCategory(@RequestBody OfferingCategoryCreateRequestDTO offeringCategoryCreateRequestDTO){
+        return offeringCategoryService.createOfferingCategory(offeringCategoryCreateRequestDTO, OfferingCategoryType.PENDING);
+    }
+
+    @PutMapping(value = "{id}", consumes = MediaType.APPLICATION_JSON_VALUE, produces = MediaType.APPLICATION_JSON_VALUE)
     public OfferingCategoryResponseDTO updateOfferingCategory(@PathVariable("id") Long id ,@RequestBody OfferingCategoryUpdateRequestDTO offeringCategoryUpdateRequestDTO){
         return offeringCategoryService.updateOfferingCategory(id, offeringCategoryUpdateRequestDTO);
     }

@@ -8,6 +8,7 @@ import com.team25.event.planner.event.repository.EventRepository;
 import com.team25.event.planner.event.repository.PurchaseRepository;
 import com.team25.event.planner.offering.common.dto.OfferingFilterDTO;
 import com.team25.event.planner.offering.common.dto.OfferingPreviewResponseDTO;
+import com.team25.event.planner.offering.common.dto.OfferingSubmittedResponseDTO;
 import com.team25.event.planner.offering.common.mapper.OfferingMapper;
 import com.team25.event.planner.offering.common.model.Offering;
 import com.team25.event.planner.offering.common.model.OfferingReview;
@@ -36,6 +37,10 @@ public class OfferingService {
     private final PurchaseRepository purchaseRepository;
     private final OfferingReviewRepository offeringReviewRepository;
     private final EventRepository eventRepository;
+
+    public List<OfferingSubmittedResponseDTO> getSubmittedOfferings(){
+        return offeringRepository.getOfferingSubmittedResponseDTOs();
+    }
 
     public Page<OfferingPreviewResponseDTO> getOfferings(OfferingFilterDTO filter, int page, int size, String sortBy, String sortDirection) {
         Specification<Offering> spec = offeringSpecification.createSpecification(filter);

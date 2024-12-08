@@ -5,6 +5,7 @@ import com.team25.event.planner.offering.common.dto.OfferingCategoryResponseDTO;
 import com.team25.event.planner.event.dto.EventTypeServiceResponseDTO;
 import com.team25.event.planner.offering.common.dto.OfferingFilterDTO;
 import com.team25.event.planner.offering.common.dto.OfferingPreviewResponseDTO;
+import com.team25.event.planner.offering.common.model.OfferingCategoryType;
 import com.team25.event.planner.offering.service.dto.*;
 import com.team25.event.planner.offering.service.model.ReservationType;
 
@@ -80,7 +81,7 @@ public class ServiceController {
         eventTypes2.add(eventType22);
         service1.setEventTypes(eventTypes2);
 
-        service1.setOfferingCategory(new OfferingCategoryResponseDTO(1L, "Premium", "desc"));
+        service1.setOfferingCategory(new OfferingCategoryResponseDTO(1L, "Premium", "desc", OfferingCategoryType.ACCEPTED));
 
         service1.setReservationType(ReservationType.MANUAL);
         service1.setSpecifics("Specifics service1");
@@ -162,7 +163,7 @@ public class ServiceController {
         eventTypes2.add(eventType22);
         service1.setEventTypes(eventTypes2);
 
-        service1.setOfferingCategory(new OfferingCategoryResponseDTO(1L, "Premium", "desc"));
+        service1.setOfferingCategory(new OfferingCategoryResponseDTO(1L, "Premium", "desc", OfferingCategoryType.ACCEPTED));
 
         service2.setId(2L);
         service2.setName("Corporate Event Planning");
@@ -184,7 +185,7 @@ public class ServiceController {
         eventTypes.add(eventType2);
         service2.setEventTypes(eventTypes);
 
-        service2.setOfferingCategory(new OfferingCategoryResponseDTO(2L, "Enterprise", "desc"));
+        service2.setOfferingCategory(new OfferingCategoryResponseDTO(2L, "Enterprise", "desc", OfferingCategoryType.ACCEPTED));
 
         services.add(service1);
         services.add(service2);
