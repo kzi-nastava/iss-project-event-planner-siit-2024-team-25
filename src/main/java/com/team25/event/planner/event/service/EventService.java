@@ -162,9 +162,12 @@ public class EventService {
     public boolean checkInvitation(String guestEmail, String invitationCode){
         Optional<EventInvitation> eventInvitation = eventInvitationRepository.findEventInvitationByGuestEmailAndInvitationCode(guestEmail, invitationCode);
         if(eventInvitation.isPresent()){
-            eventInvitation.get().setStatus(EventInvitationStatus.ACCEPTED);
-            eventInvitationRepository.save(eventInvitation.get());
-            return true;
+            if(eventInvitation.get().getStatus() == EventInvitationStatus.PENDING){
+                eventInvitation.get().setStatus(EventInvitationStatus.ACCEPTED);
+                eventInvitationRepository.save(eventInvitation.get());
+                return true;
+            }
+            throw new InvalidRequestError("This invitation was already accepted");
         }
         return false;
     }
