@@ -9,7 +9,8 @@ import lombok.Setter;
 @Setter
 @AllArgsConstructor
 @NoArgsConstructor
-public class OfferingCategoryServiceResponseDTO {
+public class OfferingCategoryResponseDTO {
     private Long id;
     private String name;
+    private String description;
 }
