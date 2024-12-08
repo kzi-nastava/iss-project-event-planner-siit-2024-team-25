@@ -4,6 +4,7 @@ import com.team25.event.planner.common.exception.InvalidRequestError;
 import com.team25.event.planner.common.exception.NotFoundError;
 import com.team25.event.planner.common.util.VerificationCodeGenerator;
 import com.team25.event.planner.email.service.EmailService;
+import com.team25.event.planner.event.model.Event;
 import com.team25.event.planner.event.service.EventService;
 import com.team25.event.planner.user.dto.*;
 import com.team25.event.planner.user.mapper.UserMapper;
@@ -87,7 +88,7 @@ public class AuthService {
     }
 
     @Transactional
-    public RegisterResponseDTO quickRegister(@Valid QuickRegisterRequestDTO quickRegisterRequestDTO){
+    public QuickRegisterResponseDTO quickRegister(@Valid QuickRegisterRequestDTO quickRegisterRequestDTO){
         if (accountRepository.existsByEmail(quickRegisterRequestDTO.getEmail())) {
             throw new InvalidRequestError("Email address is already taken");
         }
@@ -110,10 +111,13 @@ public class AuthService {
 
         eventService.createEventAttendance(user, quickRegisterRequestDTO.getInvitationCode());
 
-        return new RegisterResponseDTO(
-                quickRegisterRequestDTO.getEmail(),
-                user.getFullName(),
-                user.getUserRole()
+        Event event = eventService.getEventByGuestAndInvitationCode(user.getAccount().getEmail(), quickRegisterRequestDTO.getInvitationCode());
+
+        return new QuickRegisterResponseDTO(
+                user.getId(),
+                user.getAccount().getEmail(),
+                user.getAccount().getPassword(),
+                event.getId()
         );
     }
 

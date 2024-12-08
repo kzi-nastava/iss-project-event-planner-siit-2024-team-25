@@ -172,6 +172,14 @@ public class EventService {
         return false;
     }
 
+    public Event getEventByGuestAndInvitationCode(String guestEmail,String invitationCode){
+        Optional<EventInvitation> eventInvitation = eventInvitationRepository.findEventInvitationByGuestEmailAndInvitationCode(guestEmail, invitationCode);
+        if(eventInvitation.isPresent()){
+            return eventInvitation.get().getEvent();
+        }
+        return null;
+    }
+
     public ActivityResponseDTO addActivityToAgenda(Long eventId, @Valid ActivityRequestDTO activityRequestDTO) {
         Activity activity = activityMapper.toActivity(activityRequestDTO);
         return activityMapper.toDTO(activity);
