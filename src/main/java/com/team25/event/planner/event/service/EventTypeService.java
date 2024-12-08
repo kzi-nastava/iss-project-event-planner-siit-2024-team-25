@@ -1,6 +1,7 @@
 package com.team25.event.planner.event.service;
 
 import com.team25.event.planner.common.exception.NotFoundError;
+import com.team25.event.planner.event.dto.EventTypePreviewResponseDTO;
 import com.team25.event.planner.event.dto.EventTypeRequestDTO;
 import com.team25.event.planner.event.dto.EventTypeResponseDTO;
 import com.team25.event.planner.event.mapper.EventTypeMapper;
@@ -31,6 +32,10 @@ public class EventTypeService {
         return eventTypeRepository.findAll().stream().map(eventTypeMapper::toDTO).toList();
     }
 
+    public List<EventTypePreviewResponseDTO> getAllEventTypes() {
+        return eventTypeRepository.findAll().stream().map(eventTypeMapper::toPreviewDTO).toList();
+    }
+
     public EventTypeResponseDTO createEventType(@Valid EventTypeRequestDTO eventTypeDto) {
         EventType eventType = eventTypeMapper.toEventType(eventTypeDto);
 
@@ -55,4 +60,6 @@ public class EventTypeService {
 
         return eventTypeMapper.toDTO(eventType);
     }
+
+
 }
