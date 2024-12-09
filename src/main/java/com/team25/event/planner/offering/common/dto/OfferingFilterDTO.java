@@ -12,10 +12,6 @@ public class OfferingFilterDTO {
     private Long categoryId;
     private Double minPrice;
     private Double maxPrice;
-    private String country;
-    private String city;
-    private Date startDate;
-    private Date endDate;
-    private LocalTime startTime;
-    private LocalTime endTime;
+    private Boolean isAvailable;
+    private String description;
 }
