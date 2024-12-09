@@ -1,11 +1,16 @@
 package com.team25.event.planner.user.service;
 
+import com.team25.event.planner.common.dto.LocationResponseDTO;
 import com.team25.event.planner.common.exception.InvalidRequestError;
 import com.team25.event.planner.common.exception.NotFoundError;
 import com.team25.event.planner.common.exception.ServerError;
+import com.team25.event.planner.common.mapper.LocationMapper;
 import com.team25.event.planner.common.model.Location;
 import com.team25.event.planner.common.util.FileUtils;
-import com.team25.event.planner.user.dto.*;
+import com.team25.event.planner.user.dto.BlockRequestDTO;
+import com.team25.event.planner.user.dto.RegisterRequestDTO;
+import com.team25.event.planner.user.dto.UserRequestDTO;
+import com.team25.event.planner.user.dto.UserResponseDTO;
 import com.team25.event.planner.user.mapper.EventOrganizerMapper;
 import com.team25.event.planner.user.mapper.OwnerMapper;
 import com.team25.event.planner.user.mapper.UserMapper;
@@ -44,11 +49,12 @@ public class UserService {
     private final UserRepository userRepository;
     private final SuspensionRepository suspensionRepository;
     private final AccountRepository accountRepository;
+    private final OwnerRepository ownerRepository;
+    private final LocationMapper locationMapper;
 
     private final Path profilePictureFileStorageLocation;
     private final String profilePictureFilenameTemplate;
     private final Path companyPicturesFileStorageLocation;
-    private final OwnerRepository ownerRepository;
 
     public UserService(
             UserMapper userMapper, EventOrganizerMapper eventOrganizerMapper, OwnerMapper ownerMapper,
@@ -56,7 +62,7 @@ public class UserService {
             @Value("${file-storage.images.profile}") String profilePictureSaveDirectory,
             @Value("${filename.template.profile-pic}") String profilePictureFilenameTemplate,
             @Value("${file-storage.images.company}") String companyPicturesSaveDirectory,
-            OwnerRepository ownerRepository) {
+            OwnerRepository ownerRepository, LocationMapper locationMapper) {
         this.userMapper = userMapper;
         this.eventOrganizerMapper = eventOrganizerMapper;
         this.ownerMapper = ownerMapper;
@@ -67,6 +73,7 @@ public class UserService {
         this.profilePictureFilenameTemplate = profilePictureFilenameTemplate;
         this.companyPicturesFileStorageLocation = Paths.get(companyPicturesSaveDirectory).toAbsolutePath().normalize();
         this.ownerRepository = ownerRepository;
+        this.locationMapper = locationMapper;
     }
 
     public UserResponseDTO getUser(Long userId) {
@@ -321,5 +328,15 @@ public class UserService {
         Account account = accountRepository.findById(accountId).orElseThrow(() -> new NotFoundError("Account not found"));
         account.setSuspension(suspension);
         accountRepository.save(account);
+    }
+
+    public LocationResponseDTO getUserAddress(Long userId) {
+        User user = userRepository.findById(userId).orElseThrow(() -> new NotFoundError("User not found"));
+        if (user instanceof EventOrganizer) {
+            return locationMapper.toDTO(((EventOrganizer) user).getLivingAddress());
+        } else if (user instanceof Owner) {
+            return locationMapper.toDTO(((Owner) user).getCompanyAddress());
+        }
+        return null;
     }
 }
