@@ -23,6 +23,14 @@ public class OfferingController {
         return ResponseEntity.ok(offeringService.getSubmittedOfferings());
     }
 
+    @PutMapping(value = "{id}/updateCategory")
+    public ResponseEntity<Void> updateOfferingsCategory(@PathVariable("id") Long id,
+                                                     @RequestParam Long categoryId,
+                                                        @RequestParam Long updateCategoryId){
+        offeringService.updateOfferingsCategory(id, categoryId, updateCategoryId);
+        return ResponseEntity.ok().build();
+    }
+
 
     @GetMapping("/")
     public ResponseEntity<Page<OfferingPreviewResponseDTO>> getOfferings(

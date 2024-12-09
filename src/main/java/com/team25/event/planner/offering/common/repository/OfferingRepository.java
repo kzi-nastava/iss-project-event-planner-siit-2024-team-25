@@ -14,6 +14,8 @@ import java.util.List;
 
 public interface OfferingRepository extends JpaRepository<Offering, Long>, JpaSpecificationExecutor<Offering> {
 
+    Long countOfferingsByOfferingCategoryId(Long offeringCategoryId);
+
     @Query("SELECT new com.team25.event.planner.offering.common.dto.OfferingSubmittedResponseDTO("+
             "o.id,"+
             " o.name,"+
