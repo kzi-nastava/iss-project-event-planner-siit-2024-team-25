@@ -22,7 +22,7 @@ public class OfferingSpecification {
             }
             if (filter.getDescription() != null) {
                 predicates.add(cb.like(cb.lower(root.get("description")),
-                        "%" + filter.getName().toLowerCase() + "%"));
+                        "%" + filter.getDescription().toLowerCase() + "%"));
             }
             if (filter.getEventTypeId() != null) {
                 Join<Object, Object> eventTypeJoin = root.join("eventTypes");
