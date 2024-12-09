@@ -14,6 +14,7 @@ import com.team25.event.planner.offering.common.mapper.OfferingMapper;
 import com.team25.event.planner.offering.common.model.Offering;
 import com.team25.event.planner.offering.common.model.OfferingCategory;
 import com.team25.event.planner.offering.common.model.OfferingReview;
+import com.team25.event.planner.offering.common.model.OfferingType;
 import com.team25.event.planner.offering.common.repository.OfferingCategoryRepository;
 import com.team25.event.planner.offering.common.repository.OfferingRepository;
 import com.team25.event.planner.offering.common.repository.OfferingReviewRepository;
@@ -53,6 +54,7 @@ public class OfferingService {
         Offering offering = offeringRepository.findById(offeringId).orElseThrow(()-> new NotFoundError("Offering not found"));
         OfferingCategory category = offeringCategoryRepository.findById(categoryId).orElseThrow(()-> new NotFoundError("Submitted category not found"));
         OfferingCategory categoryUpdate = offeringCategoryRepository.findById(updateCategoryId).orElseThrow(()-> new NotFoundError("Category to update not found"));
+        offering.setStatus(OfferingType.ACCEPTED);
         offering.setOfferingCategory(categoryUpdate);
         offeringRepository.save(offering);
         if(offeringRepository.countOfferingsByOfferingCategoryId(categoryId) == 0){
