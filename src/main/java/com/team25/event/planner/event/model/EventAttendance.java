@@ -20,12 +20,10 @@ public class EventAttendance {
     @NotNull
     @ManyToOne
     @MapsId("userId")
-    @JoinColumn(name = "attendeeId", nullable = false)
     private User attendee;
 
     @NotNull
     @ManyToOne
     @MapsId("eventId")
-    @JoinColumn(name = "eventId", nullable = false)
     private Event event;
 }

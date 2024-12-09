@@ -4,6 +4,8 @@ import com.team25.event.planner.common.exception.InvalidRequestError;
 import com.team25.event.planner.common.exception.NotFoundError;
 import com.team25.event.planner.common.util.VerificationCodeGenerator;
 import com.team25.event.planner.email.service.EmailService;
+import com.team25.event.planner.event.model.Event;
+import com.team25.event.planner.event.service.EventService;
 import com.team25.event.planner.user.dto.*;
 import com.team25.event.planner.user.mapper.UserMapper;
 import com.team25.event.planner.user.model.*;
@@ -36,6 +38,7 @@ public class AuthService {
     private final UserRepository userRepository;
 
     private final UserMapper userMapper;
+    private final EventService eventService;
 
     public AuthService(
             UserService userService,
@@ -45,7 +48,7 @@ public class AuthService {
             EmailService emailService,
             @Value("${activation.duration-minutes}") Long activationMinutesTimeLimit,
             UserRepository userRepository,
-            UserMapper userMapper) {
+            UserMapper userMapper, EventService eventService) {
         this.userService = userService;
         this.passwordEncoder = passwordEncoder;
         this.accountRepository = accountRepository;
@@ -54,6 +57,7 @@ public class AuthService {
         this.activationTimeLimit = Duration.ofMinutes(activationMinutesTimeLimit);
         this.userRepository = userRepository;
         this.userMapper = userMapper;
+        this.eventService = eventService;
     }
 
     @Transactional
@@ -84,9 +88,13 @@ public class AuthService {
     }
 
     @Transactional
-    public RegisterResponseDTO quickRegister(@Valid QuickRegisterRequestDTO quickRegisterRequestDTO){
+    public QuickRegisterResponseDTO quickRegister(@Valid QuickRegisterRequestDTO quickRegisterRequestDTO){
         if (accountRepository.existsByEmail(quickRegisterRequestDTO.getEmail())) {
             throw new InvalidRequestError("Email address is already taken");
+        }
+
+        if(!eventService.checkInvitation(quickRegisterRequestDTO.getEmail(), quickRegisterRequestDTO.getInvitationCode())){
+            throw new InvalidRequestError("There is no invitations for this email");
         }
 
         RegisterRequestDTO requestDTO  = userMapper.toRegisterRequestDto(quickRegisterRequestDTO);
@@ -98,11 +106,18 @@ public class AuthService {
                 .getPassword())).status(AccountStatus.ACTIVE)
                 .user(user).build();
         accountRepository.save(account);
+        user.setAccount(account);
+        userRepository.save(user);
 
-        return new RegisterResponseDTO(
-                quickRegisterRequestDTO.getEmail(),
-                user.getFullName(),
-                user.getUserRole()
+        eventService.createEventAttendance(user, quickRegisterRequestDTO.getInvitationCode());
+
+        Event event = eventService.getEventByGuestAndInvitationCode(user.getAccount().getEmail(), quickRegisterRequestDTO.getInvitationCode());
+
+        return new QuickRegisterResponseDTO(
+                user.getId(),
+                user.getAccount().getEmail(),
+                user.getAccount().getPassword(),
+                event.getId()
         );
     }
 
