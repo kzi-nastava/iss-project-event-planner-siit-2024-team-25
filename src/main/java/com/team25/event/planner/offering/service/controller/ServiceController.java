@@ -1,7 +1,7 @@
 package com.team25.event.planner.offering.service.controller;
 
 import com.team25.event.planner.event.dto.EventTypeServiceResponseDTO;
-import com.team25.event.planner.offering.common.dto.OfferingCategoryServiceResponseDTO;
+import com.team25.event.planner.offering.common.dto.OfferingCategoryResponseDTO;
 import com.team25.event.planner.offering.common.dto.OfferingFilterDTO;
 import com.team25.event.planner.offering.common.dto.OfferingPreviewResponseDTO;
 import com.team25.event.planner.offering.service.dto.*;
@@ -28,18 +28,12 @@ public class ServiceController {
 
     private final ServiceService serviceService;
 
-    @GetMapping(produces = MediaType.APPLICATION_JSON_VALUE)
-    public ResponseEntity<Collection<ServiceResponseDTO>> getServices() {
-        Collection<ServiceResponseDTO> services = SetMockData();
-
-        return new ResponseEntity<Collection<ServiceResponseDTO>>(services, HttpStatus.OK);
-    }
 
     @GetMapping
     public ResponseEntity<Page<ServiceCardResponseDTO>> getServices(
             @ModelAttribute ServiceFilterDTO filter,
             @RequestParam(defaultValue = "0") int page,
-            @RequestParam(defaultValue = "5") int size,
+            @RequestParam(defaultValue = "15") int size,
             @RequestParam(defaultValue = "name") String sortBy,
             @RequestParam(defaultValue = "asc") String sortDirection
     ){
@@ -84,7 +78,7 @@ public class ServiceController {
         eventTypes2.add(eventType22);
         service1.setEventTypes(eventTypes2);
 
-        service1.setOfferingCategory(new OfferingCategoryServiceResponseDTO(1L, "Premium"));
+        service1.setOfferingCategory(new OfferingCategoryResponseDTO(1L, "Premium", "desc"));
 
         service1.setReservationType(ReservationType.MANUAL);
         service1.setSpecifics("Specifics service1");
@@ -166,7 +160,7 @@ public class ServiceController {
         eventTypes2.add(eventType22);
         service1.setEventTypes(eventTypes2);
 
-        service1.setOfferingCategory(new OfferingCategoryServiceResponseDTO(1L, "Premium"));
+        service1.setOfferingCategory(new OfferingCategoryResponseDTO(1L, "Premium", "desc"));
 
         service2.setId(2L);
         service2.setName("Corporate Event Planning");
@@ -188,7 +182,7 @@ public class ServiceController {
         eventTypes.add(eventType2);
         service2.setEventTypes(eventTypes);
 
-        service2.setOfferingCategory(new OfferingCategoryServiceResponseDTO(2L, "Enterprise"));
+        service2.setOfferingCategory(new OfferingCategoryResponseDTO(2L, "Enterprise", "desc"));
 
         services.add(service1);
         services.add(service2);

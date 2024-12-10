@@ -1,5 +1,6 @@
 package com.team25.event.planner.user.controller;
 
+import com.team25.event.planner.common.dto.LocationResponseDTO;
 import com.team25.event.planner.common.exception.ServerError;
 import com.team25.event.planner.user.dto.BlockRequestDTO;
 import com.team25.event.planner.user.dto.UserRequestDTO;
@@ -97,5 +98,10 @@ public class UserController {
         } catch (IOException e) {
             throw new ServerError("Could not load image", 500);
         }
+    }
+
+    @GetMapping("/{userId}/location")
+    ResponseEntity<LocationResponseDTO> getUserAddress(@PathVariable Long userId) {
+        return ResponseEntity.ok(userService.getUserAddress(userId));
     }
 }

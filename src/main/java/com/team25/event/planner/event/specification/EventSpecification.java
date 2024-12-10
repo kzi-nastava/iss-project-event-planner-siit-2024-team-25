@@ -38,9 +38,6 @@ public class EventSpecification {
             if (filter.getStartDate() != null) {
                 predicates.add(cb.greaterThanOrEqualTo(root.get("startDate"), filter.getStartDate()));
             }
-            else{
-                predicates.add(cb.greaterThanOrEqualTo(root.get("startDate"), LocalDate.now()));
-            }
 
             if (filter.getEndDate() != null) {
                 predicates.add(cb.lessThanOrEqualTo(root.get("endDate"), filter.getEndDate()));
@@ -52,10 +49,6 @@ public class EventSpecification {
 
             if (filter.getEndTime() != null) {
                 predicates.add(cb.lessThanOrEqualTo(root.get("startTime"), filter.getEndTime()));
-            }
-
-            if (filter.getMinParticipants() != null) {
-                predicates.add(cb.greaterThanOrEqualTo(root.get("minParticipants"), filter.getMinParticipants()));
             }
 
             if (filter.getMaxParticipants() != null) {

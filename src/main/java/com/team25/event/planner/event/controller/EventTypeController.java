@@ -1,5 +1,6 @@
 package com.team25.event.planner.event.controller;
 
+import com.team25.event.planner.event.dto.EventTypePreviewResponseDTO;
 import com.team25.event.planner.event.dto.EventTypeRequestDTO;
 import com.team25.event.planner.event.dto.EventTypeResponseDTO;
 import com.team25.event.planner.event.service.EventTypeService;
@@ -26,6 +27,11 @@ public class EventTypeController {
     @GetMapping
     public ResponseEntity<List<EventTypeResponseDTO>> getEventTypes() {
         return ResponseEntity.ok(eventTypeService.getEventTypes());
+    }
+
+    @GetMapping("/all")
+    public ResponseEntity<List<EventTypePreviewResponseDTO>> getAllEventTypes() {
+        return ResponseEntity.ok(eventTypeService.getAllEventTypes());
     }
 
     @PostMapping

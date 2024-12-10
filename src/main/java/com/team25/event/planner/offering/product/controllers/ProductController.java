@@ -1,7 +1,7 @@
 package com.team25.event.planner.offering.product.controllers;
 
 import com.team25.event.planner.event.dto.EventTypeServiceResponseDTO;
-import com.team25.event.planner.offering.common.dto.OfferingCategoryServiceResponseDTO;
+import com.team25.event.planner.offering.common.dto.OfferingCategoryResponseDTO;
 import com.team25.event.planner.offering.common.dto.OfferingFilterDTO;
 import com.team25.event.planner.offering.common.dto.OfferingPreviewResponseDTO;
 import com.team25.event.planner.offering.product.dto.ProductDetailsResponseDTO;
@@ -55,7 +55,7 @@ public class ProductController {
         eventTypes2.add(eventType22);
         productDetailsResponseDTO.setEventTypes(eventTypes2);
 
-        productDetailsResponseDTO.setOfferingCategory(new OfferingCategoryServiceResponseDTO(1L, "Premium"));
+        productDetailsResponseDTO.setOfferingCategory(new OfferingCategoryResponseDTO(1L, "Premium", "desc"));
 
         return new ResponseEntity<ProductDetailsResponseDTO>(productDetailsResponseDTO, HttpStatus.OK);
     }
