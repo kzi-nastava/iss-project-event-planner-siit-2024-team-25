@@ -60,14 +60,14 @@ public class ProductController {
     }
 
     @GetMapping("/all")
-    public ResponseEntity<Page<OfferingPreviewResponseDTO>> getProducts(
+    public ResponseEntity<Page<OfferingPreviewResponseDTO>> getAllProducts(
             @ModelAttribute OfferingFilterDTO filter,
             @RequestParam(defaultValue = "0") int page,
             @RequestParam(defaultValue = "10") int size,
             @RequestParam(defaultValue = "name") String sortBy,
             @RequestParam(defaultValue = "asc") String sortDirection
     ){
-        return ResponseEntity.ok(productService.getProducts(filter, page, size, sortBy, sortDirection));
+        return ResponseEntity.ok(productService.getAllProducts(filter, page, size, sortBy, sortDirection));
     }
 
     @PostMapping
