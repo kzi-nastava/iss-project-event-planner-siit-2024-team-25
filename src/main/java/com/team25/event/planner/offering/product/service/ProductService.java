@@ -10,6 +10,7 @@ import com.team25.event.planner.offering.product.dto.ProductRequestDTO;
 import com.team25.event.planner.offering.product.dto.ProductResponseDTO;
 import com.team25.event.planner.offering.product.model.Product;
 import com.team25.event.planner.offering.product.repository.ProductRepository;
+import com.team25.event.planner.offering.product.specification.ProductSpecification;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.*;
@@ -25,14 +26,14 @@ public class ProductService {
 
     private final OfferingMapper offeringMapper;
     private final OfferingRepository offeringRepository;
-    private final OfferingSpecification offeringSpecification;
+    private final ProductSpecification productSpecification;
     private final ProductRepository productRepository;
 
     public Page<OfferingPreviewResponseDTO> getAllProducts(OfferingFilterDTO filter, int page, int size, String sortBy, String sortDirection) {
-        Specification<Offering> spec = offeringSpecification.createSpecification(filter);
+        Specification<Product> spec = productSpecification.createSpecification(filter);
         Sort.Direction direction = Sort.Direction.fromString(sortDirection);
         Pageable pageable = PageRequest.of(page, size, Sort.by(direction, sortBy));
-        Page<Offering> offeringPage = productRepository.findAll(spec, pageable);
+        Page<Offering> offeringPage = productRepository.findAll(spec, pageable).map(product -> (Offering) product);
         System.out.println(offeringPage.getContent());
         pageable = PageRequest.of(0,size, Sort.by(direction, sortBy));
         List<OfferingPreviewResponseDTO> offeringsWithRatings = offeringRepository.findOfferingsWithAverageRating(offeringPage.getContent(), pageable);
