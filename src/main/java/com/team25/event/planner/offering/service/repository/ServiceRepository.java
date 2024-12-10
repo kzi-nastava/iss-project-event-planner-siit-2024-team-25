@@ -1,5 +1,6 @@
 package com.team25.event.planner.offering.service.repository;
 
+import com.team25.event.planner.offering.common.model.Offering;
 import com.team25.event.planner.offering.service.model.Service;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.JpaSpecificationExecutor;
