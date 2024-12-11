@@ -3,9 +3,7 @@ package com.team25.event.planner.offering.service.mapper;
 
 import com.team25.event.planner.event.model.EventType;
 import com.team25.event.planner.offering.common.model.OfferingCategory;
-import com.team25.event.planner.offering.service.dto.ServiceCardResponseDTO;
-import com.team25.event.planner.offering.service.dto.ServiceCreateRequestDTO;
-import com.team25.event.planner.offering.service.dto.ServiceCreateResponseDTO;
+import com.team25.event.planner.offering.service.dto.*;
 import com.team25.event.planner.offering.service.model.Service;
 import com.team25.event.planner.user.model.Owner;
 import org.mapstruct.Mapper;
@@ -15,12 +13,22 @@ import java.util.List;
 
 @Mapper(componentModel = "spring", uses = {ServiceMapperHelper.class})
 public interface ServiceMapper {
+
     @Mapping(source = "visible", target = "visible")
     @Mapping(source = "available", target = "available")
     @Mapping(source = "eventTypes", target = "eventTypesIDs")
     @Mapping(source = "owner", target = "ownerID")
     @Mapping(source = "offeringCategory", target = "offeringCategoryID")
     ServiceCreateResponseDTO toDTO(Service service);
+
+    @Mapping(source = "visible", target = "visible")
+    @Mapping(source = "available", target = "available")
+    @Mapping(source = "eventTypes", target = "eventTypesIDs")
+    ServiceUpdateResponseDTO toUpdateDTO(Service service);
+
+    @Mapping(source = "visible", target = "visible")
+    @Mapping(source = "available", target = "available")
+    Service toUpdatedService(ServiceUpdateResponseDTO serviceUpdateResponseDTO);
 
     @Mapping(source = "dto.available", target = "available")
     @Mapping(source = "dto.visible", target = "visible")

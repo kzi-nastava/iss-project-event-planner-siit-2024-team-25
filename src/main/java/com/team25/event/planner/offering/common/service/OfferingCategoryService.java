@@ -38,7 +38,7 @@ public class OfferingCategoryService {
 
     public OfferingCategoryResponseDTO getOfferingCategory(Long id) {
         OfferingCategory offeringCategory = offeringCategoryRepository.findOfferingCategoryByIdAndStatus(id, "ACCEPTED");
-        System.out.println(offeringCategory);
+
         if(offeringCategory == null) {
             throw new NotFoundError("Offering category not found");
         }

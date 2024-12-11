@@ -16,7 +16,7 @@ public class ServiceUpdateResponseDTO {
     private double price;
     private double discount;
     private List<String> images;
-    private boolean isActive;
+    private boolean isVisible;
     private boolean isAvailable;
     private String specifics;
     private OfferingType status;
@@ -24,5 +24,7 @@ public class ServiceUpdateResponseDTO {
     private int duration;
     private int reservationDeadline;
     private int cancellationDeadline;
+    private int minimumArrangement;
+    private int maximumArrangement;
     private List<Long> eventTypesIDs;
 }
