@@ -43,16 +43,19 @@ public class ServiceService {
     private final OfferingMapper offeringMapper;
     private final ServiceRepository serviceRepository;
     private final OfferingCategoryRepository offeringCategoryRepository;
+    private final EventTypeRepository eventTypeRepository;
     private final ServiceMapper serviceMapper;
     private final ServiceSpecification serviceSpecification;
 
+    @Transactional
     public ServiceCreateResponseDTO createService(ServiceCreateRequestDTO requestDTO){
 
         com.team25.event.planner.offering.service.model.Service service = serviceMapper.toEntity(requestDTO);
 
         if(service.getOfferingCategory() == null){
             service.setStatus(OfferingType.PENDING);
-            offeringCategoryRepository.save(new OfferingCategory(requestDTO.getOfferingCategoryName(),"",OfferingCategoryType.PENDING));
+            OfferingCategory offeringCategory = offeringCategoryRepository.save(new OfferingCategory(requestDTO.getOfferingCategoryName(),"",OfferingCategoryType.PENDING));
+            service.setOfferingCategory(offeringCategory);
         }else{
             service.setStatus(OfferingType.ACCEPTED);
         }
@@ -75,8 +78,8 @@ public class ServiceService {
     }
 
     public ServiceUpdateResponseDTO updateService(Long id, ServiceUpdateRequestDTO requestDTO){
-        com.team25.event.planner.offering.service.model.Service serviceModel = serviceRepository.findById(id).orElseThrow(()->new NotFoundError("Service not found"));
-        ServiceUpdateResponseDTO service = serviceMapper.toUpdateDTO(serviceModel);
+        com.team25.event.planner.offering.service.model.Service service = serviceRepository.findById(id).orElseThrow(()->new NotFoundError("Service not found"));
+
 
         service.setName(requestDTO.getName());
         service.setDescription(requestDTO.getDescription());
@@ -86,18 +89,17 @@ public class ServiceService {
         service.setVisible(requestDTO.isVisible());
         service.setAvailable(requestDTO.isAvailable());
         service.setSpecifics(requestDTO.getSpecifics());
-        service.setStatus(service.getStatus());
-        service.setReservationType(service.getReservationType());
+        service.setStatus(requestDTO.getStatus());
+        service.setReservationType(requestDTO.getReservationType());
         service.setDuration(requestDTO.getDuration());
         service.setReservationDeadline(requestDTO.getReservationDeadline());
         service.setCancellationDeadline(requestDTO.getCancellationDeadline());
         service.setMinimumArrangement(requestDTO.getMinimumArrangement());
         service.setMaximumArrangement(requestDTO.getMaximumArrangement());
-        service.setEventTypesIDs(requestDTO.getEventTypesIDs());
+        service.setEventTypes(eventTypeRepository.findAllById(requestDTO.getEventTypesIDs()));
 
-        com.team25.event.planner.offering.service.model.Service updatedService = serviceMapper.toUpdatedService(service);
-        serviceRepository.save(updatedService);
-        return serviceMapper.toUpdateDTO(updatedService);
+        serviceRepository.save(service);
+        return serviceMapper.toUpdateDTO(service);
     }
 
     public ResponseEntity<?> deleteService(Long id){
