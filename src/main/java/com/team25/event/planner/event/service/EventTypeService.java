@@ -31,6 +31,9 @@ public class EventTypeService {
     public List<EventTypeResponseDTO> getEventTypes() {
         return eventTypeRepository.findAll().stream().map(eventTypeMapper::toDTO).toList();
     }
+    public List<EventTypeResponseDTO> getEventTypesByIds(List<Long> ids) {
+        return eventTypeRepository.findAllById(ids).stream().map(eventTypeMapper::toDTO).toList();
+    }
 
     public List<EventTypePreviewResponseDTO> getAllEventTypes() {
         return eventTypeRepository.findAll().stream().map(eventTypeMapper::toPreviewDTO).toList();
