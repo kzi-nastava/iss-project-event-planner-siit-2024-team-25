@@ -1,7 +1,7 @@
 package com.team25.event.planner.offering.product.controllers;
 
-import com.team25.event.planner.offering.common.dto.OfferingCategoryResponseDTO;
 import com.team25.event.planner.event.dto.EventTypeServiceResponseDTO;
+import com.team25.event.planner.offering.common.dto.OfferingCategoryResponseDTO;
 import com.team25.event.planner.offering.common.dto.OfferingFilterDTO;
 import com.team25.event.planner.offering.common.dto.OfferingPreviewResponseDTO;
 import com.team25.event.planner.offering.common.model.OfferingCategoryType;
@@ -15,6 +15,7 @@ import org.springframework.data.domain.Page;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.access.annotation.Secured;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.ArrayList;
@@ -72,11 +73,13 @@ public class ProductController {
     }
 
     @PostMapping
+    @Secured("ROLE_OWNER")
     public ResponseEntity<ProductResponseDTO> createProduct(@Valid @RequestBody ProductRequestDTO productDto) {
         return ResponseEntity.status(HttpStatus.CREATED).body(productService.createProduct(productDto));
     }
 
     @PutMapping("/{id}")
+    @Secured("ROLE_OWNER")
     public ResponseEntity<ProductResponseDTO> updateProduct(
             @PathVariable Long id,
             @Valid @RequestBody ProductRequestDTO productDto
@@ -85,6 +88,7 @@ public class ProductController {
     }
 
     @DeleteMapping("/{id}")
+    @Secured("ROLE_OWNER")
     public ResponseEntity<Void> deleteProduct(@PathVariable Long id) {
         productService.deleteProduct(id);
         return ResponseEntity.noContent().build();

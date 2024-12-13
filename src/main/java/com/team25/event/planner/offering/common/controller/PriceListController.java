@@ -3,10 +3,10 @@ package com.team25.event.planner.offering.common.controller;
 import com.team25.event.planner.offering.common.dto.PriceListItemResponseDTO;
 import com.team25.event.planner.offering.common.dto.PriceListItemUpdateRequestDTO;
 import com.team25.event.planner.offering.common.dto.PriceListItemUpdateResponseDTO;
-import com.team25.event.planner.offering.service.dto.ServiceResponseDTO;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.access.annotation.Secured;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.ArrayList;
@@ -71,6 +71,7 @@ public class PriceListController {
     }
 
     @PutMapping(value = "/{id}", consumes = MediaType.APPLICATION_JSON_VALUE, produces = MediaType.APPLICATION_JSON_VALUE)
+    @Secured("ROLE_OWNER")
     public ResponseEntity<PriceListItemUpdateResponseDTO> updatePriceListItem(@PathVariable Long id, @RequestBody PriceListItemUpdateRequestDTO updateItem){
         PriceListItemUpdateResponseDTO item = new PriceListItemUpdateResponseDTO();
         item.setId(1L);
