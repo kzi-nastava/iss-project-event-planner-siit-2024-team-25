@@ -8,6 +8,8 @@ import com.team25.event.planner.offering.common.service.OfferingCategoryService;
 import lombok.AllArgsConstructor;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.access.annotation.Secured;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
@@ -24,6 +26,7 @@ public class OfferingCategoryController {
     }
 
     @GetMapping(value = "submitted", produces = MediaType.APPLICATION_JSON_VALUE)
+    @Secured("ROLE_ADMIN")
     public List<OfferingCategoryResponseDTO> getSubmittedOfferingCategories() {
         return offeringCategoryService.getSubmittedOfferingCategories();
     }
@@ -34,26 +37,31 @@ public class OfferingCategoryController {
     }
 
     @GetMapping(value = "/submitted/{id}", produces = MediaType.APPLICATION_JSON_VALUE)
+    @PreAuthorize("hasAnyRole('ROLE_ADMIN', 'ROLE_OWNER')")
     public OfferingCategoryResponseDTO getSubmittedOfferingCategory(@PathVariable("id") Long id) {
         return offeringCategoryService.getOfferingCategorySubmitted(id);
     }
 
     @PostMapping(consumes = MediaType.APPLICATION_JSON_VALUE, produces = MediaType.APPLICATION_JSON_VALUE)
+    @Secured("ROLE_ADMIN")
     public OfferingCategoryResponseDTO createOfferingCategory(@RequestBody OfferingCategoryCreateRequestDTO offeringCategoryCreateRequestDTO){
         return offeringCategoryService.createOfferingCategory(offeringCategoryCreateRequestDTO, OfferingCategoryType.ACCEPTED);
     }
 
     @PostMapping(value = "submitted", consumes = MediaType.APPLICATION_JSON_VALUE, produces = MediaType.APPLICATION_JSON_VALUE)
+    @Secured("ROLE_OWNER")
     public OfferingCategoryResponseDTO createSubmittedOfferingCategory(@RequestBody OfferingCategoryCreateRequestDTO offeringCategoryCreateRequestDTO){
         return offeringCategoryService.createOfferingCategory(offeringCategoryCreateRequestDTO, OfferingCategoryType.PENDING);
     }
 
     @PutMapping(value = "{id}", consumes = MediaType.APPLICATION_JSON_VALUE, produces = MediaType.APPLICATION_JSON_VALUE)
+    @Secured("ROLE_ADMIN")
     public OfferingCategoryResponseDTO updateOfferingCategory(@PathVariable("id") Long id ,@RequestBody OfferingCategoryUpdateRequestDTO offeringCategoryUpdateRequestDTO){
         return offeringCategoryService.updateOfferingCategory(id, offeringCategoryUpdateRequestDTO);
     }
 
     @DeleteMapping(value = "{id}")
+    @Secured("ROLE_ADMIN")
     public ResponseEntity<?> deleteOfferingCategory(@PathVariable("id") Long id) {
         return offeringCategoryService.deleteOfferingCategory(id);
     }
