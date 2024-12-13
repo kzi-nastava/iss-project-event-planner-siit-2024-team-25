@@ -7,5 +7,6 @@ import lombok.Data;
 public class OfferingCategoryCreateRequestDTO {
     private String name;
     private String description;
-    private OfferingCategoryType type;
+    private OfferingCategoryType status;
+
 }
