@@ -1,6 +1,7 @@
 package com.team25.event.planner.offering.common.mapper;
 
 import com.team25.event.planner.offering.common.dto.OfferingCategoryCreateRequestDTO;
+import com.team25.event.planner.offering.common.dto.OfferingCategoryPreviewResponseDTO;
 import com.team25.event.planner.offering.common.dto.OfferingCategoryResponseDTO;
 import com.team25.event.planner.offering.common.model.OfferingCategory;
 import com.team25.event.planner.offering.common.model.OfferingCategoryType;
@@ -13,6 +14,8 @@ public interface OfferingCategoryCommonMapper {
 
     @Mapping(source = "status", target = "status")
     OfferingCategoryResponseDTO toResponseDTO(OfferingCategory offeringCategory);
+
+    OfferingCategoryPreviewResponseDTO toPreviewResponseDTO(OfferingCategory offeringCategory);
 
     default OfferingCategoryType mapRole(OfferingCategoryType type) {
         switch (type) {

@@ -78,27 +78,4 @@ public class OfferingService {
         return offeringRepository
                 .findTopOfferings(country, city, pageable);
     }
-
-
-
-    private Page<OfferingPreviewResponseDTO> getMockList(){
-
-        Product product = new Product();
-        product.setId(1L);
-        product.setName("Product 1");
-        product.setDescription("Description 1");
-        product.setPrice(1500);
-
-        com.team25.event.planner.offering.service.model.Service service = new com.team25.event.planner.offering.service.model.Service();
-        service.setId(2L);
-        service.setName("Service 1");
-        service.setDescription("Description 2");
-        service.setPrice(1500);
-        List<OfferingPreviewResponseDTO> offerings = new ArrayList<>();
-        offerings.add(offeringMapper.toDTO(product));
-        offerings.add(offeringMapper.toDTO(service));
-        return new PageImpl<>(offerings);
-    }
-
-
 }

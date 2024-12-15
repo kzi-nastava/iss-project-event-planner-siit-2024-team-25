@@ -29,7 +29,7 @@ public class OfferingSpecification {
                 predicates.add(cb.equal(eventTypeJoin.get("id"), filter.getEventTypeId()));
             }
             if (filter.getCategoryId() != null) {
-                predicates.add(cb.equal(root.get("offeringCategory"), filter.getCategoryId()));
+                predicates.add(cb.equal(root.get("offeringCategory").get("id"), filter.getCategoryId()));
             }
             if (filter.getMinPrice() != null) {
                 predicates.add(cb.greaterThanOrEqualTo(root.get("price"), filter.getMinPrice()));
