@@ -2,6 +2,7 @@ package com.team25.event.planner.offering.common.model;
 
 import jakarta.persistence.*;
 
+import jakarta.validation.constraints.NotEmpty;
 import jakarta.validation.constraints.NotNull;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
@@ -19,7 +20,7 @@ public class OfferingCategory {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
-    @NotNull(message = "Name is required")
+    @NotEmpty(message = "Name is required")
     @Column(nullable = false)
     private String name;
     private String description;

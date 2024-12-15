@@ -6,5 +6,6 @@ import lombok.Data;
 @Data
 public class OfferingCategoryUpdateRequestDTO {
     private String name;
-    private OfferingCategoryType type;
+    private String description;
+    private OfferingCategoryType status;
 }

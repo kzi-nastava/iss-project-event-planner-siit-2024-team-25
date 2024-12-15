@@ -3,17 +3,15 @@ package com.team25.event.planner.offering.common.controller;
 import com.team25.event.planner.offering.common.dto.OfferingReviewRequestDTO;
 import com.team25.event.planner.offering.common.dto.OfferingReviewResponseDTO;
 import com.team25.event.planner.offering.common.service.OfferingReviewService;
-import com.team25.event.planner.offering.service.dto.ServiceResponseDTO;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
-import lombok.Value;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.access.annotation.Secured;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.Collection;
-import java.util.Objects;
 
 @RestController
 @RequiredArgsConstructor
@@ -33,6 +31,7 @@ public class OfferingReviewController {
     }
 
     @PostMapping(value = "/{offeringId}/reviews", consumes = MediaType.APPLICATION_JSON_VALUE, produces = MediaType.APPLICATION_JSON_VALUE)
+    @Secured("ROLE_EVENT_ORGANIZER")
     public ResponseEntity<OfferingReviewResponseDTO> createOfferingReview(@PathVariable("offeringId") Long offeringId,
                                                                           @Valid @RequestBody OfferingReviewRequestDTO offeringReviewRequestDTO) {
         return ResponseEntity.status(HttpStatus.CREATED).body(offeringReviewService.createOfferingReview(offeringId,offeringReviewRequestDTO));
@@ -40,6 +39,7 @@ public class OfferingReviewController {
     }
 
     @DeleteMapping(value = "/{offeringId}/reviews/{reviewId}")
+    @Secured("ROLE_ADMIN")
     public ResponseEntity<?> deleteReview(@PathVariable("offeringId") Long offeringId,
             @PathVariable("reviewId") Long reviewId) {
         return offeringReviewService.deleteReview(offeringId, reviewId);

@@ -4,6 +4,7 @@ import com.team25.event.planner.user.dto.*;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.access.annotation.Secured;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.ArrayList;
@@ -15,7 +16,8 @@ import java.util.Objects;
 public class UserFavoritesController {
 
     @GetMapping(value = "/{id}/favourite-offerings", produces = MediaType.APPLICATION_JSON_VALUE)
-    public ResponseEntity<Collection<FavouriteOfferingResponseDTO>> getFavouriteOfferings(@PathVariable("id") Long id){
+    @Secured("ROLE_USER")
+    public ResponseEntity<Collection<FavouriteOfferingResponseDTO>> getFavouriteOfferings(@PathVariable("id") Long id) {
         Collection<FavouriteOfferingResponseDTO> responseDTOS = new ArrayList<>();
 
         FavouriteOfferingResponseDTO object1 = new FavouriteOfferingResponseDTO();
@@ -40,7 +42,7 @@ public class UserFavoritesController {
     public ResponseEntity<UserOfferingFavResponseDTO> addFavouriteOffering(@PathVariable("id") Long id, @RequestBody UserOfferingFavRequestDTO requestDTO) {
         UserOfferingFavResponseDTO responseDTO = new UserOfferingFavResponseDTO();
         responseDTO.setId(id);
-        if(!Objects.equals(id, requestDTO.getUserId())){
+        if (!Objects.equals(id, requestDTO.getUserId())) {
             return new ResponseEntity<UserOfferingFavResponseDTO>(responseDTO, HttpStatus.FORBIDDEN);
         }
 
@@ -51,6 +53,7 @@ public class UserFavoritesController {
     }
 
     @GetMapping(value = "/{id}/favorite-events", produces = MediaType.APPLICATION_JSON_VALUE)
+    @Secured("ROLE_USER")
     public ResponseEntity<Collection<FavoriteEventResponseDTO>> getFavoriteEvents(@PathVariable("id") Long id) {
         Collection<FavoriteEventResponseDTO> responseDTOS = new ArrayList<>();
 
@@ -73,6 +76,7 @@ public class UserFavoritesController {
     }
 
     @PostMapping(value = "/{id}/favorite-events", consumes = MediaType.APPLICATION_JSON_VALUE, produces = MediaType.APPLICATION_JSON_VALUE)
+    @Secured("ROLE_USER")
     public ResponseEntity<FavoriteEventResponseDTO> addFavoriteEvent(
             @PathVariable("id") Long id,
             @RequestBody FavoriteEventRequestDTO requestDTO) {
@@ -93,6 +97,7 @@ public class UserFavoritesController {
     }
 
     @DeleteMapping("/{userId}/favorite-events/{favId}")
+    @Secured("ROLE_USER")
     public ResponseEntity<Void> removeEventFromFavorites(
             @PathVariable Long userId,
             @PathVariable Long favId) {

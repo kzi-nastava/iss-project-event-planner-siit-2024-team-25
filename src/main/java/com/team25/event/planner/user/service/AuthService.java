@@ -6,15 +6,28 @@ import com.team25.event.planner.common.util.VerificationCodeGenerator;
 import com.team25.event.planner.email.service.EmailService;
 import com.team25.event.planner.event.model.Event;
 import com.team25.event.planner.event.service.EventService;
+import com.team25.event.planner.security.jwt.JwtService;
+import com.team25.event.planner.security.user.UserDetailsImpl;
 import com.team25.event.planner.user.dto.*;
+import com.team25.event.planner.user.exception.UnauthenticatedError;
 import com.team25.event.planner.user.mapper.UserMapper;
-import com.team25.event.planner.user.model.*;
+import com.team25.event.planner.user.model.Account;
+import com.team25.event.planner.user.model.AccountStatus;
+import com.team25.event.planner.user.model.RegistrationRequest;
+import com.team25.event.planner.user.model.User;
 import com.team25.event.planner.user.repository.AccountRepository;
 import com.team25.event.planner.user.repository.RegistrationRequestRepository;
 import com.team25.event.planner.user.repository.UserRepository;
 import jakarta.validation.Valid;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.scheduling.annotation.Scheduled;
+import org.springframework.security.authentication.AuthenticationManager;
+import org.springframework.security.authentication.BadCredentialsException;
+import org.springframework.security.authentication.DisabledException;
+import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
+import org.springframework.security.core.Authentication;
+import org.springframework.security.core.AuthenticationException;
+import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -33,12 +46,13 @@ public class AuthService {
     private final AccountRepository accountRepository;
     private final RegistrationRequestRepository registrationRequestRepository;
     private final EmailService emailService;
-
-    private final Duration activationTimeLimit;
+    private final AuthenticationManager authenticationManager;
+    private final JwtService jwtService;
     private final UserRepository userRepository;
-
     private final UserMapper userMapper;
     private final EventService eventService;
+
+    private final Duration activationTimeLimit;
 
     public AuthService(
             UserService userService,
@@ -46,18 +60,24 @@ public class AuthService {
             AccountRepository accountRepository,
             RegistrationRequestRepository registrationRequestRepository,
             EmailService emailService,
-            @Value("${activation.duration-minutes}") Long activationMinutesTimeLimit,
+            AuthenticationManager authenticationManager,
+            JwtService jwtService,
             UserRepository userRepository,
-            UserMapper userMapper, EventService eventService) {
+            UserMapper userMapper,
+            EventService eventService,
+            @Value("${activation.duration-minutes}") Long activationMinutesTimeLimit
+    ) {
         this.userService = userService;
         this.passwordEncoder = passwordEncoder;
         this.accountRepository = accountRepository;
         this.registrationRequestRepository = registrationRequestRepository;
         this.emailService = emailService;
-        this.activationTimeLimit = Duration.ofMinutes(activationMinutesTimeLimit);
+        this.authenticationManager = authenticationManager;
+        this.jwtService = jwtService;
         this.userRepository = userRepository;
         this.userMapper = userMapper;
         this.eventService = eventService;
+        this.activationTimeLimit = Duration.ofMinutes(activationMinutesTimeLimit);
     }
 
     @Transactional
@@ -158,12 +178,33 @@ public class AuthService {
     }
 
     public LoginResponseDTO login(@Valid LoginRequestDTO loginRequestDTO) {
-        return new LoginResponseDTO(
-                1L,
-                loginRequestDTO.getEmail(),
-                "Nikola Nikolic",
-                UserRole.REGULAR,
-                "token"
-        );
+        UsernamePasswordAuthenticationToken auth =
+                new UsernamePasswordAuthenticationToken(loginRequestDTO.getEmail(), loginRequestDTO.getPassword());
+
+        try {
+            Authentication authentication = authenticationManager.authenticate(auth);
+            SecurityContextHolder.getContext().setAuthentication(authentication);
+
+            UserDetailsImpl userDetails = (UserDetailsImpl) authentication.getPrincipal();
+
+            User user = userRepository.findById(userDetails.getUserId())
+                    .orElseThrow(() -> new UnauthenticatedError("Invalid credentials"));
+
+            String jwt = jwtService.generateToken(userDetails);
+
+            return new LoginResponseDTO(
+                    userDetails.getUserId(),
+                    userDetails.getUsername(),
+                    user.getFullName(),
+                    userDetails.getUserRole(),
+                    jwt
+            );
+        } catch (DisabledException e) {
+            throw new UnauthenticatedError("Account has been deactivated");
+        } catch (BadCredentialsException e) {
+            throw new UnauthenticatedError("Invalid credentials");
+        } catch (AuthenticationException e) {
+            throw new UnauthenticatedError(e.getMessage());
+        }
     }
 }

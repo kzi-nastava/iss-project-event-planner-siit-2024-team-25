@@ -2,7 +2,6 @@ package com.team25.event.planner.common.controller;
 
 import com.team25.event.planner.common.dto.ReviewRequestDTO;
 import com.team25.event.planner.common.dto.ReviewResponseDTO;
-import com.team25.event.planner.common.repository.ReviewRepository;
 import com.team25.event.planner.common.service.ReviewService;
 import com.team25.event.planner.offering.common.dto.ReviewFilterDTO;
 import jakarta.validation.Valid;
@@ -11,6 +10,7 @@ import org.springframework.data.domain.Page;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.access.annotation.Secured;
 import org.springframework.web.bind.annotation.*;
 
 
@@ -33,9 +33,10 @@ public class ReviewController {
     }
 
     @PutMapping("")
+    @Secured("ROLE_ADMIN")
     public ResponseEntity<ReviewResponseDTO> updateReviewStatus(
             @Valid @RequestBody ReviewRequestDTO requestDTO
-            ){
+    ) {
         return ResponseEntity.ok(reviewService.updateReviewStatus(requestDTO));
     }
 }

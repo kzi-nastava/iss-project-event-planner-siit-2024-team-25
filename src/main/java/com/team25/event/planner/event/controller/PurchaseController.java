@@ -9,6 +9,7 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.access.annotation.Secured;
 import org.springframework.web.bind.annotation.*;
 
 @RestController
@@ -19,6 +20,7 @@ public class PurchaseController {
     private final PurchaseService purchaseService;
 
     @PostMapping(value = "/{eventId}/products/{productsId}/purchase")
+    @Secured("ROLE_EVENT_ORGANIZER")
     public ResponseEntity<PurchasedProductResponseDTO> purchaseProduct(@PathVariable("eventId") Long eventId,
                                              @PathVariable("productsId") Long productId,
                                              @RequestBody PurchaseProductRequestDTO requestDTO) {
@@ -28,6 +30,7 @@ public class PurchaseController {
     }
 
     @PostMapping(value = "/{eventId}/services/{serviceId}/purchase", consumes = MediaType.APPLICATION_JSON_VALUE)
+    @Secured("ROLE_EVENT_ORGANIZER")
     public ResponseEntity<PurchaseServiceResponseDTO> purchaseService(@PathVariable("eventId") Long eventId,
                                                       @PathVariable("serviceId") Long serviceId,
                                                       @RequestBody(required = false) PurchaseServiceRequestDTO requestDTO) {

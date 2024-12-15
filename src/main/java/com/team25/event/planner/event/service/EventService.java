@@ -2,6 +2,7 @@ package com.team25.event.planner.event.service;
 
 import com.team25.event.planner.common.exception.InvalidRequestError;
 import com.team25.event.planner.common.exception.NotFoundError;
+import com.team25.event.planner.common.exception.UnauthorizedError;
 import com.team25.event.planner.common.util.VerificationCodeGenerator;
 import com.team25.event.planner.email.service.EmailService;
 import com.team25.event.planner.event.dto.*;
@@ -16,13 +17,13 @@ import com.team25.event.planner.event.repository.EventTypeRepository;
 import com.team25.event.planner.event.specification.EventSpecification;
 import com.team25.event.planner.offering.common.model.OfferingCategoryType;
 import com.team25.event.planner.user.model.Account;
-import com.team25.event.planner.user.model.AccountStatus;
+import com.team25.event.planner.user.model.EventOrganizer;
 import com.team25.event.planner.user.model.User;
-import com.team25.event.planner.user.model.UserRole;
 import com.team25.event.planner.user.repository.AccountRepository;
+import com.team25.event.planner.user.repository.EventOrganizerRepository;
 import com.team25.event.planner.user.repository.UserRepository;
+import com.team25.event.planner.user.service.CurrentUserService;
 import jakarta.validation.Valid;
-import jakarta.validation.constraints.NotNull;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
@@ -49,6 +50,9 @@ public class EventService {
     private final AccountRepository accountRepository;
     private final EventInvitationMapper eventInvitationMapper;
     private final EventInvitationRepository eventInvitationRepository;
+    private final UserRepository userRepository;
+    private final EventOrganizerRepository eventOrganizerRepository;
+    private final CurrentUserService currentUserService;
     private final EmailService emailService;
     private final EventAttendanceRepository eventAttendanceRepository;
 
@@ -82,13 +86,16 @@ public class EventService {
         }
     }
 
-    public EventResponseDTO createEvent(@Valid EventRequestDTO eventDto) {
+    public EventResponseDTO createEvent(@Valid EventRequestDTO eventDto, Long userId) {
         validateDto(eventDto);
 
         EventType eventType = eventTypeRepository.findById(eventDto.getEventTypeId())
                 .orElseThrow(() -> new NotFoundError("Event type not found"));
 
-        Event event = eventMapper.toEvent(eventDto, eventType);
+        EventOrganizer eventOrganizer = eventOrganizerRepository.findById(userId)
+                .orElseThrow(() -> new UnauthorizedError("You must be event organizer to create an event"));
+
+        Event event = eventMapper.toEvent(eventDto, eventType, eventOrganizer);
         event = eventRepository.save(event);
 
         return eventMapper.toDTO(event);
@@ -99,6 +106,11 @@ public class EventService {
 
         Event event = eventRepository.findById(id).orElseThrow(() -> new NotFoundError("Event not found"));
 
+        Long currentUserId = currentUserService.getCurrentUserId();
+        if (!event.getOrganizer().getId().equals(currentUserId)) {
+            throw new UnauthorizedError();
+        }
+
         // only certain fields are allowed to change
         event.setDescription(eventDto.getDescription());
         event.setMaxParticipants(eventDto.getMaxParticipants());
@@ -108,15 +120,11 @@ public class EventService {
         return eventMapper.toDTO(event);
     }
 
-    public void deleteEvent(Long id) {
-        eventRepository.deleteById(id);
-    }
-
     public Page<EventPreviewResponseDTO> getAllEvents(EventFilterDTO filter, int page, int size, String sortBy, String sortDirection) {
-      Specification<Event> spec = eventSpecification.createSpecification(filter);
-      Sort.Direction direction = Sort.Direction.fromString(sortDirection);
-      Pageable pageable = PageRequest.of(page, size, Sort.by(direction, sortBy));
-      return eventRepository.findAll(spec, pageable).map(eventMapper::toEventPreviewResponseDTO);
+        Specification<Event> spec = eventSpecification.createSpecification(filter);
+        Sort.Direction direction = Sort.Direction.fromString(sortDirection);
+        Pageable pageable = PageRequest.of(page, size, Sort.by(direction, sortBy));
+        return eventRepository.findAll(spec, pageable).map(eventMapper::toEventPreviewResponseDTO);
     }
 
 
@@ -133,7 +141,7 @@ public class EventService {
         for (BudgetItem item : items) {
             if (item.getOfferingCategoryType().equals(offeringCategoryType)) {
                 if (price <= item.getMoney().getAmount()) {
-                    item.getMoney().setAmount(item.getMoney().getAmount()-price);// save to repo
+                    item.getMoney().setAmount(item.getMoney().getAmount() - price);// save to repo
                     return true;
                 }
                 return false;
@@ -144,25 +152,31 @@ public class EventService {
 
     public void sendInvitations(Long eventId, List<EventInvitationRequestDTO> requestDTO) {
         Event event = eventRepository.findById(eventId).orElseThrow(() -> new NotFoundError("Event not found"));
+
+        Long currentUserId = currentUserService.getCurrentUserId();
+        if (!event.getOrganizer().getId().equals(currentUserId)) {
+            throw new UnauthorizedError();
+        }
+
         requestDTO.stream().forEach(eventInvitationRequestDTO -> {
             EventInvitation eventInvitation = eventInvitationMapper.toEventInvitation(eventInvitationRequestDTO, event, EventInvitationStatus.PENDING);
             eventInvitation.setInvitationCode(VerificationCodeGenerator.generateVerificationCode(VERIFICATION_CODE_LENGTH));
             eventInvitationRepository.save(eventInvitation);
             Optional<Account> account = accountRepository.findByEmail(eventInvitationRequestDTO.getGuestEmail());
-            if(!account.isEmpty()) {
+            if (!account.isEmpty()) {
                 EventInvitationEmailDTO eventInvitationEmailDTO = eventInvitationMapper.toEventInvitationEmailDTO(account.get().getUser(), event, eventInvitation.getInvitationCode());
                 emailService.sendEventInvitationEmail(account.get().getEmail(), eventInvitationEmailDTO);
-            }else{
-                EventInvitationShortEmailDTO dto = eventInvitationMapper.toEventInvitationShortEmailDto( event, eventInvitation.getInvitationCode());
+            } else {
+                EventInvitationShortEmailDTO dto = eventInvitationMapper.toEventInvitationShortEmailDto(event, eventInvitation.getInvitationCode());
                 emailService.sendQuickRegisterEmail(eventInvitationRequestDTO.getGuestEmail(), dto);
             }
         });
     }
 
-    public boolean checkInvitation(String guestEmail, String invitationCode){
+    public boolean checkInvitation(String guestEmail, String invitationCode) {
         Optional<EventInvitation> eventInvitation = eventInvitationRepository.findEventInvitationByGuestEmailAndInvitationCode(guestEmail, invitationCode);
-        if(eventInvitation.isPresent()){
-            if(eventInvitation.get().getStatus() == EventInvitationStatus.PENDING){
+        if (eventInvitation.isPresent()) {
+            if (eventInvitation.get().getStatus() == EventInvitationStatus.PENDING) {
                 eventInvitation.get().setStatus(EventInvitationStatus.ACCEPTED);
                 eventInvitationRepository.save(eventInvitation.get());
                 return true;
@@ -172,9 +186,9 @@ public class EventService {
         return false;
     }
 
-    public Event getEventByGuestAndInvitationCode(String guestEmail,String invitationCode){
+    public Event getEventByGuestAndInvitationCode(String guestEmail, String invitationCode) {
         Optional<EventInvitation> eventInvitation = eventInvitationRepository.findEventInvitationByGuestEmailAndInvitationCode(guestEmail, invitationCode);
-        if(eventInvitation.isPresent()){
+        if (eventInvitation.isPresent()) {
             return eventInvitation.get().getEvent();
         }
         return null;
@@ -195,7 +209,7 @@ public class EventService {
         EventAttendanceId eventAttendanceId = new EventAttendanceId();
         eventAttendanceId.setUserId(user.getId());
         Optional<EventInvitation> eventInvitation = eventInvitationRepository.findEventInvitationByGuestEmailAndInvitationCode(user.getAccount().getEmail(), invitationCode);
-        if(eventInvitation.isPresent()){
+        if (eventInvitation.isPresent()) {
             eventAttendanceId.setEventId(eventInvitation.get().getEvent().getId());
             eventAttendance.setId(eventAttendanceId);
             eventAttendance.setEvent(eventInvitation.get().getEvent());
