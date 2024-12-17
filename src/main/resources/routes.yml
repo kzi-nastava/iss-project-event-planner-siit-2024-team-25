@@ -1,0 +1,26 @@
+security:
+  public-endpoints:
+    - path: /api/auth/login
+    - path: /api/auth/register
+    - path: /api/auth/register/quick
+    - path: /api/auth/activate
+    - path: /api/reviews
+      methods: [ GET ]
+    - path: /api/events/**
+      methods: [ GET ]
+    - path: /api/event-types/**
+      methods: [ GET ]
+    - path: /api/offerings/**
+      methods: [ GET ]
+    - path: /api/offering-categories
+      methods: [ GET ]
+    - path: /api/products/**
+      methods: [ GET ]
+    - path: /api/services/**
+      methods: [ GET ]
+    - path: /api/users/{userId}
+      methods: [ GET ]
+    - path: /api/users/{userId}/profile-picture
+      methods: [ GET ]
+    - path: /api/users/{userId}/pictures/{pictureId}
+      methods: [ GET ]

@@ -5,6 +5,7 @@ import com.team25.event.planner.event.dto.EventRequestDTO;
 import com.team25.event.planner.event.dto.EventResponseDTO;
 import com.team25.event.planner.event.model.Event;
 import com.team25.event.planner.event.model.EventType;
+import com.team25.event.planner.user.model.EventOrganizer;
 import org.mapstruct.Mapper;
 import org.mapstruct.Mapping;
 
@@ -19,7 +20,7 @@ public interface EventMapper {
     @Mapping(target = "id", ignore = true)
     @Mapping(target = "name", source = "eventRequestDTO.name")
     @Mapping(target = "description", source = "eventRequestDTO.description")
-    Event toEvent(EventRequestDTO eventRequestDTO, EventType eventType);
+    Event toEvent(EventRequestDTO eventRequestDTO, EventType eventType, EventOrganizer organizer);
 
     @Mapping(target = "startDateTime", expression = "java(combineDateAndTime(event.getStartDate(), event.getStartTime()))")
     @Mapping(target = "country", source = "event.location.country")
