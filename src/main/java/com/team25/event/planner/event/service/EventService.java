@@ -35,6 +35,7 @@ import org.springframework.stereotype.Service;
 import java.time.LocalDate;
 import java.util.Collection;
 import java.util.List;
+import java.util.Objects;
 import java.util.Optional;
 
 @Service
@@ -56,9 +57,21 @@ public class EventService {
     private final EmailService emailService;
     private final EventAttendanceRepository eventAttendanceRepository;
 
-    public EventResponseDTO getEventById(Long id) {
+    public EventResponseDTO getEventById(Long id, String invitationCode) {
         Event event = eventRepository.findById(id).orElseThrow(() -> new NotFoundError("Event not found"));
-        return eventMapper.toDTO(event);
+
+        if(event.getPrivacyType() == PrivacyType.Private){
+            if(Objects.equals(event.getOrganizer().getId(), currentUserService.getCurrentUserId())){
+                return eventMapper.toDTO(event);
+            }
+            User user = userRepository.findById(currentUserService.getCurrentUserId()).orElseThrow(() -> new NotFoundError("User not found"));
+            if(this.checkInvitation(user.getAccount().getEmail(), invitationCode)){
+                return eventMapper.toDTO(event);
+            }
+        }else{
+            return eventMapper.toDTO(event);
+        }
+        throw new UnauthorizedError("You must be event organizer or invited user to visit this event page");
     }
 
     public Page<EventResponseDTO> getEvents(EventFilterDTO filter, int page, int size, String sortBy, String sortDirection) {
@@ -179,6 +192,9 @@ public class EventService {
             if (eventInvitation.get().getStatus() == EventInvitationStatus.PENDING) {
                 eventInvitation.get().setStatus(EventInvitationStatus.ACCEPTED);
                 eventInvitationRepository.save(eventInvitation.get());
+                return true;
+            }
+            else if(eventInvitation.get().getStatus() == EventInvitationStatus.ACCEPTED){
                 return true;
             }
             throw new InvalidRequestError("This invitation was already accepted");

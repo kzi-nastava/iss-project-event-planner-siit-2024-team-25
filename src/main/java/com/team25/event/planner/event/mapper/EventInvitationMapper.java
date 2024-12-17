@@ -29,6 +29,7 @@ public interface EventInvitationMapper {
     @Mapping(target = "eventCity", source = "event.location.city")
     @Mapping(target = "eventAddress", source = "event.location.address")
     @Mapping(target = "eventInvitationCode", source = "eventInvitation")
+    @Mapping(target = "eventId", source = "event.id")
     EventInvitationEmailDTO toEventInvitationEmailDTO(User user, Event event, String eventInvitation);
 
 
