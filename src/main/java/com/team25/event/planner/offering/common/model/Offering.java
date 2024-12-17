@@ -45,6 +45,7 @@ public class Offering {
 
     private boolean isVisible = false;
     private boolean isAvailable = false;
+    private boolean deleted = false;
 
     @NotNull(message = "Status is required")
     @Column(nullable = false)

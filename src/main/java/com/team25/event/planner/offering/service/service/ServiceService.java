@@ -1,6 +1,7 @@
 package com.team25.event.planner.offering.service.service;
 
 import com.team25.event.planner.common.exception.InvalidRequestError;
+import com.team25.event.planner.common.exception.NotFoundError;
 import com.team25.event.planner.common.model.Location;
 import com.team25.event.planner.event.model.EventType;
 import com.team25.event.planner.event.repository.EventTypeRepository;
@@ -12,10 +13,7 @@ import com.team25.event.planner.offering.common.model.OfferingCategoryType;
 import com.team25.event.planner.offering.common.model.OfferingType;
 import com.team25.event.planner.offering.common.repository.OfferingCategoryRepository;
 import com.team25.event.planner.offering.product.model.Product;
-import com.team25.event.planner.offering.service.dto.ServiceCardResponseDTO;
-import com.team25.event.planner.offering.service.dto.ServiceCreateRequestDTO;
-import com.team25.event.planner.offering.service.dto.ServiceCreateResponseDTO;
-import com.team25.event.planner.offering.service.dto.ServiceFilterDTO;
+import com.team25.event.planner.offering.service.dto.*;
 import com.team25.event.planner.offering.service.mapper.ServiceMapper;
 import com.team25.event.planner.offering.service.repository.ServiceRepository;
 import com.team25.event.planner.offering.service.specification.ServiceSpecification;
@@ -44,15 +42,20 @@ public class ServiceService {
 
     private final OfferingMapper offeringMapper;
     private final ServiceRepository serviceRepository;
+    private final OfferingCategoryRepository offeringCategoryRepository;
+    private final EventTypeRepository eventTypeRepository;
     private final ServiceMapper serviceMapper;
     private final ServiceSpecification serviceSpecification;
 
+    @Transactional
     public ServiceCreateResponseDTO createService(ServiceCreateRequestDTO requestDTO){
 
         com.team25.event.planner.offering.service.model.Service service = serviceMapper.toEntity(requestDTO);
 
         if(service.getOfferingCategory() == null){
             service.setStatus(OfferingType.PENDING);
+            OfferingCategory offeringCategory = offeringCategoryRepository.save(new OfferingCategory(requestDTO.getOfferingCategoryName(),"",OfferingCategoryType.PENDING));
+            service.setOfferingCategory(offeringCategory);
         }else{
             service.setStatus(OfferingType.ACCEPTED);
         }
@@ -69,24 +72,43 @@ public class ServiceService {
         return serviceRepository.findAll(specification, pageable).map(serviceMapper::toCardDTO);
     }
 
-    public Page<OfferingPreviewResponseDTO> getAllServices(OfferingFilterDTO filter, int page, int size, String sortBy, String sortDirection) {
-        return getMockList();
-
-//        Specification<Offering> spec = offeringSpecificarion.createSpecification(filter);
-//        Sort.Direction direction = Sort.Direction.fromString(sortDirection);
-//        Pageable pageable = PageRequest.of(page, size, Sort.by(direction, sortBy));
-//        return offeringRepository.findAll(spec, pageable).map(offeringMapper::toDTO);
+    public ServiceCreateResponseDTO getService(Long id){
+        com.team25.event.planner.offering.service.model.Service service = serviceRepository.findById(id).orElseThrow(()->new NotFoundError("Service not found"));
+        return serviceMapper.toDTO(service);
     }
 
-    private Page<OfferingPreviewResponseDTO> getMockList(){
+    public ServiceUpdateResponseDTO updateService(Long id, ServiceUpdateRequestDTO requestDTO){
+        com.team25.event.planner.offering.service.model.Service service = serviceRepository.findById(id).orElseThrow(()->new NotFoundError("Service not found"));
 
-        com.team25.event.planner.offering.service.model.Service service = new com.team25.event.planner.offering.service.model.Service();
-        service.setId(2L);
-        service.setName("Service 1");
-        service.setDescription("Description 2");
-        service.setPrice(1500);
-        List<OfferingPreviewResponseDTO> offerings = new ArrayList<>();
-        offerings.add(offeringMapper.toDTO(service));
-        return new PageImpl<>(offerings);
+
+        service.setName(requestDTO.getName());
+        service.setDescription(requestDTO.getDescription());
+        service.setPrice(requestDTO.getPrice());
+        service.setDiscount(requestDTO.getDiscount());
+        service.setImages(requestDTO.getImages());
+        service.setVisible(requestDTO.isVisible());
+        service.setAvailable(requestDTO.isAvailable());
+        service.setSpecifics(requestDTO.getSpecifics());
+        service.setStatus(requestDTO.getStatus());
+        service.setReservationType(requestDTO.getReservationType());
+        service.setDuration(requestDTO.getDuration());
+        service.setReservationDeadline(requestDTO.getReservationDeadline());
+        service.setCancellationDeadline(requestDTO.getCancellationDeadline());
+        service.setMinimumArrangement(requestDTO.getMinimumArrangement());
+        service.setMaximumArrangement(requestDTO.getMaximumArrangement());
+        service.setEventTypes(eventTypeRepository.findAllById(requestDTO.getEventTypesIDs()));
+
+        serviceRepository.save(service);
+        return serviceMapper.toUpdateDTO(service);
     }
+
+    public ResponseEntity<?> deleteService(Long id){
+        com.team25.event.planner.offering.service.model.Service service = serviceRepository.findById(id).orElseThrow(()->new NotFoundError("Service not found"));
+        if(service.isDeleted()){
+            throw new NotFoundError("Service is deleted");
+        }
+        serviceRepository.delete(service);
+        return new ResponseEntity<>(HttpStatus.OK);
+    }
+
 }

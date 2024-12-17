@@ -1,6 +1,7 @@
 package com.team25.event.planner.offering.service.specification;
 
 import com.team25.event.planner.event.model.EventType;
+import com.team25.event.planner.offering.common.model.OfferingType;
 import com.team25.event.planner.offering.service.dto.ServiceFilterDTO;
 import com.team25.event.planner.offering.service.model.Service;
 import jakarta.persistence.criteria.Join;
@@ -38,6 +39,10 @@ public class ServiceSpecification {
             if(serviceFilterDTO.getAvailable()!= null){
                 predicates.add(cb.equal(root.get("isAvailable"), serviceFilterDTO.getAvailable()));
             }
+
+            predicates.add(cb.notEqual(root.get("status"), OfferingType.PENDING));
+
+            predicates.add(cb.isFalse(root.get("deleted")));
 
             return cb.and(predicates.toArray(new Predicate[0]));
         };
