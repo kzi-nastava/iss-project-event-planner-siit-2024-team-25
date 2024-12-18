@@ -4,12 +4,16 @@ import com.team25.event.planner.common.exception.InvalidRequestError;
 import com.team25.event.planner.common.exception.NotFoundError;
 import com.team25.event.planner.offering.common.dto.*;
 import com.team25.event.planner.offering.common.mapper.OfferingCategoryCommonMapper;
+import com.team25.event.planner.offering.common.model.Offering;
 import com.team25.event.planner.offering.common.model.OfferingCategory;
 import com.team25.event.planner.offering.common.model.OfferingCategoryType;
+import com.team25.event.planner.offering.common.model.OfferingType;
 import com.team25.event.planner.offering.common.repository.OfferingCategoryRepository;
+import com.team25.event.planner.offering.common.repository.OfferingRepository;
 import lombok.AllArgsConstructor;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;
 import java.util.stream.Collectors;
@@ -19,6 +23,7 @@ import java.util.stream.Collectors;
 public class OfferingCategoryService {
 
     private final OfferingCategoryRepository offeringCategoryRepository;
+    private final OfferingRepository offeringRepository;
     private final OfferingCategoryCommonMapper offeringCategoryCommonMapper;
 
     public List<OfferingCategoryResponseDTO> getOfferingCategories() {
@@ -39,7 +44,7 @@ public class OfferingCategoryService {
 
     public OfferingCategoryResponseDTO getOfferingCategory(Long id) {
         OfferingCategory offeringCategory = offeringCategoryRepository.findOfferingCategoryByIdAndStatus(id, "ACCEPTED");
-        System.out.println(offeringCategory);
+
         if(offeringCategory == null) {
             throw new NotFoundError("Offering category not found");
         }
@@ -67,6 +72,20 @@ public class OfferingCategoryService {
         offeringCategory.setDescription(offeringCategoryUpdateRequestDTO.getDescription());
         offeringCategory.setStatus(offeringCategoryUpdateRequestDTO.getStatus());
 
+        return offeringCategoryCommonMapper.toResponseDTO(offeringCategoryRepository.save(offeringCategory));
+    }
+
+    @Transactional
+    public OfferingCategoryResponseDTO approveOfferingCategory(Long id, OfferingCategoryUpdateRequestDTO requestDTO, Long offeringId){
+        OfferingCategory offeringCategory = offeringCategoryRepository.findById(id).orElseThrow(() -> new NotFoundError("Offering category not found"));
+        Offering offering = offeringRepository.findById(offeringId).orElseThrow(() -> new NotFoundError("Offering not found"));
+
+        offeringCategory.setName(requestDTO.getName());
+        offeringCategory.setDescription(requestDTO.getDescription());
+        offeringCategory.setStatus(OfferingCategoryType.ACCEPTED);
+
+        offering.setStatus(OfferingType.ACCEPTED);
+        offeringRepository.save(offering);
         return offeringCategoryCommonMapper.toResponseDTO(offeringCategoryRepository.save(offeringCategory));
     }
 

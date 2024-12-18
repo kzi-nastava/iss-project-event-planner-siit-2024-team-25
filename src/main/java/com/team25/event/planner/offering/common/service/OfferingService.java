@@ -49,11 +49,15 @@ public class OfferingService {
         return offeringRepository.getOfferingSubmittedResponseDTOs();
     }
 
+    // Offering id - connected to the category
+    // category id - category status == pending
+    // update category id = edited category id or already created category from combobox
     @Transactional
     public void updateOfferingsCategory(Long offeringId, Long categoryId, Long updateCategoryId){
         Offering offering = offeringRepository.findById(offeringId).orElseThrow(()-> new NotFoundError("Offering not found"));
         OfferingCategory category = offeringCategoryRepository.findById(categoryId).orElseThrow(()-> new NotFoundError("Submitted category not found"));
         OfferingCategory categoryUpdate = offeringCategoryRepository.findById(updateCategoryId).orElseThrow(()-> new NotFoundError("Category to update not found"));
+
         offering.setStatus(OfferingType.ACCEPTED);
         offering.setOfferingCategory(categoryUpdate);
         offeringRepository.save(offering);

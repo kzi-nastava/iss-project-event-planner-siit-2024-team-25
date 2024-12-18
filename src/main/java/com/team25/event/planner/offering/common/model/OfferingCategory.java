@@ -4,10 +4,7 @@ import jakarta.persistence.*;
 
 import jakarta.validation.constraints.NotEmpty;
 import jakarta.validation.constraints.NotNull;
-import lombok.AllArgsConstructor;
-import lombok.Getter;
-import lombok.NoArgsConstructor;
-import lombok.Setter;
+import lombok.*;
 
 @Entity
 @Table(name = "OfferingType")
@@ -16,6 +13,12 @@ import lombok.Setter;
 @NoArgsConstructor
 @AllArgsConstructor
 public class OfferingCategory {
+
+    public OfferingCategory(String name, String description, OfferingCategoryType status) {
+        this.name = name;
+        this.description = description;
+        this.status = status;
+    }
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;

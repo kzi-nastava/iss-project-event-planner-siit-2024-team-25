@@ -45,6 +45,10 @@ public class ServiceSpecification {
                 predicates.add(cb.equal(root.get("isAvailable"), serviceFilterDTO.getAvailable()));
             }
 
+            predicates.add(cb.notEqual(root.get("status"), OfferingType.PENDING));
+
+            predicates.add(cb.isFalse(root.get("deleted")));
+
             return cb.and(predicates.toArray(new Predicate[0]));
         };
     }

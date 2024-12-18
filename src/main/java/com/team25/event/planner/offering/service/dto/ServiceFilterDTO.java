@@ -12,4 +12,5 @@ public class ServiceFilterDTO {
     private final Double price;
     private final Boolean available;
     private final Long ownerId;
+
 }

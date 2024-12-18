@@ -29,6 +29,11 @@ public class EventTypeController {
         return ResponseEntity.ok(eventTypeService.getEventTypes());
     }
 
+    @GetMapping(value = "/offering")
+    public ResponseEntity<List<EventTypeResponseDTO>> getEventTypesByIds(@RequestParam("ids") List<Long> ids) {
+        return ResponseEntity.ok(eventTypeService.getEventTypesByIds(ids));
+    }
+
     @GetMapping("/all")
     public ResponseEntity<List<EventTypePreviewResponseDTO>> getAllEventTypes() {
         return ResponseEntity.ok(eventTypeService.getAllEventTypes());
