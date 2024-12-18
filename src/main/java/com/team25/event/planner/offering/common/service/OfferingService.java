@@ -72,7 +72,9 @@ public class OfferingService {
         Sort.Direction direction = Sort.Direction.fromString(sortDirection);
         Pageable pageable = PageRequest.of(page, size, Sort.by(direction, sortBy));
         Page<Offering> offeringPage = offeringRepository.findAll(spec, pageable);
-        List<OfferingPreviewResponseDTO> offeringsWithRatings = offeringRepository.findOfferingsWithAverageRating(offeringPage.getContent());
+        System.out.println(offeringPage.getContent());
+        pageable = PageRequest.of(0,size, Sort.by(direction, sortBy));
+        List<OfferingPreviewResponseDTO> offeringsWithRatings = offeringRepository.findOfferingsWithAverageRating(offeringPage.getContent(), pageable);
         return new PageImpl<>(offeringsWithRatings, pageable, offeringPage.getTotalElements());
     }
     public Page<OfferingPreviewResponseDTO> getTopOfferings(String country, String city) {
@@ -80,27 +82,4 @@ public class OfferingService {
         return offeringRepository
                 .findTopOfferings(country, city, pageable);
     }
-
-
-
-    private Page<OfferingPreviewResponseDTO> getMockList(){
-
-        Product product = new Product();
-        product.setId(1L);
-        product.setName("Product 1");
-        product.setDescription("Description 1");
-        product.setPrice(1500);
-
-        com.team25.event.planner.offering.service.model.Service service = new com.team25.event.planner.offering.service.model.Service();
-        service.setId(2L);
-        service.setName("Service 1");
-        service.setDescription("Description 2");
-        service.setPrice(1500);
-        List<OfferingPreviewResponseDTO> offerings = new ArrayList<>();
-        offerings.add(offeringMapper.toDTO(product));
-        offerings.add(offeringMapper.toDTO(service));
-        return new PageImpl<>(offerings);
-    }
-
-
 }

@@ -8,10 +8,12 @@ import com.team25.event.planner.event.repository.EventTypeRepository;
 import com.team25.event.planner.offering.common.dto.OfferingFilterDTO;
 import com.team25.event.planner.offering.common.dto.OfferingPreviewResponseDTO;
 import com.team25.event.planner.offering.common.mapper.OfferingMapper;
+import com.team25.event.planner.offering.common.model.Offering;
 import com.team25.event.planner.offering.common.model.OfferingCategory;
 import com.team25.event.planner.offering.common.model.OfferingCategoryType;
 import com.team25.event.planner.offering.common.model.OfferingType;
 import com.team25.event.planner.offering.common.repository.OfferingCategoryRepository;
+import com.team25.event.planner.offering.common.repository.OfferingRepository;
 import com.team25.event.planner.offering.product.model.Product;
 import com.team25.event.planner.offering.service.dto.*;
 import com.team25.event.planner.offering.service.mapper.ServiceMapper;
@@ -46,6 +48,7 @@ public class ServiceService {
     private final EventTypeRepository eventTypeRepository;
     private final ServiceMapper serviceMapper;
     private final ServiceSpecification serviceSpecification;
+    private final OfferingRepository offeringRepository;
 
     @Transactional
     public ServiceCreateResponseDTO createService(ServiceCreateRequestDTO requestDTO){
@@ -72,6 +75,15 @@ public class ServiceService {
         return serviceRepository.findAll(specification, pageable).map(serviceMapper::toCardDTO);
     }
 
+    public Page<OfferingPreviewResponseDTO> getAllServices(OfferingFilterDTO filter, int page, int size, String sortBy, String sortDirection) {
+        Specification<com.team25.event.planner.offering.service.model.Service> spec = serviceSpecification.createSpecification(filter);
+        Sort.Direction direction = Sort.Direction.fromString(sortDirection);
+        Pageable pageable = PageRequest.of(page, size, Sort.by(direction, sortBy));
+        Page<Offering> offeringPage = serviceRepository.findAll(spec, pageable).map(service -> (Offering)service);
+        pageable = PageRequest.of(0,size, Sort.by(direction, sortBy));
+        List<OfferingPreviewResponseDTO> offeringsWithRatings = offeringRepository.findOfferingsWithAverageRating(offeringPage.getContent(), pageable);
+        return new PageImpl<>(offeringsWithRatings, pageable, offeringPage.getTotalElements());
+    }
     public ServiceCreateResponseDTO getService(Long id){
         com.team25.event.planner.offering.service.model.Service service = serviceRepository.findById(id).orElseThrow(()->new NotFoundError("Service not found"));
         return serviceMapper.toDTO(service);
