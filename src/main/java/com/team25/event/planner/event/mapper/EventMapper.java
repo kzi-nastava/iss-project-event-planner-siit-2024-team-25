@@ -1,5 +1,6 @@
 package com.team25.event.planner.event.mapper;
 
+import com.team25.event.planner.common.mapper.LocationMapper;
 import com.team25.event.planner.event.dto.EventPreviewResponseDTO;
 import com.team25.event.planner.event.dto.EventRequestDTO;
 import com.team25.event.planner.event.dto.EventResponseDTO;
@@ -13,7 +14,7 @@ import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.time.LocalTime;
 
-@Mapper(componentModel = "spring", uses = EventTypeMapper.class)
+@Mapper(componentModel = "spring", uses = {EventTypeMapper.class, LocationMapper.class})
 public interface EventMapper {
     EventResponseDTO toDTO(Event event);
 

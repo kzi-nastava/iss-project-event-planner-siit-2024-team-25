@@ -1,5 +1,6 @@
 package com.team25.event.planner.event.dto;
 
+import com.team25.event.planner.common.dto.LocationResponseDTO;
 import com.team25.event.planner.event.model.PrivacyType;
 import lombok.Data;
 
@@ -18,4 +19,5 @@ public class EventResponseDTO {
     private LocalDate endDate;
     private LocalTime startTime;
     private LocalTime endTime;
+    private LocationResponseDTO location;
 }

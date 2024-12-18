@@ -21,7 +21,6 @@ import com.team25.event.planner.user.model.EventOrganizer;
 import com.team25.event.planner.user.model.User;
 import com.team25.event.planner.user.repository.AccountRepository;
 import com.team25.event.planner.user.repository.EventOrganizerRepository;
-import com.team25.event.planner.user.repository.UserRepository;
 import com.team25.event.planner.user.service.CurrentUserService;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
@@ -50,7 +49,6 @@ public class EventService {
     private final AccountRepository accountRepository;
     private final EventInvitationMapper eventInvitationMapper;
     private final EventInvitationRepository eventInvitationRepository;
-    private final UserRepository userRepository;
     private final EventOrganizerRepository eventOrganizerRepository;
     private final CurrentUserService currentUserService;
     private final EmailService emailService;
@@ -81,7 +79,7 @@ public class EventService {
             throw new InvalidRequestError("Start date must be before end date");
         }
 
-        if (eventDto.getStartTime().isAfter(eventDto.getEndTime())) {
+        if (eventDto.getStartDate().equals(eventDto.getEndDate()) && eventDto.getStartTime().isAfter(eventDto.getEndTime())) {
             throw new InvalidRequestError("Start time must be before end time");
         }
     }
@@ -89,8 +87,11 @@ public class EventService {
     public EventResponseDTO createEvent(@Valid EventRequestDTO eventDto, Long userId) {
         validateDto(eventDto);
 
-        EventType eventType = eventTypeRepository.findById(eventDto.getEventTypeId())
-                .orElseThrow(() -> new NotFoundError("Event type not found"));
+        EventType eventType = null;
+        if (eventDto.getEventTypeId() != null) {
+            eventType = eventTypeRepository.findById(eventDto.getEventTypeId())
+                    .orElseThrow(() -> new NotFoundError("Event type not found"));
+        }
 
         EventOrganizer eventOrganizer = eventOrganizerRepository.findById(userId)
                 .orElseThrow(() -> new UnauthorizedError("You must be event organizer to create an event"));

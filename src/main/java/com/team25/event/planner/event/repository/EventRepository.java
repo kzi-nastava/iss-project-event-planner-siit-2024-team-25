@@ -12,7 +12,7 @@ public interface EventRepository extends JpaRepository<Event, Long>, JpaSpecific
     @Query("SELECT e FROM Event e WHERE " +
             "(:country IS NULL OR :country = '' OR e.location.country = :country) AND " +
             "(:city IS NULL OR :city = '' OR e.location.city = :city) " +
-            "AND (e.privacyType =  com.team25.event.planner.event.model.PrivacyType.Public )" +
+            "AND (e.privacyType =  com.team25.event.planner.event.model.PrivacyType.PUBLIC )" +
             "ORDER BY e.createdDate DESC")
     Page<Event> findTopEvents(@Param("country") String country,
                                               @Param("city") String city,

@@ -27,9 +27,7 @@ public class Event {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
-    @NotNull
     @ManyToOne
-    @JoinColumn(nullable = false)
     private EventType eventType;
 
     @NotNull(message = "Name is required")
