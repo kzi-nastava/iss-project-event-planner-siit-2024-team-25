@@ -21,8 +21,8 @@ public class EventController {
     private final EventService eventService;
 
     @GetMapping("/{id}")
-    public ResponseEntity<EventResponseDTO> getEvent(@PathVariable Long id) {
-        return ResponseEntity.ok(eventService.getEventById(id));
+    public ResponseEntity<EventResponseDTO> getEvent(@PathVariable Long id, @RequestParam(required = false) String invitationCode) {
+        return ResponseEntity.ok(eventService.getEventById(id,invitationCode));
     }
 
     @GetMapping

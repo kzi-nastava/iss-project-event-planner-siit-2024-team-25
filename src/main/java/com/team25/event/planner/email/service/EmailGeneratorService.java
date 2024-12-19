@@ -48,7 +48,7 @@ public class EmailGeneratorService {
 
     public EmailDTO getEventInvitationEmail(String guestEmail, EventInvitationEmailDTO eventInvitationEmailDTO) {
         final String email = guestEmail;
-        final String url = frontendUrl + "/user/login?invitationCode=" + eventInvitationEmailDTO.getEventInvitationCode();
+        final String url = frontendUrl + "/event/" +eventInvitationEmailDTO.getEventId()+ "?invitationCode=" + eventInvitationEmailDTO.getEventInvitationCode();
         final String body = templateProcessorService.getEventInvitationEmailBody(url, eventInvitationEmailDTO);
         return new EmailDTO(email, "Event invitation", body);
     }

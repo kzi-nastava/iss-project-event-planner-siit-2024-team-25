@@ -9,6 +9,7 @@ import java.time.LocalTime;
 @Data
 @AllArgsConstructor
 public class EventInvitationEmailDTO {
+    private Long eventId;
     private String guestFirstName;
     private String guestLastName;
     private String eventName;
