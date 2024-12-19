@@ -1,5 +1,6 @@
 package com.team25.event.planner.event.model;
 
+import com.team25.event.planner.offering.common.model.OfferingCategory;
 import com.team25.event.planner.offering.common.model.OfferingCategoryType;
 import jakarta.persistence.*;
 import lombok.AllArgsConstructor;
@@ -20,8 +21,8 @@ public class BudgetItem {
     @Embedded
     private Money money;
 
-    @Enumerated(EnumType.STRING)
-    private OfferingCategoryType offeringCategoryType;
+    @ManyToOne
+    private OfferingCategory offeringCategory;
 
     @ManyToOne
     @JoinColumn(name = "event_id", nullable = false)
