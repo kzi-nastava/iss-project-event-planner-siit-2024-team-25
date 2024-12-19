@@ -7,7 +7,6 @@ import jakarta.persistence.criteria.Predicate;
 import org.springframework.data.jpa.domain.Specification;
 import org.springframework.stereotype.Component;
 
-import java.time.LocalDate;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -64,7 +63,7 @@ public class EventSpecification {
             }
 
             if(filter.getPrivacyType() == null) {
-                predicates.add(cb.equal(root.get("privacyType"), PrivacyType.Public));
+                predicates.add(cb.equal(root.get("privacyType"), PrivacyType.PUBLIC));
             }
 
             return cb.and(predicates.toArray(new Predicate[0]));

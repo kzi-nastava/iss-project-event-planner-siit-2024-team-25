@@ -1,6 +1,6 @@
 package com.team25.event.planner.event.dto;
 
-import com.team25.event.planner.common.model.Location;
+import com.team25.event.planner.common.dto.LocationRequestDTO;
 import com.team25.event.planner.event.model.PrivacyType;
 import jakarta.validation.constraints.NotEmpty;
 import jakarta.validation.constraints.NotNull;
@@ -11,7 +11,6 @@ import java.time.LocalTime;
 
 @Data
 public class EventRequestDTO {
-    @NotNull(message = "Event type is required")
     private Long eventTypeId;
 
     @NotEmpty(message = "Name is required")
@@ -37,5 +36,5 @@ public class EventRequestDTO {
     private LocalTime endTime;
 
     @NotNull(message = "Location is required")
-    private Location location;
+    private LocationRequestDTO location;
 }
