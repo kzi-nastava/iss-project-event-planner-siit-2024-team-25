@@ -21,6 +21,7 @@ import com.team25.event.planner.user.model.EventOrganizer;
 import com.team25.event.planner.user.model.User;
 import com.team25.event.planner.user.repository.AccountRepository;
 import com.team25.event.planner.user.repository.EventOrganizerRepository;
+import com.team25.event.planner.user.repository.UserRepository;
 import com.team25.event.planner.user.service.CurrentUserService;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
@@ -54,11 +55,12 @@ public class EventService {
     private final CurrentUserService currentUserService;
     private final EmailService emailService;
     private final EventAttendanceRepository eventAttendanceRepository;
+    private final UserRepository userRepository;
 
     public EventResponseDTO getEventById(Long id, String invitationCode) {
         Event event = eventRepository.findById(id).orElseThrow(() -> new NotFoundError("Event not found"));
 
-        if(event.getPrivacyType() == PrivacyType.Private){
+        if(event.getPrivacyType() == PrivacyType.PRIVATE){
             if(Objects.equals(event.getOrganizer().getId(), currentUserService.getCurrentUserId())){
                 return eventMapper.toDTO(event);
             }
