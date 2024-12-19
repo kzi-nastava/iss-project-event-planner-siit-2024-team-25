@@ -10,10 +10,7 @@ import com.team25.event.planner.event.mapper.ActivityMapper;
 import com.team25.event.planner.event.mapper.EventInvitationMapper;
 import com.team25.event.planner.event.mapper.EventMapper;
 import com.team25.event.planner.event.model.*;
-import com.team25.event.planner.event.repository.EventAttendanceRepository;
-import com.team25.event.planner.event.repository.EventInvitationRepository;
-import com.team25.event.planner.event.repository.EventRepository;
-import com.team25.event.planner.event.repository.EventTypeRepository;
+import com.team25.event.planner.event.repository.*;
 import com.team25.event.planner.event.specification.EventSpecification;
 import com.team25.event.planner.offering.common.model.OfferingCategoryType;
 import com.team25.event.planner.user.model.Account;
@@ -22,6 +19,8 @@ import com.team25.event.planner.user.model.User;
 import com.team25.event.planner.user.repository.AccountRepository;
 import com.team25.event.planner.user.repository.EventOrganizerRepository;
 import com.team25.event.planner.user.service.CurrentUserService;
+import jakarta.persistence.criteria.JoinType;
+import jakarta.persistence.criteria.Predicate;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
@@ -53,14 +52,37 @@ public class EventService {
     private final CurrentUserService currentUserService;
     private final EmailService emailService;
     private final EventAttendanceRepository eventAttendanceRepository;
+    private final ActivityRepository activityRepository;
 
     public EventResponseDTO getEventById(Long id) {
         Event event = eventRepository.findById(id).orElseThrow(() -> new NotFoundError("Event not found"));
         return eventMapper.toDTO(event);
     }
 
+    /// Returns specification that allows only events visible to the logged-in user.
+    /// Event is considered visible to the current user if:
+    /// - Event is public
+    /// - User is organizer of the event
+    /// - User is attending the event
+    ///
+    /// @return JPA Specification for filtering out non-visible events.
+    public Specification<Event> getVisibilityCriteria() {
+        final Long userId = currentUserService.getCurrentUserId();
+        if (userId == null) {
+            return (root, query, cb)
+                    -> cb.equal(root.get("privacyType"), PrivacyType.PUBLIC);
+        }
+        return (root, query, cb) -> {
+            Predicate isPublic = cb.equal(root.get("privacyType"), PrivacyType.PUBLIC);
+            Predicate isOrganizer = cb.equal(root.get("organizer").get("id"), userId);
+            Predicate isAttendee = cb.isNotEmpty(root.join("attendees", JoinType.LEFT));
+            return cb.or(isPublic, isOrganizer, isAttendee);
+        };
+    }
+
     public Page<EventResponseDTO> getEvents(EventFilterDTO filter, int page, int size, String sortBy, String sortDirection) {
         Specification<Event> spec = eventSpecification.createSpecification(filter);
+        spec.and(getVisibilityCriteria());
 
         Sort.Direction direction = Sort.Direction.fromString(sortDirection);
         Pageable pageable = PageRequest.of(page, size, Sort.by(direction, sortBy));
@@ -123,6 +145,8 @@ public class EventService {
 
     public Page<EventPreviewResponseDTO> getAllEvents(EventFilterDTO filter, int page, int size, String sortBy, String sortDirection) {
         Specification<Event> spec = eventSpecification.createSpecification(filter);
+        spec.and(getVisibilityCriteria());
+
         Sort.Direction direction = Sort.Direction.fromString(sortDirection);
         Pageable pageable = PageRequest.of(page, size, Sort.by(direction, sortBy));
         return eventRepository.findAll(spec, pageable).map(eventMapper::toEventPreviewResponseDTO);
@@ -195,14 +219,40 @@ public class EventService {
         return null;
     }
 
+    public List<ActivityResponseDTO> getEventAgenda(Long eventId) {
+        return activityRepository.findByEventIdOrderByStartTimeAsc(eventId)
+                .stream().map(activityMapper::toDTO).toList();
+    }
+
     public ActivityResponseDTO addActivityToAgenda(Long eventId, @Valid ActivityRequestDTO activityRequestDTO) {
+        Event event = eventRepository.findById(eventId).orElseThrow(() -> new NotFoundError("Event not found"));
+
+        final Long currentUserId = currentUserService.getCurrentUserId();
+        if (!event.getOrganizer().getId().equals(currentUserId)) {
+            throw new UnauthorizedError();
+        }
+
         Activity activity = activityMapper.toActivity(activityRequestDTO);
+        activity.setEvent(event);
+
+        activity = activityRepository.save(activity);
         return activityMapper.toDTO(activity);
     }
 
-    public List<ActivityResponseDTO> getEventAgenda(Long eventId) {
-        Event event = eventRepository.findById(eventId).orElseThrow(() -> new NotFoundError("Event not found"));
-        return event.getAgenda().stream().map(activityMapper::toDTO).toList();
+    public void removeActivityFromAgenda(Long eventId, Long activityId) {
+        Activity activity = activityRepository.findById(activityId)
+                .orElseThrow(() -> new NotFoundError("Activity not found"));
+
+        if (!activity.getEvent().getId().equals(eventId)) {
+            throw new InvalidRequestError("Invalid activity");
+        }
+
+        final Long currentUserId = currentUserService.getCurrentUserId();
+        if (!activity.getEvent().getOrganizer().getId().equals(currentUserId)) {
+            throw new UnauthorizedError();
+        }
+
+        activityRepository.delete(activity);
     }
 
     public void createEventAttendance(User user, String invitationCode) {

@@ -15,6 +15,28 @@ public interface EventRepository extends JpaRepository<Event, Long>, JpaSpecific
             "AND (e.privacyType =  com.team25.event.planner.event.model.PrivacyType.PUBLIC )" +
             "ORDER BY e.createdDate DESC")
     Page<Event> findTopEvents(@Param("country") String country,
-                                              @Param("city") String city,
-                                              Pageable pageable);
+                              @Param("city") String city,
+                              Pageable pageable);
+
+    @Query("""
+                SELECT CASE
+                           WHEN COUNT(e) = 0 THEN TRUE
+                           WHEN e.organizer.id = :userId THEN TRUE
+                           WHEN e.privacyType = 0 THEN TRUE
+                           WHEN EXISTS (
+                               SELECT ea FROM EventAttendance ea
+                               WHERE ea.event.id = :eventId AND ea.attendee.id = :userId
+                           ) THEN TRUE
+                           WHEN EXISTS (
+                               SELECT ei FROM EventInvitation ei
+                               WHERE ei.event.id = :eventId AND ei.guestEmail = :userEmail
+                           ) THEN TRUE
+                           ELSE FALSE
+                       END
+                FROM Event e
+                WHERE e.id = :eventId
+            """)
+    boolean canUserViewEvent(@Param("eventId") Long eventId,
+                             @Param("userId") Long userId,
+                             @Param("userEmail") String userEmail);
 }
