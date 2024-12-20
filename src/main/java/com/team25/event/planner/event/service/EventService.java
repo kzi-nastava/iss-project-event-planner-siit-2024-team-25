@@ -217,4 +217,6 @@ public class EventService {
         eventAttendance.setAttendee(user);
         eventAttendanceRepository.save(eventAttendance);
     }
+
+
 }

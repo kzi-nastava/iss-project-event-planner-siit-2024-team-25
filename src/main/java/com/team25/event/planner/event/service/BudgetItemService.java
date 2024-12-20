@@ -9,6 +9,8 @@ import com.team25.event.planner.event.model.Event;
 import com.team25.event.planner.event.model.Money;
 import com.team25.event.planner.event.repository.BudgetItemRepository;
 import com.team25.event.planner.event.repository.EventRepository;
+import com.team25.event.planner.offering.common.model.OfferingCategory;
+import com.team25.event.planner.offering.common.repository.OfferingCategoryRepository;
 import lombok.AllArgsConstructor;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
@@ -22,6 +24,7 @@ public class BudgetItemService {
     private final BudgetItemRepository budgetItemRepository;
     private final EventRepository eventRepository;
     private final BudgetItemMapper budgetItemMapper;
+    private final OfferingCategoryRepository offeringCategoryRepository;
 
     public List<BudgetItemResponseDTO> getAllBudgetItems() {
         return budgetItemRepository.findAll().stream().map(budgetItemMapper::toResponseDTO).collect(Collectors.toList());
@@ -31,6 +34,16 @@ public class BudgetItemService {
         Event event = eventRepository.findById(eventId).orElseThrow(NotFoundError::new);
         return budgetItemRepository.findAllByEvent(event).stream().map(budgetItemMapper::toResponseDTO).collect(Collectors.toList());
     }
+    public boolean isSuitableByOfferIdAndNotEventId(Long OCId, Long eventId){
+        eventRepository.findById(eventId).orElseThrow(NotFoundError::new);
+        OfferingCategory offeringCategory = offeringCategoryRepository.findById(OCId).orElseThrow(NotFoundError::new);
+        BudgetItem budgetItem = budgetItemRepository.findByOfferingCategory(offeringCategory);
+        if(budgetItem==null){
+            return true;
+        }
+        return budgetItemRepository.isSuitableByOfferIdAndNotEventId(OCId, eventId);
+
+    }
 
     public BudgetItemResponseDTO getBudgetItemById(Long id) {
         BudgetItem budgetItem = budgetItemRepository.findById(id).orElseThrow(()-> new NotFoundError("Budget item not found"));
@@ -39,13 +52,13 @@ public class BudgetItemService {
 
     public BudgetItemResponseDTO createBudgetItem(BudgetItemRequestDTO budgetItemRequestDTO) {
         BudgetItem budgetItem = budgetItemMapper.toBudgetItem(budgetItemRequestDTO);
-        budgetItem.setMoney(new Money(budgetItemRequestDTO.getBudget(), "RSD"));
+        budgetItem.setMoney(new Money(budgetItemRequestDTO.getBudget(), "EUR"));
         return budgetItemMapper.toResponseDTO(budgetItemRepository.save(budgetItem));
     }
 
     public BudgetItemResponseDTO updateBudgetItem(Long id, BudgetItemRequestDTO budgetItemRequestDTO) {
         BudgetItem budgetItem = budgetItemRepository.findById(id).orElseThrow(()-> new NotFoundError("Budget item not found"));
-        budgetItem.setMoney(new Money(budgetItemRequestDTO.getBudget(), "RSD"));
+        budgetItem.setMoney(new Money(budgetItemRequestDTO.getBudget(), "EUR"));
         return budgetItemMapper.toResponseDTO(budgetItemRepository.save(budgetItem));
     }
     public ResponseEntity<?> deleteBudgetItem(Long id) {
