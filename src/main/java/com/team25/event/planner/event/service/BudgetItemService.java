@@ -31,6 +31,7 @@ public class BudgetItemService {
 
     public BudgetItemResponseDTO createBudgetItem(BudgetItemRequestDTO budgetItemRequestDTO) {
         BudgetItem budgetItem = budgetItemMapper.toBudgetItem(budgetItemRequestDTO);
+        budgetItem.setMoney(new Money(budgetItemRequestDTO.getBudget(), "RSD"));
         return budgetItemMapper.toResponseDTO(budgetItemRepository.save(budgetItem));
     }
 
@@ -40,6 +41,9 @@ public class BudgetItemService {
         return budgetItemMapper.toResponseDTO(budgetItemRepository.save(budgetItem));
     }
     public ResponseEntity<?> deleteBudgetItem(Long id) {
+        if(!budgetItemRepository.existsById(id)) {
+            return ResponseEntity.notFound().build();
+        }
         budgetItemRepository.deleteById(id);
         return ResponseEntity.ok().build();
     }

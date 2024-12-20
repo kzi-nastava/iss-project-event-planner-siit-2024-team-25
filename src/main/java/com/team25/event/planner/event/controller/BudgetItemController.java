@@ -18,7 +18,7 @@ public class BudgetItemController {
     private final BudgetItemService budgetItemService;
 
     @GetMapping(produces = MediaType.APPLICATION_JSON_VALUE)
-    @Secured("EVENT_ORGANIZER")
+    //@Secured("EVENT_ORGANIZER")
     public List<BudgetItemResponseDTO> getBudgetItems() {
         return budgetItemService.getAllBudgetItems();
     }
@@ -44,6 +44,6 @@ public class BudgetItemController {
     @DeleteMapping(value = "{id}")
     @Secured("EVENT_ORGANIZER")
     public ResponseEntity<?> deleteBudgetItem(@PathVariable Long id) {
-        return budgetItemService.deleteBudgetItem(id);
+        return ResponseEntity.ok(budgetItemService.deleteBudgetItem(id));
     }
 }
