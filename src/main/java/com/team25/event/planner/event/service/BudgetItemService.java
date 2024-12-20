@@ -5,8 +5,10 @@ import com.team25.event.planner.event.dto.BudgetItemRequestDTO;
 import com.team25.event.planner.event.dto.BudgetItemResponseDTO;
 import com.team25.event.planner.event.mapper.BudgetItemMapper;
 import com.team25.event.planner.event.model.BudgetItem;
+import com.team25.event.planner.event.model.Event;
 import com.team25.event.planner.event.model.Money;
 import com.team25.event.planner.event.repository.BudgetItemRepository;
+import com.team25.event.planner.event.repository.EventRepository;
 import lombok.AllArgsConstructor;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
@@ -18,10 +20,16 @@ import java.util.stream.Collectors;
 @AllArgsConstructor
 public class BudgetItemService {
     private final BudgetItemRepository budgetItemRepository;
+    private final EventRepository eventRepository;
     private final BudgetItemMapper budgetItemMapper;
 
     public List<BudgetItemResponseDTO> getAllBudgetItems() {
         return budgetItemRepository.findAll().stream().map(budgetItemMapper::toResponseDTO).collect(Collectors.toList());
+    }
+
+    public List<BudgetItemResponseDTO> getBudgetItemsByEvent(Long eventId){
+        Event event = eventRepository.findById(eventId).orElseThrow(NotFoundError::new);
+        return budgetItemRepository.findAllByEvent(event).stream().map(budgetItemMapper::toResponseDTO).collect(Collectors.toList());
     }
 
     public BudgetItemResponseDTO getBudgetItemById(Long id) {

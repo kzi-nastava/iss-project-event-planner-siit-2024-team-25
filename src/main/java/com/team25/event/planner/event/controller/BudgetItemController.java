@@ -18,27 +18,30 @@ public class BudgetItemController {
     private final BudgetItemService budgetItemService;
 
     @GetMapping(produces = MediaType.APPLICATION_JSON_VALUE)
-    //@Secured("EVENT_ORGANIZER")
-    public List<BudgetItemResponseDTO> getBudgetItems() {
-        return budgetItemService.getAllBudgetItems();
+    @Secured("EVENT_ORGANIZER")
+    public ResponseEntity<List<BudgetItemResponseDTO>> getBudgetItemsByEvent(@RequestParam(value = "eventId", required = false) Long eventId){
+        if(eventId == null){
+            return ResponseEntity.ok(budgetItemService.getAllBudgetItems());
+        }
+        return ResponseEntity.ok(budgetItemService.getBudgetItemsByEvent(eventId));
     }
 
     @GetMapping(value = "{id}", produces = MediaType.APPLICATION_JSON_VALUE)
     @Secured("EVENT_ORGANIZER")
-    public BudgetItemResponseDTO getBudgetItemById(@PathVariable Long id) {
-        return budgetItemService.getBudgetItemById(id);
+    public ResponseEntity<BudgetItemResponseDTO> getBudgetItemById(@PathVariable Long id) {
+        return ResponseEntity.ok(budgetItemService.getBudgetItemById(id));
     }
 
     @PostMapping(consumes = MediaType.APPLICATION_JSON_VALUE, produces = MediaType.APPLICATION_JSON_VALUE)
     @Secured("EVENT_ORGANIZER")
-    public BudgetItemResponseDTO createBudgetItem(@RequestBody BudgetItemRequestDTO budgetItemRequestDTO) {
-        return budgetItemService.createBudgetItem(budgetItemRequestDTO);
+    public ResponseEntity<BudgetItemResponseDTO> createBudgetItem(@RequestBody BudgetItemRequestDTO budgetItemRequestDTO) {
+        return ResponseEntity.ok(budgetItemService.createBudgetItem(budgetItemRequestDTO));
     }
 
     @PutMapping(value = "{id}", consumes = MediaType.APPLICATION_JSON_VALUE, produces = MediaType.APPLICATION_JSON_VALUE)
     @Secured("EVENT_ORGANIZER")
-    public BudgetItemResponseDTO updateBudgetItem(@PathVariable Long id, @RequestBody BudgetItemRequestDTO budgetItemRequestDTO) {
-        return budgetItemService.updateBudgetItem(id, budgetItemRequestDTO);
+    public ResponseEntity<BudgetItemResponseDTO> updateBudgetItem(@PathVariable Long id, @RequestBody BudgetItemRequestDTO budgetItemRequestDTO) {
+        return ResponseEntity.ok(budgetItemService.updateBudgetItem(id, budgetItemRequestDTO));
     }
 
     @DeleteMapping(value = "{id}")

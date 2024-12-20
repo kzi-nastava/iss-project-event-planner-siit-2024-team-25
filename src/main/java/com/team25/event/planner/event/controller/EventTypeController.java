@@ -3,6 +3,7 @@ package com.team25.event.planner.event.controller;
 import com.team25.event.planner.event.dto.EventTypePreviewResponseDTO;
 import com.team25.event.planner.event.dto.EventTypeRequestDTO;
 import com.team25.event.planner.event.dto.EventTypeResponseDTO;
+import com.team25.event.planner.event.dto.OfferingCategoryPreviewDTO;
 import com.team25.event.planner.event.service.EventTypeService;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
@@ -27,6 +28,12 @@ public class EventTypeController {
     @GetMapping
     public ResponseEntity<List<EventTypeResponseDTO>> getEventTypes() {
         return ResponseEntity.ok(eventTypeService.getEventTypes());
+    }
+
+    @GetMapping(value = "/offering-categories")
+    public ResponseEntity<List<OfferingCategoryPreviewDTO>> getOfferingCategoriesByEventType(@RequestParam("eventTypeId") Long eventTypeId) {
+
+        return ResponseEntity.ok(eventTypeService.getOfferingCategoryByEventType(eventTypeId));
     }
 
     @GetMapping(value = "/offering")
