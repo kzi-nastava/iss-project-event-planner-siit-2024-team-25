@@ -27,7 +27,7 @@ public class ServiceController {
 
     private final ServiceService serviceService;
 
-        /*@GetMapping("/all")
+    @GetMapping("/all")
     public ResponseEntity<Page<OfferingPreviewResponseDTO>> getAllServices(
             @ModelAttribute OfferingFilterDTO filter,
             @RequestParam(defaultValue = "0") int page,
@@ -36,7 +36,7 @@ public class ServiceController {
             @RequestParam(defaultValue = "asc") String sortDirection
     ){
         return ResponseEntity.ok(serviceService.getAllServices(filter, page, size, sortBy, sortDirection));
-    }*/
+    }
 
     @GetMapping
     public ResponseEntity<Page<ServiceCardResponseDTO>> getServices(
