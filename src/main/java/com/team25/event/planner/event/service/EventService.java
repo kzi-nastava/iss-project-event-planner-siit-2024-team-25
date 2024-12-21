@@ -83,7 +83,8 @@ public class EventService {
 
     public Page<EventPreviewResponseDTO> getEvents(EventFilterDTO filter, int page, int size, String sortBy, String sortDirection) {
         UserDetailsImpl currentUser = (UserDetailsImpl) SecurityContextHolder.getContext().getAuthentication().getPrincipal();
-        Account organizer = accountRepository.findByEmail(currentUser.getUsername()).orElseThrow(() -> new NotFoundError("User not found"));
+        User user = userRepository.findById(currentUser.getUserId()).orElseThrow(() -> new NotFoundError("User not found"));
+        Account organizer = user.getAccount();
         Specification<Event> spec = eventSpecification.createOrganizerSpecification(filter, organizer);
 
         Sort.Direction direction = Sort.Direction.fromString(sortDirection);
