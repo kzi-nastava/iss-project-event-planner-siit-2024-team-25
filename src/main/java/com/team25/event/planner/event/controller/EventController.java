@@ -9,6 +9,7 @@ import org.springframework.data.domain.Page;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.annotation.Secured;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.*;
 
@@ -21,6 +22,7 @@ public class EventController {
     private final EventService eventService;
 
     @GetMapping("/{id}")
+    @PreAuthorize("@eventPermissionEvaluator.canView(authentication, #id)")
     public ResponseEntity<EventResponseDTO> getEvent(@PathVariable Long id, @RequestParam(required = false) String invitationCode) {
         return ResponseEntity.ok(eventService.getEventById(id,invitationCode));
     }
@@ -83,6 +85,12 @@ public class EventController {
         return ResponseEntity.ok().build();
     }
 
+    @GetMapping("/{id}/agenda")
+    @PreAuthorize("@eventPermissionEvaluator.canView(authentication, #id)")
+    public ResponseEntity<List<ActivityResponseDTO>> getAgenda(@PathVariable Long id) {
+        return ResponseEntity.ok(eventService.getEventAgenda(id));
+    }
+
     @PostMapping("/{id}/agenda")
     @Secured("ROLE_EVENT_ORGANIZER")
     public ResponseEntity<ActivityResponseDTO> addActivityToAgenda(
@@ -94,8 +102,10 @@ public class EventController {
         );
     }
 
-    @GetMapping("/{id}/agenda")
-    public ResponseEntity<List<ActivityResponseDTO>> getAgenda(@PathVariable Long id) {
-        return ResponseEntity.ok(eventService.getEventAgenda(id));
+    @DeleteMapping("/{eventId}/agenda/{activityId}")
+    @Secured("ROLE_EVENT_ORGANIZER")
+    public ResponseEntity<Void> removeActivityFromAgenda(@PathVariable Long eventId, @PathVariable Long activityId) {
+        eventService.removeActivityFromAgenda(eventId, activityId);
+        return ResponseEntity.noContent().build();
     }
 }

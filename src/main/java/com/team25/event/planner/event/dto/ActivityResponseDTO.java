@@ -6,6 +6,7 @@ import java.time.LocalDateTime;
 
 @Data
 public class ActivityResponseDTO {
+    private Long id;
     private String name;
     private String description;
     private LocalDateTime startTime;
