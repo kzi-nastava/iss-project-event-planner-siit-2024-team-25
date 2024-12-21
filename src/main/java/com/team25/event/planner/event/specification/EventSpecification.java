@@ -3,6 +3,7 @@ package com.team25.event.planner.event.specification;
 import com.team25.event.planner.event.dto.EventFilterDTO;
 import com.team25.event.planner.event.model.Event;
 import com.team25.event.planner.event.model.PrivacyType;
+import com.team25.event.planner.user.model.Account;
 import jakarta.persistence.criteria.Predicate;
 import org.springframework.data.jpa.domain.Specification;
 import org.springframework.stereotype.Component;
@@ -65,6 +66,62 @@ public class EventSpecification {
             if(filter.getPrivacyType() == null) {
                 predicates.add(cb.equal(root.get("privacyType"), PrivacyType.PUBLIC));
             }
+
+            return cb.and(predicates.toArray(new Predicate[0]));
+        };
+    }
+
+    public Specification<Event> createOrganizerSpecification(EventFilterDTO filter, Account organizer) {
+        return (root, query, cb) -> {
+            List<Predicate> predicates = new ArrayList<>();
+
+            if (filter.getNameContains() != null) {
+                predicates.add(cb.like(cb.lower(root.get("name")),
+                        "%" + filter.getNameContains().toLowerCase() + "%"));
+            }
+
+            if (filter.getDescriptionContains() != null) {
+                predicates.add(cb.like(cb.lower(root.get("description")),
+                        "%" + filter.getDescriptionContains().toLowerCase() + "%"));
+            }
+
+            if (filter.getEventTypeId() != null) {
+                predicates.add(cb.equal(root.get("eventType").get("id"), filter.getEventTypeId()));
+            }
+
+            if (filter.getPrivacyType() != null) {
+                predicates.add(cb.equal(root.get("privacyType"), filter.getPrivacyType()));
+            }
+
+            if (filter.getStartDate() != null) {
+                predicates.add(cb.greaterThanOrEqualTo(root.get("startDate"), filter.getStartDate()));
+            }
+
+            if (filter.getEndDate() != null) {
+                predicates.add(cb.lessThanOrEqualTo(root.get("endDate"), filter.getEndDate()));
+            }
+
+            if (filter.getStartTime() != null) {
+                predicates.add(cb.greaterThanOrEqualTo(root.get("startTime"), filter.getStartTime()));
+            }
+
+            if (filter.getEndTime() != null) {
+                predicates.add(cb.lessThanOrEqualTo(root.get("startTime"), filter.getEndTime()));
+            }
+
+            if (filter.getMaxParticipants() != null) {
+                predicates.add(cb.lessThanOrEqualTo(root.get("maxParticipants"), filter.getMaxParticipants()));
+            }
+
+            if (filter.getCountry() != null) {
+                predicates.add(cb.equal(root.get("location").get("country"), filter.getCountry()));
+            }
+
+            if (filter.getCity() != null) {
+                predicates.add(cb.equal(root.get("location").get("city"), filter.getCity()));
+            }
+
+            predicates.add(cb.equal(root.get("organizer").get("id"), organizer.getId()));
 
             return cb.and(predicates.toArray(new Predicate[0]));
         };

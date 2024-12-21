@@ -16,13 +16,19 @@ import com.team25.event.planner.event.repository.EventRepository;
 import com.team25.event.planner.event.repository.EventTypeRepository;
 import com.team25.event.planner.event.specification.EventSpecification;
 import com.team25.event.planner.offering.common.model.OfferingCategoryType;
+import com.team25.event.planner.security.user.UserDetailsImpl;
 import com.team25.event.planner.user.model.Account;
 import com.team25.event.planner.user.model.EventOrganizer;
 import com.team25.event.planner.user.model.User;
 import com.team25.event.planner.user.repository.AccountRepository;
 import com.team25.event.planner.user.repository.EventOrganizerRepository;
 import com.team25.event.planner.user.repository.UserRepository;
+import com.team25.event.planner.user.service.AuthService;
 import com.team25.event.planner.user.service.CurrentUserService;
+import jakarta.persistence.criteria.CriteriaBuilder;
+import jakarta.persistence.criteria.CriteriaQuery;
+import jakarta.persistence.criteria.Predicate;
+import jakarta.persistence.criteria.Root;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
@@ -30,6 +36,7 @@ import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
 import org.springframework.data.jpa.domain.Specification;
+import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Service;
 
 import java.time.LocalDate;
@@ -74,13 +81,15 @@ public class EventService {
         throw new UnauthorizedError("You must be event organizer or invited user to visit this event page");
     }
 
-    public Page<EventResponseDTO> getEvents(EventFilterDTO filter, int page, int size, String sortBy, String sortDirection) {
-        Specification<Event> spec = eventSpecification.createSpecification(filter);
+    public Page<EventPreviewResponseDTO> getEvents(EventFilterDTO filter, int page, int size, String sortBy, String sortDirection) {
+        UserDetailsImpl currentUser = (UserDetailsImpl) SecurityContextHolder.getContext().getAuthentication().getPrincipal();
+        Account organizer = accountRepository.findByEmail(currentUser.getUsername()).orElseThrow(() -> new NotFoundError("User not found"));
+        Specification<Event> spec = eventSpecification.createOrganizerSpecification(filter, organizer);
 
         Sort.Direction direction = Sort.Direction.fromString(sortDirection);
         Pageable pageable = PageRequest.of(page, size, Sort.by(direction, sortBy));
 
-        return eventRepository.findAll(spec, pageable).map(eventMapper::toDTO);
+        return eventRepository.findAll(spec, pageable).map(eventMapper::toEventPreviewResponseDTO);
     }
 
     // More complex validation is handled in a service method instead of validation annotations.
