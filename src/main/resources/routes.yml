@@ -14,6 +14,8 @@ security:
       methods: [ GET ]
     - path: /api/offering-categories
       methods: [ GET ]
+    - path: /api/offering-categories/all
+      methods: [ GET ]
     - path: /api/products/**
       methods: [ GET ]
     - path: /api/services/**

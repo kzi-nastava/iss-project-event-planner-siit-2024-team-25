@@ -2,10 +2,7 @@ package com.team25.event.planner.offering.common.service;
 
 import com.team25.event.planner.common.exception.InvalidRequestError;
 import com.team25.event.planner.common.exception.NotFoundError;
-import com.team25.event.planner.offering.common.dto.OfferingCategoryCreateRequestDTO;
-import com.team25.event.planner.offering.common.dto.OfferingCategoryResponseDTO;
-import com.team25.event.planner.offering.common.dto.OfferingCategoryUpdateRequestDTO;
-import com.team25.event.planner.offering.common.dto.OfferingSubmittedResponseDTO;
+import com.team25.event.planner.offering.common.dto.*;
 import com.team25.event.planner.offering.common.mapper.OfferingCategoryCommonMapper;
 import com.team25.event.planner.offering.common.model.Offering;
 import com.team25.event.planner.offering.common.model.OfferingCategory;
@@ -31,6 +28,10 @@ public class OfferingCategoryService {
 
     public List<OfferingCategoryResponseDTO> getOfferingCategories() {
         return offeringCategoryRepository.findOfferingCategoriesByStatus(OfferingCategoryType.ACCEPTED).stream().map(offeringCategoryCommonMapper::toResponseDTO).collect(Collectors.toList());
+    }
+
+    public List<OfferingCategoryPreviewResponseDTO> getAllOfferingCategories() {
+        return offeringCategoryRepository.findOfferingCategoriesByStatus(OfferingCategoryType.ACCEPTED).stream().map(offeringCategoryCommonMapper::toPreviewResponseDTO).collect(Collectors.toList());
     }
 
     public List<OfferingCategoryResponseDTO> getSubmittedOfferingCategories() {
@@ -104,6 +105,4 @@ public class OfferingCategoryService {
             throw new NotFoundError("Offering category not found");
         }
     }
-
-
 }

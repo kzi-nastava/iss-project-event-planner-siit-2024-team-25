@@ -1,6 +1,7 @@
 package com.team25.event.planner.offering.common.controller;
 
 import com.team25.event.planner.offering.common.dto.OfferingCategoryCreateRequestDTO;
+import com.team25.event.planner.offering.common.dto.OfferingCategoryPreviewResponseDTO;
 import com.team25.event.planner.offering.common.dto.OfferingCategoryResponseDTO;
 import com.team25.event.planner.offering.common.dto.OfferingCategoryUpdateRequestDTO;
 import com.team25.event.planner.offering.common.model.OfferingCategoryType;
@@ -23,6 +24,11 @@ public class OfferingCategoryController {
     @GetMapping(produces = MediaType.APPLICATION_JSON_VALUE)
     public List<OfferingCategoryResponseDTO> getOfferingCategories() {
         return offeringCategoryService.getOfferingCategories();
+    }
+
+    @GetMapping(value = "all", produces = MediaType.APPLICATION_JSON_VALUE)
+    public List<OfferingCategoryPreviewResponseDTO> getAllOfferingCategories() {
+        return offeringCategoryService.getAllOfferingCategories();
     }
 
     @GetMapping(value = "submitted", produces = MediaType.APPLICATION_JSON_VALUE)

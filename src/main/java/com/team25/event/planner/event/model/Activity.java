@@ -31,7 +31,7 @@ public class Activity {
     @Column(nullable = false)
     private LocalDateTime startTime;
 
-    @NotBlank(message = "End time is required")
+    @NotNull(message = "End time is required")
     @Column(nullable = false)
     private LocalDateTime endTime;
 

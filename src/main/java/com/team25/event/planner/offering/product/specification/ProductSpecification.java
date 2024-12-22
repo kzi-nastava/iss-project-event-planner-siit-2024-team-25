@@ -1,7 +1,8 @@
-package com.team25.event.planner.offering.common.specification;
+package com.team25.event.planner.offering.product.specification;
 
 import com.team25.event.planner.offering.common.dto.OfferingFilterDTO;
 import com.team25.event.planner.offering.common.model.Offering;
+import com.team25.event.planner.offering.product.model.Product;
 import jakarta.persistence.criteria.Join;
 import jakarta.persistence.criteria.Predicate;
 import org.springframework.data.jpa.domain.Specification;
@@ -11,8 +12,8 @@ import java.util.ArrayList;
 import java.util.List;
 
 @Component
-public class OfferingSpecification {
-    public Specification<Offering> createSpecification(OfferingFilterDTO filter) {
+public class ProductSpecification {
+    public Specification<Product> createSpecification(OfferingFilterDTO filter) {
         return (root, query, cb) -> {
             List<Predicate> predicates = new ArrayList<>();
 
@@ -29,7 +30,7 @@ public class OfferingSpecification {
                 predicates.add(cb.equal(eventTypeJoin.get("id"), filter.getEventTypeId()));
             }
             if (filter.getCategoryId() != null) {
-                predicates.add(cb.equal(root.get("offeringCategory").get("id"), filter.getCategoryId()));
+                predicates.add(cb.equal(root.get("offeringCategory"), filter.getCategoryId()));
             }
             if (filter.getMinPrice() != null) {
                 predicates.add(cb.greaterThanOrEqualTo(root.get("price"), filter.getMinPrice()));

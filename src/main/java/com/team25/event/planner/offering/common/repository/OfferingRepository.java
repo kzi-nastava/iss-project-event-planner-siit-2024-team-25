@@ -42,7 +42,7 @@ public interface OfferingRepository extends JpaRepository<Offering, Long>, JpaSp
             "LEFT JOIN OfferingReview r ON r.purchase.id = p.id " +
             "WHERE o IN :offerings " +
             "GROUP BY o.id, o.name, o.owner.firstName, o.owner.lastName, o.description, o.owner.companyAddress.country, o.owner.companyAddress.city, o.price")
-    List<OfferingPreviewResponseDTO> findOfferingsWithAverageRating(@Param("offerings") List<Offering> offerings);
+    List<OfferingPreviewResponseDTO> findOfferingsWithAverageRating(@Param("offerings") List<Offering> offerings,Pageable pageable);
 
     @Query("SELECT new com.team25.event.planner.offering.common.dto.OfferingPreviewResponseDTO(" +
             "o.id, " +
