@@ -8,6 +8,8 @@ import org.springframework.data.jpa.repository.JpaSpecificationExecutor;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
 
+import java.util.List;
+
 public interface EventRepository extends JpaRepository<Event, Long>, JpaSpecificationExecutor<Event> {
     @Query("SELECT e FROM Event e WHERE " +
             "(:country IS NULL OR :country = '' OR e.location.country = :country) AND " +
@@ -15,6 +17,7 @@ public interface EventRepository extends JpaRepository<Event, Long>, JpaSpecific
             "AND (e.privacyType =  com.team25.event.planner.event.model.PrivacyType.PUBLIC )" +
             "ORDER BY e.createdDate DESC")
     Page<Event> findTopEvents(@Param("country") String country,
+
                               @Param("city") String city,
                               Pageable pageable);
 
@@ -39,4 +42,5 @@ public interface EventRepository extends JpaRepository<Event, Long>, JpaSpecific
     boolean canUserViewEvent(@Param("eventId") Long eventId,
                              @Param("userId") Long userId,
                              @Param("userEmail") String userEmail);
+
 }
