@@ -179,7 +179,7 @@ public class EventService {
                 .map(eventMapper::toEventPreviewResponseDTO);
     }
 
-    public boolean isProductSuitable(double price, OfferingCategoryType offeringCategoryType, Long eventId) {
+    /*public boolean isProductSuitable(double price, OfferingCategoryType offeringCategoryType, Long eventId) {
         Event event = eventRepository.findById(eventId).orElseThrow(() -> new NotFoundError("Event not found"));
         Collection<BudgetItem> items = event.getBudgetItemCollection();
         for (BudgetItem item : items) {
@@ -192,7 +192,7 @@ public class EventService {
             }
         }
         return false;
-    }
+    }*/
 
     public void sendInvitations(Long eventId, List<EventInvitationRequestDTO> requestDTO) {
         Event event = eventRepository.findById(eventId).orElseThrow(() -> new NotFoundError("Event not found"));
@@ -290,4 +290,6 @@ public class EventService {
         eventAttendance.setAttendee(user);
         eventAttendanceRepository.save(eventAttendance);
     }
+
+
 }

@@ -58,6 +58,7 @@ public class EventController {
         return ResponseEntity.ok(eventService.getTopEvents(country, city));
     }
 
+
     @PostMapping
     @Secured("ROLE_EVENT_ORGANIZER")
     public ResponseEntity<EventResponseDTO> createEvent(

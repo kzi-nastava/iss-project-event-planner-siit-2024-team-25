@@ -4,9 +4,12 @@ import com.team25.event.planner.common.exception.NotFoundError;
 import com.team25.event.planner.event.dto.EventTypePreviewResponseDTO;
 import com.team25.event.planner.event.dto.EventTypeRequestDTO;
 import com.team25.event.planner.event.dto.EventTypeResponseDTO;
+import com.team25.event.planner.event.dto.OfferingCategoryPreviewDTO;
 import com.team25.event.planner.event.mapper.EventTypeMapper;
 import com.team25.event.planner.event.mapper.OfferingCategoryMapper;
+
 import com.team25.event.planner.event.model.Event;
+
 import com.team25.event.planner.event.model.EventType;
 import com.team25.event.planner.event.repository.EventRepository;
 import com.team25.event.planner.event.repository.EventTypeRepository;
@@ -24,7 +27,10 @@ public class EventTypeService {
     private final EventTypeRepository eventTypeRepository;
     private final EventTypeMapper eventTypeMapper;
     private final OfferingCategoryRepository offeringCategoryRepository;
+
     private final EventRepository eventRepository;
+
+    private final OfferingCategoryMapper offeringCategoryMapper;
 
     public EventTypeResponseDTO getEventTypeById(Long id) {
         EventType eventType = eventTypeRepository.findById(id)
@@ -32,10 +38,16 @@ public class EventTypeService {
         return eventTypeMapper.toDTO(eventType);
     }
 
+
     public EventTypeResponseDTO getEventTypeByEventId(Long id) {
         EventType eventType = eventTypeRepository.findByEventId(id)
                 .orElseThrow(() -> new NotFoundError("Event type not found"));
         return eventTypeMapper.toDTO(eventType);
+  }
+    public List<OfferingCategoryPreviewDTO> getOfferingCategoryByEventType(Long eventTypeId) {
+        EventType eventType = eventTypeRepository.findById(eventTypeId).orElseThrow(() -> new NotFoundError("Event type not found"));
+        return eventType.getOfferingCategories().stream().map(offeringCategoryMapper::toDTO).toList();
+
     }
 
     public List<EventTypeResponseDTO> getEventTypes() {
