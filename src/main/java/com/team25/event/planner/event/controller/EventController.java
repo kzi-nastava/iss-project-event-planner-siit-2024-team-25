@@ -27,8 +27,9 @@ public class EventController {
         return ResponseEntity.ok(eventService.getEventById(id,invitationCode));
     }
 
-    @GetMapping
-    public ResponseEntity<Page<EventResponseDTO>> getEvents(
+    @GetMapping("/")
+    @Secured("ROLE_EVENT_ORGANIZER")
+    public ResponseEntity<Page<EventPreviewResponseDTO>> getEvents(
             @ModelAttribute EventFilterDTO filter,
             @RequestParam(defaultValue = "0") int page,
             @RequestParam(defaultValue = "10") int size,

@@ -13,6 +13,7 @@ import com.team25.event.planner.event.model.*;
 import com.team25.event.planner.event.repository.*;
 import com.team25.event.planner.event.specification.EventSpecification;
 import com.team25.event.planner.offering.common.model.OfferingCategoryType;
+import com.team25.event.planner.security.user.UserDetailsImpl;
 import com.team25.event.planner.user.model.Account;
 import com.team25.event.planner.user.model.EventOrganizer;
 import com.team25.event.planner.user.model.User;
@@ -29,6 +30,7 @@ import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
 import org.springframework.data.jpa.domain.Specification;
+import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Service;
 
 import java.time.LocalDate;
@@ -95,15 +97,17 @@ public class EventService {
         };
     }
 
-    public Page<EventResponseDTO> getEvents(EventFilterDTO filter, int page, int size, String sortBy, String sortDirection) {
-        Specification<Event> spec = eventSpecification.createSpecification(filter);
-        spec.and(getVisibilityCriteria());
+    public Page<EventPreviewResponseDTO> getEvents(EventFilterDTO filter, int page, int size, String sortBy, String sortDirection) {
+        User user = userRepository.findById(currentUserService.getCurrentUserId()).orElseThrow(() -> new NotFoundError("User not found"));
+        Account organizer = user.getAccount();
+        Specification<Event> spec = eventSpecification.createOrganizerSpecification(filter, organizer);
 
         Sort.Direction direction = Sort.Direction.fromString(sortDirection);
         Pageable pageable = PageRequest.of(page, size, Sort.by(direction, sortBy));
 
-        return eventRepository.findAll(spec, pageable).map(eventMapper::toDTO);
+        return eventRepository.findAll(spec, pageable).map(eventMapper::toEventPreviewResponseDTO);
     }
+
 
     // More complex validation is handled in a service method instead of validation annotations.
     // Note that this can also be achieved using custom validators.
