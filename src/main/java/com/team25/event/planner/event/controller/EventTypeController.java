@@ -26,7 +26,7 @@ public class EventTypeController {
 
     @GetMapping("/event/{eventId}")
     public ResponseEntity<EventTypeResponseDTO> getEventTypeByEvent(@PathVariable Long eventId) {
-        return ResponseEntity.ok(eventTypeService.getEventTypeById(eventId));
+        return ResponseEntity.ok(eventTypeService.getEventTypeByEventId(eventId));
     }
 
     @GetMapping

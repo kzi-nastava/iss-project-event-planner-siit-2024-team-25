@@ -33,8 +33,7 @@ public class EventTypeService {
     }
 
     public EventTypeResponseDTO getEventTypeByEventId(Long id) {
-        Event event = eventRepository.findById(id).orElseThrow(() -> new NotFoundError("Event not found"));
-        EventType eventType = eventTypeRepository.findById(event.getEventType().getId())
+        EventType eventType = eventTypeRepository.findByEventId(id)
                 .orElseThrow(() -> new NotFoundError("Event type not found"));
         return eventTypeMapper.toDTO(eventType);
     }
