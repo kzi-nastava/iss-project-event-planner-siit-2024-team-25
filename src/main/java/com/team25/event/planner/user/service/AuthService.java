@@ -163,6 +163,8 @@ public class AuthService {
                 .status(AccountStatus.ACTIVE)
                 .build();
 
+        registrationRequest.getUser().setAccount(account);
+
         accountRepository.save(account);
         registrationRequestRepository.delete(registrationRequest);
     }
