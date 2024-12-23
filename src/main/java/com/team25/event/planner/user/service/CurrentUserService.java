@@ -14,6 +14,6 @@ public class CurrentUserService {
         if (authentication != null && authentication.getPrincipal() instanceof UserDetails) {
             return ((UserDetailsImpl) authentication.getPrincipal()).getUserId();
         }
-        throw new UnauthenticatedError("Unauthenticated");
+        return null;
     }
 }
