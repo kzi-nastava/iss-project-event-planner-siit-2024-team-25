@@ -35,7 +35,7 @@ public class Account {
     @Enumerated(EnumType.STRING)
     private AccountStatus status;
 
-    @OneToOne
+    @OneToOne(fetch = FetchType.EAGER, cascade = CascadeType.PERSIST)
     private User user;
 
     @OneToOne(mappedBy = "account", cascade = CascadeType.ALL, orphanRemoval = true)
