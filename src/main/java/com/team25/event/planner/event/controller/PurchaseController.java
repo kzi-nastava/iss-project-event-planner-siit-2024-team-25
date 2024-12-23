@@ -4,6 +4,7 @@ import com.team25.event.planner.event.dto.PurchaseProductRequestDTO;
 import com.team25.event.planner.event.dto.PurchaseServiceRequestDTO;
 import com.team25.event.planner.event.dto.PurchaseServiceResponseDTO;
 import com.team25.event.planner.event.dto.PurchasedProductResponseDTO;
+import com.team25.event.planner.event.model.Purchase;
 import com.team25.event.planner.event.service.PurchaseService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
@@ -35,5 +36,13 @@ public class PurchaseController {
                                                       @PathVariable("serviceId") Long serviceId,
                                                       @RequestBody(required = false) PurchaseServiceRequestDTO requestDTO) {
         return ResponseEntity.status(HttpStatus.CREATED).body(purchaseService.purchaseService(requestDTO, eventId, serviceId));
+    }
+
+    @GetMapping(value = "/{eventId}/service/{serviceId}/available")
+    @Secured("ROLE_EVENT_ORGANIZER")
+    public ResponseEntity<Boolean> isServiceAvailable(@PathVariable(value = "eventId") Long eventId,
+                                                      @PathVariable("serviceId") Long serviceId,
+                                                      @ModelAttribute PurchaseServiceRequestDTO requestDTO) {
+        return ResponseEntity.status(HttpStatus.OK).body(purchaseService.isServiceAvailable(eventId, serviceId, requestDTO));
     }
 }

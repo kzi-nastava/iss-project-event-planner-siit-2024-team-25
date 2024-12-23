@@ -16,7 +16,7 @@ public interface PurchaseMapper {
     PurchaseServiceResponseDTO toServiceResponseDTO(Purchase purchase);
 
     @Mapping(target = "id", ignore = true)
-    @Mapping(target = "price", source = "purchaseServiceRequestDTO.price")
+    @Mapping(target = "price.amount", source = "purchaseServiceRequestDTO.price")
     @Mapping(target = "startDate", source = "purchaseServiceRequestDTO.startDate")
     @Mapping(target = "endDate", source = "purchaseServiceRequestDTO.endDate")
     @Mapping(target = "startTime", source = "purchaseServiceRequestDTO.startTime")

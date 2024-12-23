@@ -1,26 +1,26 @@
 package com.team25.event.planner.event.service;
 
 import com.team25.event.planner.common.exception.NotFoundError;
-import com.team25.event.planner.event.dto.PurchaseProductRequestDTO;
-import com.team25.event.planner.event.dto.PurchaseServiceRequestDTO;
-import com.team25.event.planner.event.dto.PurchaseServiceResponseDTO;
-import com.team25.event.planner.event.dto.PurchasedProductResponseDTO;
+import com.team25.event.planner.event.dto.*;
 import com.team25.event.planner.event.mapper.PurchaseMapper;
+import com.team25.event.planner.event.model.BudgetItem;
 import com.team25.event.planner.event.model.Event;
+import com.team25.event.planner.event.model.Money;
 import com.team25.event.planner.event.model.Purchase;
+import com.team25.event.planner.event.repository.BudgetItemRepository;
 import com.team25.event.planner.event.repository.EventRepository;
 import com.team25.event.planner.event.repository.PurchaseRepository;
+import com.team25.event.planner.event.specification.PurchaseSpecification;
 import com.team25.event.planner.offering.common.model.OfferingCategory;
-import com.team25.event.planner.offering.product.model.Product;
 import com.team25.event.planner.offering.product.repository.ProductRepository;
-import com.team25.event.planner.offering.product.service.ProductService;
 import com.team25.event.planner.offering.service.repository.ServiceRepository;
 import lombok.RequiredArgsConstructor;
+import org.springframework.data.jpa.domain.Specification;
+import org.springframework.http.HttpStatusCode;
 import org.springframework.stereotype.Service;
-import org.springframework.web.ErrorResponseException;
 
 import java.util.Collection;
-import java.util.Optional;
+import java.util.List;
 
 @Service
 @RequiredArgsConstructor
@@ -31,6 +31,9 @@ public class PurchaseService {
     private final ServiceRepository serviceRepository;
     private final PurchaseMapper purchaseMapper;
     private final EventRepository eventRepository;
+    private final BudgetItemRepository budgetItemRepository;
+    private final PurchaseSpecification purchaseSpecification;
+
 
     // mapper
     public PurchasedProductResponseDTO purchaseProduct(Long eventId, Long productId, PurchaseProductRequestDTO object){
@@ -57,26 +60,15 @@ public class PurchaseService {
     }
 
     public PurchaseServiceResponseDTO purchaseService(PurchaseServiceRequestDTO requestDTO, Long eventId, Long serviceId) {
-//        com.team25.event.planner.offering.service.model.Service service = serviceRepository.findById(serviceId).orElseThrow(() -> new NotFoundError("Service not found"));
-//        Event event = eventRepository.findById(eventId).orElseThrow(() -> new NotFoundError("Event not found"));
-//        boolean isServiceSuitable = eventService.isProductSuitable(purchase.getPrice(),service.getOfferingCategory().getStatus(), eventId);
-//        boolean isServiceAvailable = isServiceAvailable(purchase);
-
-        //test data
-        Event event = new Event();
-        event.setId(eventId);
-        com.team25.event.planner.offering.service.model.Service service = new com.team25.event.planner.offering.service.model.Service();
-        service.setId(serviceId);
-        OfferingCategory offeringCategory = new OfferingCategory();
-        offeringCategory.setId(requestDTO.getOfferingCategoryId());
-        service.setOfferingCategory(offeringCategory);
+        boolean isServiceAvailable = isServiceAvailable(eventId, serviceId,requestDTO);
+        com.team25.event.planner.offering.service.model.Service service = serviceRepository.findById(serviceId).orElseThrow(() -> new NotFoundError("Service not found"));
+        Event event = eventRepository.findById(eventId).orElseThrow(() -> new NotFoundError("Event not found"));
         Purchase purchase = purchaseMapper.toPurchase(requestDTO, event, service);
-        purchase.setId(1L);
+        boolean isServiceSuitable = this.isOfferingSuitable(purchase.getPrice(),service.getOfferingCategory(), event);
 
-        boolean isServiceSuitable = true;
-        boolean isServiceAvailable = true;
+
         if(isServiceAvailable && isServiceSuitable){
-            //purchase = purchaseRepository.save(purchase);
+            purchaseRepository.save(purchase);
             return purchaseMapper.toServiceResponseDTO(purchase);
         } else if (!isServiceAvailable) {
             throw new IllegalArgumentException("Service is not available in the specified period.");
@@ -87,7 +79,32 @@ public class PurchaseService {
     }
 
 
-    private boolean isServiceAvailable(Purchase purchase){
-        return purchaseRepository.isAvailable(purchase.getOffering().getId(),purchase.getStartDate(), purchase.getStartTime(), purchase.getEndDate(), purchase.getEndTime());
+    public boolean isServiceAvailable(Long eventId, Long serviceId, PurchaseServiceRequestDTO requestDTO){
+        com.team25.event.planner.offering.service.model.Service service = serviceRepository.findById(serviceId).orElseThrow(() -> new NotFoundError("Service not found"));
+        Event event = eventRepository.findById(eventId).orElseThrow(() -> new NotFoundError("Event not found"));
+        Purchase purchase = purchaseMapper.toPurchase(requestDTO,event,service);
+
+        Specification<Purchase> specification = purchaseSpecification.createServiceSpecification(requestDTO, serviceId);
+        return !purchaseRepository.exists(specification);
+    }
+
+    public boolean isOfferingSuitable(Money servicePrice, OfferingCategory offeringCategory, Event event){
+        Collection<BudgetItem> budgetItems = event.getBudgetItemCollection();
+        for (BudgetItem budgetItem: budgetItems){
+            if(budgetItem.getOfferingCategory().equals(offeringCategory)){
+                double totalSpent = purchaseRepository.findPurchaseByEventIdAndOfferingOfferingCategory(event.getId(), offeringCategory)
+                        .stream()
+                        .mapToDouble(purchase -> purchase.getPrice().getAmount())
+                        .sum();
+
+                return budgetItem.getMoney().getAmount() - totalSpent >= servicePrice.getAmount();
+            }
+        }
+        BudgetItem budgetItem = new BudgetItem();
+        budgetItem.setOfferingCategory(offeringCategory);
+        budgetItem.setEvent(event);
+        budgetItem.setMoney(servicePrice);
+        budgetItemRepository.save(budgetItem);
+        return true;
     }
 }
