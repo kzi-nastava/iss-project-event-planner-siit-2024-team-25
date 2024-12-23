@@ -1,5 +1,6 @@
 package com.team25.event.planner.event.service;
 
+import com.team25.event.planner.common.exception.InvalidRequestError;
 import com.team25.event.planner.common.exception.NotFoundError;
 import com.team25.event.planner.event.dto.*;
 import com.team25.event.planner.event.mapper.PurchaseMapper;
@@ -62,18 +63,33 @@ public class PurchaseService {
         com.team25.event.planner.offering.service.model.Service service = serviceRepository.findById(serviceId).orElseThrow(() -> new NotFoundError("Service not found"));
         Event event = eventRepository.findById(eventId).orElseThrow(() -> new NotFoundError("Event not found"));
         Purchase purchase = purchaseMapper.toPurchase(requestDTO, event, service);
+        purchase.getPrice().setCurrency("$");
+        boolean isPurchaseRequestValid = this.isPurchaseRequestValid(purchase, event);
         boolean isServiceSuitable = this.isOfferingSuitable(purchase.getPrice(),service.getOfferingCategory(), event);
 
-
-        if(isServiceAvailable && isServiceSuitable){
+        if(isServiceAvailable && isServiceSuitable && isPurchaseRequestValid){
+            BudgetItem budgetItem = new BudgetItem();
+            budgetItem.setOfferingCategory(service.getOfferingCategory());
+            budgetItem.setEvent(event);
+            budgetItem.setMoney(purchase.getPrice());
+            budgetItemRepository.save(budgetItem);
             purchaseRepository.save(purchase);
             return purchaseMapper.toServiceResponseDTO(purchase);
         } else if (!isServiceAvailable) {
-            throw new IllegalArgumentException("Service is not available in the specified period.");
+            throw new InvalidRequestError("Service is not available in the specified period.");
         }
-        else{
-            throw new IllegalArgumentException("Service is not suitable in the requested budget list");
+        else if(!isServiceSuitable){
+            throw new InvalidRequestError("Service is not suitable in the requested budget list");
+        }else{
+            throw new InvalidRequestError("Purchase request has invalid date and time");
         }
+    }
+
+    private boolean isPurchaseRequestValid(Purchase purchase, Event event) {
+        return event.getStartDate() == purchase.getStartDate()
+                && event.getEndDate() == purchase.getEndDate()
+                && event.getStartTime() == purchase.getStartTime()
+                && event.getEndTime() == purchase.getEndTime();
     }
 
 
@@ -90,11 +106,6 @@ public class PurchaseService {
                 return budgetItem.getMoney().getAmount() - totalSpent >= servicePrice.getAmount();
             }
         }
-        BudgetItem budgetItem = new BudgetItem();
-        budgetItem.setOfferingCategory(offeringCategory);
-        budgetItem.setEvent(event);
-        budgetItem.setMoney(servicePrice);
-        budgetItemRepository.save(budgetItem);
         return true;
     }
 
