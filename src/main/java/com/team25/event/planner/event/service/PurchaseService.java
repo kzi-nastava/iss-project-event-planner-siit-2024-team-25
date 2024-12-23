@@ -26,8 +26,6 @@ import java.util.List;
 @RequiredArgsConstructor
 public class PurchaseService {
     private final PurchaseRepository purchaseRepository;
-    private final ProductRepository productRepository;
-    private final EventService eventService;
     private final ServiceRepository serviceRepository;
     private final PurchaseMapper purchaseMapper;
     private final EventRepository eventRepository;
@@ -60,7 +58,7 @@ public class PurchaseService {
     }
 
     public PurchaseServiceResponseDTO purchaseService(PurchaseServiceRequestDTO requestDTO, Long eventId, Long serviceId) {
-        boolean isServiceAvailable = isServiceAvailable(eventId, serviceId,requestDTO);
+        boolean isServiceAvailable = isServiceAvailable(serviceId,requestDTO);
         com.team25.event.planner.offering.service.model.Service service = serviceRepository.findById(serviceId).orElseThrow(() -> new NotFoundError("Service not found"));
         Event event = eventRepository.findById(eventId).orElseThrow(() -> new NotFoundError("Event not found"));
         Purchase purchase = purchaseMapper.toPurchase(requestDTO, event, service);
@@ -79,11 +77,7 @@ public class PurchaseService {
     }
 
 
-    public boolean isServiceAvailable(Long eventId, Long serviceId, PurchaseServiceRequestDTO requestDTO){
-        com.team25.event.planner.offering.service.model.Service service = serviceRepository.findById(serviceId).orElseThrow(() -> new NotFoundError("Service not found"));
-        Event event = eventRepository.findById(eventId).orElseThrow(() -> new NotFoundError("Event not found"));
-        Purchase purchase = purchaseMapper.toPurchase(requestDTO,event,service);
-
+    public boolean isServiceAvailable(Long serviceId, PurchaseServiceRequestDTO requestDTO){
         Specification<Purchase> specification = purchaseSpecification.createServiceSpecification(requestDTO, serviceId);
         return !purchaseRepository.exists(specification);
     }
@@ -92,11 +86,7 @@ public class PurchaseService {
         Collection<BudgetItem> budgetItems = event.getBudgetItemCollection();
         for (BudgetItem budgetItem: budgetItems){
             if(budgetItem.getOfferingCategory().equals(offeringCategory)){
-                double totalSpent = purchaseRepository.findPurchaseByEventIdAndOfferingOfferingCategory(event.getId(), offeringCategory)
-                        .stream()
-                        .mapToDouble(purchase -> purchase.getPrice().getAmount())
-                        .sum();
-
+                double totalSpent = purchaseRepository.findTotalSpentByEventIdAndOfferingCategoryId(event.getId(), offeringCategory.getId());
                 return budgetItem.getMoney().getAmount() - totalSpent >= servicePrice.getAmount();
             }
         }
@@ -106,5 +96,11 @@ public class PurchaseService {
         budgetItem.setMoney(servicePrice);
         budgetItemRepository.save(budgetItem);
         return true;
+    }
+
+    public Double getLeftMoneyFromBudgetItem(Long eventId, Long categoryId) {
+        double totalSpent = purchaseRepository.findTotalSpentByEventIdAndOfferingCategoryId(eventId, categoryId);
+        BudgetItem budgetItem = budgetItemRepository.findBudgetItemByEventIdAndOfferingCategoryId(eventId, categoryId).orElseThrow(() -> new NotFoundError("Budget item not found"));
+        return budgetItem.getMoney().getAmount()-totalSpent;
     }
 }

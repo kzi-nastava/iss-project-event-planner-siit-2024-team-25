@@ -9,41 +9,14 @@ import org.springframework.data.repository.query.Param;
 
 import java.time.LocalDate;
 import java.time.LocalTime;
+import java.util.Collection;
 import java.util.List;
 
 public interface PurchaseRepository extends JpaRepository<Purchase, Long>, JpaSpecificationExecutor<Purchase> {
+    @Query("SELECT COALESCE(SUM(p.price.amount),0) " +
+            "FROM Purchase p " +
+            "WHERE p.event.id = :eventId AND p.offering.offeringCategory.id = :categoryId")
+    Double findTotalSpentByEventIdAndOfferingCategoryId(@Param("eventId") Long eventId,
+                                                        @Param("categoryId") Long categoryId);
 
-    @Query("""
-    SELECT CASE WHEN COUNT(p) = 0 THEN false ELSE true END
-    FROM Purchase p
-    WHERE p.offering.id = :serviceId
-      AND(
-          (p.startDate < :endDate AND p.endDate > :startDate)
-          OR (p.startDate = :endDate AND p.startTime < :endTime)
-          OR (p.endDate = :startDate AND p.endTime > :startTime)
-      )
-    """)
-    boolean isAvailable(@Param("serviceId") Long serviceId,
-                        @Param("startDate") LocalDate startDate,
-                        @Param("startTime") LocalTime startTime,
-                        @Param("endDate") LocalDate endDate,
-                        @Param("endTime") LocalTime endTime);
-
-    @Query("""
-    SELECT p
-    FROM Purchase p
-    WHERE p.offering.id = :serviceId
-      AND(
-          (p.startDate < :endDate AND p.endDate > :startDate)
-          OR (p.startDate = :endDate AND p.startTime < :endTime)
-          OR (p.endDate = :startDate AND p.endTime > :startTime)
-      )
-    """)
-    List<Purchase> getPurchase(@Param("serviceId") Long serviceId,
-                               @Param("startDate") LocalDate startDate,
-                               @Param("startTime") LocalTime startTime,
-                               @Param("endDate") LocalDate endDate,
-                               @Param("endTime") LocalTime endTime);
-
-    List<Purchase> findPurchaseByEventIdAndOfferingOfferingCategory(Long id, OfferingCategory offeringCategory);
 }
