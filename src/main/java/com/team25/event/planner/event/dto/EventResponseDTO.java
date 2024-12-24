@@ -20,4 +20,5 @@ public class EventResponseDTO {
     private LocalTime startTime;
     private LocalTime endTime;
     private LocationResponseDTO location;
+    private EventOrganizerPreviewResponseDTO organizer;
 }

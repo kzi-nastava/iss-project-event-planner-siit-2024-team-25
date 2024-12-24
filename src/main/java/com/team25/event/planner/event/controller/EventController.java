@@ -29,14 +29,14 @@ public class EventController {
 
     @GetMapping("/")
     @Secured("ROLE_EVENT_ORGANIZER")
-    public ResponseEntity<Page<EventPreviewResponseDTO>> getEvents(
+    public ResponseEntity<Page<EventPreviewResponseDTO>> getMyEvents(
             @ModelAttribute EventFilterDTO filter,
             @RequestParam(defaultValue = "0") int page,
             @RequestParam(defaultValue = "10") int size,
             @RequestParam(defaultValue = "startDate") String sortBy,
             @RequestParam(defaultValue = "asc") String sortDirection
     ) {
-        return ResponseEntity.ok(eventService.getEvents(filter, page, size, sortBy, sortDirection));
+        return ResponseEntity.ok(eventService.getOrganizerEvents(filter, page, size, sortBy, sortDirection));
     }
 
     @GetMapping("/all")
