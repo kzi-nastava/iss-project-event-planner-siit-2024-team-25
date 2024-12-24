@@ -35,10 +35,10 @@ public class EventTypeController {
         return ResponseEntity.ok(eventTypeService.getEventTypes());
     }
 
-    @GetMapping(value = "/offering-categories")
-    public ResponseEntity<List<OfferingCategoryPreviewDTO>> getOfferingCategoriesByEventType(@RequestParam("eventTypeId") Long eventTypeId) {
+    @GetMapping(value = "/{id}/offering-categories")
+    public ResponseEntity<List<OfferingCategoryPreviewDTO>> getOfferingCategoriesByEventType(@PathVariable Long id) {
 
-        return ResponseEntity.ok(eventTypeService.getOfferingCategoryByEventType(eventTypeId));
+        return ResponseEntity.ok(eventTypeService.getOfferingCategoryByEventType(id));
     }
 
     @GetMapping(value = "/offering")

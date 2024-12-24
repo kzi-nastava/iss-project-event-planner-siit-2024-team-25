@@ -16,8 +16,8 @@ public class ServiceCreateResponseDTO {
     private double price;
     private double discount;
     private List<String> images;
-    private boolean isVisible;
-    private boolean isAvailable;
+    private boolean visible;
+    private boolean available;
     private String specifics;
     private OfferingType status;
     private ReservationType reservationType;
