@@ -272,7 +272,7 @@ public class UserService {
                     null,
                     null,
                     null,
-                    new Location("USA", "New York", "123 Organizer Street", 0L, 0L),
+                    new Location("USA", "New York", "123 Organizer Street", 0.0, 0.0),
                     new PhoneNumber("+1234567890")
             );
             case 1 -> new Owner(
@@ -287,7 +287,7 @@ public class UserService {
                     new ArrayList<>(),
                     new ArrayList<>(),
                     "Alice's Bakery",
-                    new Location("Canada", "Toronto", "123 Maple Street", 0L, 0L),
+                    new Location("Canada", "Toronto", "123 Maple Street", 0.0, 0.0),
                     new PhoneNumber("+123456789"),
                     "Specializing in artisan baked goods",
                     List.of("/images/pic1.jpg", "/images/pic2.jpg")

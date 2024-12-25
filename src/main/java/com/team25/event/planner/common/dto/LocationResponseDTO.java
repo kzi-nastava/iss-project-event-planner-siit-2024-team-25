@@ -7,6 +7,6 @@ public class LocationResponseDTO {
     private final String country;
     private final String city;
     private final String address;
-    private final Long latitude;
-    private final Long longitude;
+    private final Double latitude;
+    private final Double longitude;
 }

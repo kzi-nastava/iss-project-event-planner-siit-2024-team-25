@@ -15,6 +15,6 @@ public class Location {
     private String country;
     private String city;
     private String address;
-    private Long latitude;
-    private Long longitude;
+    private Double latitude;
+    private Double longitude;
 }
