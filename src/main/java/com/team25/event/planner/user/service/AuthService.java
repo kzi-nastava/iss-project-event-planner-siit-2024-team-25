@@ -131,7 +131,7 @@ public class AuthService {
 
         eventService.createEventAttendance(user, quickRegisterRequestDTO.getInvitationCode());
 
-            Event event = eventService.getEventByGuestAndInvitationCode(quickRegisterRequestDTO.getEmail(), quickRegisterRequestDTO.getInvitationCode());
+        Event event = eventService.getEventByGuestAndInvitationCode(quickRegisterRequestDTO.getEmail(), quickRegisterRequestDTO.getInvitationCode());
 
         return new QuickRegisterResponseDTO(
                 user.getId(),

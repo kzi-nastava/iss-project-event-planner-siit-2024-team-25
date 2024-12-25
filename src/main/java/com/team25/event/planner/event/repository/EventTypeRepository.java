@@ -9,6 +9,6 @@ import org.springframework.data.repository.query.Param;
 import java.util.Optional;
 
 public interface EventTypeRepository extends JpaRepository<EventType, Long >  , JpaSpecificationExecutor<EventType> {
-    @Query("SELECT e.eventType FROM Event e WHERE e.eventType.id = :eventId")
+    @Query("SELECT e.eventType FROM Event e WHERE e.id = :eventId")
     Optional<EventType> findByEventId(@Param("eventId") Long eventId);
 }

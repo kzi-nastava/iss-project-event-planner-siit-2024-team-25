@@ -14,6 +14,5 @@ public class PurchaseServiceRequestDTO {
     private LocalTime startTime;
     private LocalDate endDate;
     private LocalTime endTime;
-    private Money price;
-    private Long offeringCategoryId;
+    private double price;
 }

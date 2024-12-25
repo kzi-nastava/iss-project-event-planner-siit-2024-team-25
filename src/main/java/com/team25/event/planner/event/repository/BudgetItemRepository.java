@@ -9,6 +9,7 @@ import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
 
 import java.util.List;
+import java.util.Optional;
 
 public interface BudgetItemRepository extends JpaRepository<BudgetItem, Long> {
 
@@ -19,4 +20,6 @@ public interface BudgetItemRepository extends JpaRepository<BudgetItem, Long> {
     boolean isSuitableByOfferIdAndNotEventId(@Param("offerId") Long offerId, @Param("eventId") Long eventId);
 
     BudgetItem findByOfferingCategory(OfferingCategory offeringCategory);
+
+    Optional<BudgetItem> findBudgetItemByEventIdAndOfferingCategoryId(Long eventId, Long categoryId);
 }

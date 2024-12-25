@@ -57,7 +57,7 @@ public class Offering {
     @NotEmpty(message = "Service must contain at least one event type.")
     private Collection<EventType> eventTypes;
 
-    @ManyToOne
+    @ManyToOne(fetch = FetchType.EAGER)
     private OfferingCategory offeringCategory;
 
     @NotNull(message = "Owner is required")
