@@ -16,6 +16,8 @@ import java.time.LocalTime;
 
 @Mapper(componentModel = "spring", uses = {EventTypeMapper.class, LocationMapper.class})
 public interface EventMapper {
+    @Mapping(target = "organizer.id", source = "organizer.id")
+    @Mapping(target = "organizer.name", source = "organizer.fullName")
     EventResponseDTO toDTO(Event event);
 
     @Mapping(target = "id", ignore = true)
