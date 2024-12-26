@@ -1,8 +1,10 @@
 package com.team25.event.planner.event.service;
 
+import com.team25.event.planner.common.dto.LatLongDTO;
 import com.team25.event.planner.common.exception.InvalidRequestError;
 import com.team25.event.planner.common.exception.NotFoundError;
 import com.team25.event.planner.common.exception.UnauthorizedError;
+import com.team25.event.planner.common.service.GeocodingService;
 import com.team25.event.planner.common.util.VerificationCodeGenerator;
 import com.team25.event.planner.email.service.EmailService;
 import com.team25.event.planner.event.dto.*;
@@ -54,6 +56,7 @@ public class EventService {
     private final EventAttendanceRepository eventAttendanceRepository;
     private final ActivityRepository activityRepository;
     private final UserRepository userRepository;
+    private final GeocodingService geocodingService;
 
     public EventResponseDTO getEventById(Long id, String invitationCode) {
         Event event = eventRepository.findById(id).orElseThrow(() -> new NotFoundError("Event not found"));
@@ -134,6 +137,11 @@ public class EventService {
                 .orElseThrow(() -> new UnauthorizedError("You must be event organizer to create an event"));
 
         Event event = eventMapper.toEvent(eventDto, eventType, eventOrganizer);
+
+        LatLongDTO latLong = geocodingService.getLatLong(eventDto.getLocation());
+        event.getLocation().setLatitude(latLong.getLatitude());
+        event.getLocation().setLongitude(latLong.getLongitude());
+
         event = eventRepository.save(event);
 
         return eventMapper.toDTO(event);

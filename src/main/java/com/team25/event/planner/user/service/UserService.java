@@ -1,11 +1,13 @@
 package com.team25.event.planner.user.service;
 
+import com.team25.event.planner.common.dto.LatLongDTO;
 import com.team25.event.planner.common.dto.LocationResponseDTO;
 import com.team25.event.planner.common.exception.InvalidRequestError;
 import com.team25.event.planner.common.exception.NotFoundError;
 import com.team25.event.planner.common.exception.ServerError;
 import com.team25.event.planner.common.mapper.LocationMapper;
 import com.team25.event.planner.common.model.Location;
+import com.team25.event.planner.common.service.GeocodingService;
 import com.team25.event.planner.common.util.FileUtils;
 import com.team25.event.planner.user.dto.BlockRequestDTO;
 import com.team25.event.planner.user.dto.RegisterRequestDTO;
@@ -51,6 +53,7 @@ public class UserService {
     private final AccountRepository accountRepository;
     private final OwnerRepository ownerRepository;
     private final LocationMapper locationMapper;
+    private final GeocodingService geocodingService;
 
     private final Path profilePictureFileStorageLocation;
     private final String profilePictureFilenameTemplate;
@@ -62,7 +65,7 @@ public class UserService {
             @Value("${file-storage.images.profile}") String profilePictureSaveDirectory,
             @Value("${filename.template.profile-pic}") String profilePictureFilenameTemplate,
             @Value("${file-storage.images.company}") String companyPicturesSaveDirectory,
-            OwnerRepository ownerRepository, LocationMapper locationMapper) {
+            OwnerRepository ownerRepository, LocationMapper locationMapper, GeocodingService geocodingService) {
         this.userMapper = userMapper;
         this.eventOrganizerMapper = eventOrganizerMapper;
         this.ownerMapper = ownerMapper;
@@ -74,6 +77,7 @@ public class UserService {
         this.companyPicturesFileStorageLocation = Paths.get(companyPicturesSaveDirectory).toAbsolutePath().normalize();
         this.ownerRepository = ownerRepository;
         this.locationMapper = locationMapper;
+        this.geocodingService = geocodingService;
     }
 
     public UserResponseDTO getUser(Long userId) {
@@ -89,10 +93,19 @@ public class UserService {
             default -> userMapper.toUser(registerRequestDTO);
         };
 
-        if (user instanceof Owner) {
+        if (user instanceof Owner owner) {
             assert registerRequestDTO.getOwnerFields() != null;
             final List<String> pictureFilenames = saveCompanyPictures(registerRequestDTO.getOwnerFields().getCompanyPictures());
-            ((Owner) user).setCompanyPictures(pictureFilenames);
+            owner.setCompanyPictures(pictureFilenames);
+
+            final LatLongDTO latLong = geocodingService.getLatLong(registerRequestDTO.getOwnerFields().getCompanyAddress());
+            owner.getCompanyAddress().setLatitude(latLong.getLatitude());
+            owner.getCompanyAddress().setLongitude(latLong.getLongitude());
+        } else if(user instanceof EventOrganizer organizer) {
+            assert registerRequestDTO.getEventOrganizerFields() != null;
+            final LatLongDTO latLong = geocodingService.getLatLong(registerRequestDTO.getEventOrganizerFields().getLivingAddress());
+            organizer.getLivingAddress().setLatitude(latLong.getLatitude());
+            organizer.getLivingAddress().setLongitude(latLong.getLongitude());
         }
 
         try {
