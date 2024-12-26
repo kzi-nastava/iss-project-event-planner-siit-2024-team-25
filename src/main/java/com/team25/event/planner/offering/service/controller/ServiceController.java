@@ -39,10 +39,11 @@ public class ServiceController {
     }
 
     @GetMapping
+    @Secured("ROLE_OWNER")
     public ResponseEntity<Page<ServiceCardResponseDTO>> getServices(
             @ModelAttribute ServiceFilterDTO filter,
             @RequestParam(defaultValue = "0") int page,
-            @RequestParam(defaultValue = "15") int size,
+            @RequestParam(defaultValue = "10") int size,
             @RequestParam(defaultValue = "name") String sortBy,
             @RequestParam(defaultValue = "asc") String sortDirection
     ){

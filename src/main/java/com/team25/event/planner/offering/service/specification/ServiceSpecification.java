@@ -7,6 +7,7 @@ import com.team25.event.planner.offering.common.model.Offering;
 import com.team25.event.planner.offering.common.model.OfferingType;
 import com.team25.event.planner.offering.service.dto.ServiceFilterDTO;
 import com.team25.event.planner.offering.service.model.Service;
+import com.team25.event.planner.user.model.Account;
 import jakarta.persistence.criteria.Join;
 import jakarta.persistence.criteria.JoinType;
 import jakarta.persistence.criteria.Predicate;
@@ -19,13 +20,11 @@ import java.util.List;
 
 @Component
 public class ServiceSpecification {
-    public Specification<Service> createSpecification(ServiceFilterDTO serviceFilterDTO) {
+    public Specification<Service> createSpecification(ServiceFilterDTO serviceFilterDTO, Account acc) {
         return (root, query, cb) ->{
             List<Predicate> predicates = new ArrayList<>();
 
-            if(serviceFilterDTO.getOwnerId()!=null){
-                predicates.add(cb.equal(root.get("owner").get("id"), serviceFilterDTO.getOwnerId()));
-            }
+            predicates.add(cb.equal(root.get("owner").get("id"), acc.getId()));
 
             if(serviceFilterDTO.getName() != null){
                 predicates.add(cb.like(root.get("name"), "%"+serviceFilterDTO.getName()+"%"));

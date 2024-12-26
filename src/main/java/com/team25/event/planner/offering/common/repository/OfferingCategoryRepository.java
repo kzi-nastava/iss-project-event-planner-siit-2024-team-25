@@ -12,7 +12,11 @@ import java.util.Collection;
 import java.util.List;
 
 public interface OfferingCategoryRepository extends JpaRepository<OfferingCategory, Long> {
-    
+
+    @Modifying
+    @Query(value = "DELETE FROM event_types_offering_categories WHERE offering_categories_id = :offeringId", nativeQuery = true)
+    void deleteCategoryFromEventTypes(Long offeringId);
+
     @Query(value = "SELECT CASE WHEN EXISTS ( " +
             "SELECT 1 FROM public.offering_type ot " +
             "LEFT OUTER JOIN public.offerings o " +

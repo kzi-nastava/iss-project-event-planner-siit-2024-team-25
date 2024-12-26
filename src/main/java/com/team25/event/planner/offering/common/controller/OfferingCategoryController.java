@@ -66,6 +66,7 @@ public class OfferingCategoryController {
         return offeringCategoryService.updateOfferingCategory(id, offeringCategoryUpdateRequestDTO);
     }
     @PutMapping(value = "{id}/approve", consumes = MediaType.APPLICATION_JSON_VALUE, produces = MediaType.APPLICATION_JSON_VALUE)
+    @Secured("ROLE_ADMIN")
     public  OfferingCategoryResponseDTO approveCategory(@PathVariable("id")Long id, @RequestBody OfferingCategoryUpdateRequestDTO offeringCategoryUpdateRequestDTO,
                                                         @RequestParam("offeringId") Long offeringId){
         return offeringCategoryService.approveOfferingCategory(id, offeringCategoryUpdateRequestDTO, offeringId);

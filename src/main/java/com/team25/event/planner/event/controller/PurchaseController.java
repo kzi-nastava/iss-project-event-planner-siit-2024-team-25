@@ -20,13 +20,12 @@ public class PurchaseController {
 
     private final PurchaseService purchaseService;
 
-    @PostMapping(value = "event/{eventId}/products/{productsId}")
+    @PostMapping(value = "events/{eventId}/products")
     @Secured("ROLE_EVENT_ORGANIZER")
     public ResponseEntity<PurchasedProductResponseDTO> purchaseProduct(@PathVariable("eventId") Long eventId,
-                                             @PathVariable("productsId") Long productId,
-                                             @RequestBody PurchaseProductRequestDTO requestDTO) {
+                                             @RequestBody(required = false) PurchaseProductRequestDTO requestDTO) {
 
-       return ResponseEntity.status(HttpStatus.CREATED).body(purchaseService.purchaseProduct(eventId, productId, requestDTO));
+       return ResponseEntity.status(HttpStatus.CREATED).body(purchaseService.purchaseProduct(eventId, requestDTO));
 
     }
 

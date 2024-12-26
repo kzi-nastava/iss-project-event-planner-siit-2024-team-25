@@ -5,7 +5,6 @@ import com.team25.event.planner.offering.common.dto.OfferingPreviewResponseDTO;
 import com.team25.event.planner.offering.common.mapper.OfferingMapper;
 import com.team25.event.planner.offering.common.model.Offering;
 import com.team25.event.planner.offering.common.repository.OfferingRepository;
-import com.team25.event.planner.offering.common.specification.OfferingSpecification;
 import com.team25.event.planner.offering.product.dto.ProductRequestDTO;
 import com.team25.event.planner.offering.product.dto.ProductResponseDTO;
 import com.team25.event.planner.offering.product.model.Product;
@@ -17,7 +16,6 @@ import org.springframework.data.domain.*;
 import org.springframework.data.jpa.domain.Specification;
 import org.springframework.stereotype.Service;
 
-import java.util.ArrayList;
 import java.util.List;
 
 @Service
@@ -39,6 +37,8 @@ public class ProductService {
         List<OfferingPreviewResponseDTO> offeringsWithRatings = offeringRepository.findOfferingsWithAverageRating(offeringPage.getContent(), pageable);
         return new PageImpl<>(offeringsWithRatings, pageable, offeringPage.getTotalElements());
     }
+
+
 
     public ProductResponseDTO createProduct(@Valid ProductRequestDTO productDto) {
         return null;

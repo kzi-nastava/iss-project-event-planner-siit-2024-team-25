@@ -22,6 +22,7 @@ import com.team25.event.planner.offering.service.specification.ServiceSpecificat
 import com.team25.event.planner.user.model.*;
 import com.team25.event.planner.user.repository.AccountRepository;
 import com.team25.event.planner.user.repository.UserRepository;
+import com.team25.event.planner.user.service.CurrentUserService;
 import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
 import org.mapstruct.AfterMapping;
@@ -49,6 +50,8 @@ public class ServiceService {
     private final ServiceMapper serviceMapper;
     private final ServiceSpecification serviceSpecification;
     private final OfferingRepository offeringRepository;
+    private final UserRepository userRepository;
+    private final CurrentUserService currentUserService;
 
     @Transactional
     public ServiceCreateResponseDTO createService(ServiceCreateRequestDTO requestDTO){
@@ -69,7 +72,9 @@ public class ServiceService {
     }
 
     public Page<ServiceCardResponseDTO> getServices(ServiceFilterDTO filter, int page, int size, String sortBy, String sortDirection){
-        Specification<com.team25.event.planner.offering.service.model.Service> specification = serviceSpecification.createSpecification(filter);
+        User user = userRepository.findById(currentUserService.getCurrentUserId()).orElseThrow(() -> new NotFoundError("User not found"));
+        Account acc = user.getAccount();
+        Specification<com.team25.event.planner.offering.service.model.Service> specification = serviceSpecification.createSpecification(filter, acc);
         Sort.Direction direction = Sort.Direction.fromString(sortDirection);
         Pageable pageable = PageRequest.of(page, size, Sort.by(direction, sortBy));
         return serviceRepository.findAll(specification, pageable).map(serviceMapper::toCardDTO);

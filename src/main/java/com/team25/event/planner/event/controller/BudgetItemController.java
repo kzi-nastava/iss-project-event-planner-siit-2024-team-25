@@ -32,6 +32,7 @@ public class BudgetItemController {
         return ResponseEntity.ok(budgetItemService.getBudgetItemById(id));
     }
     @GetMapping(value = "/{id}/is-suitable")
+    @Secured("EVENT_ORGANIZER")
     public ResponseEntity<Boolean> isOfferingCategorySuitable(@PathVariable Long id,
                                                               @RequestParam("eventId") Long eventId){
         return ResponseEntity.ok(budgetItemService.isSuitableByOfferIdAndNotEventId(id, eventId));

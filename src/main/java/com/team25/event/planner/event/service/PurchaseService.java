@@ -4,15 +4,14 @@ import com.team25.event.planner.common.exception.InvalidRequestError;
 import com.team25.event.planner.common.exception.NotFoundError;
 import com.team25.event.planner.event.dto.*;
 import com.team25.event.planner.event.mapper.PurchaseMapper;
-import com.team25.event.planner.event.model.BudgetItem;
-import com.team25.event.planner.event.model.Event;
-import com.team25.event.planner.event.model.Money;
-import com.team25.event.planner.event.model.Purchase;
+import com.team25.event.planner.event.model.*;
 import com.team25.event.planner.event.repository.BudgetItemRepository;
 import com.team25.event.planner.event.repository.EventRepository;
 import com.team25.event.planner.event.repository.PurchaseRepository;
 import com.team25.event.planner.event.specification.PurchaseSpecification;
 import com.team25.event.planner.offering.common.model.OfferingCategory;
+import com.team25.event.planner.offering.common.model.OfferingType;
+import com.team25.event.planner.offering.product.model.Product;
 import com.team25.event.planner.offering.product.repository.ProductRepository;
 import com.team25.event.planner.offering.service.repository.ServiceRepository;
 import lombok.RequiredArgsConstructor;
@@ -22,6 +21,7 @@ import org.springframework.stereotype.Service;
 
 import java.util.Collection;
 import java.util.List;
+import java.util.Objects;
 
 @Service
 @RequiredArgsConstructor
@@ -32,30 +32,42 @@ public class PurchaseService {
     private final EventRepository eventRepository;
     private final BudgetItemRepository budgetItemRepository;
     private final PurchaseSpecification purchaseSpecification;
+    private final ProductRepository productRepository;
 
 
     // mapper
-    public PurchasedProductResponseDTO purchaseProduct(Long eventId, Long productId, PurchaseProductRequestDTO object){
-        //Optional<Product> productRepo = productRepository.findById(productId); // product exist?
-        //Product product = productRepo.orElseThrow(() -> new RuntimeException("Product not found!"));
-
-
-        boolean isProductSuitable = true;
-//        boolean isProductSuitable = eventService.isProductSuitable(product.getPrice(),product.getOfferingCategory().getStatus(), eventId);
-        if(!isProductSuitable){
-            throw new IllegalArgumentException("Product is not suitable in the requested budget list");
+    public PurchasedProductResponseDTO purchaseProduct(Long eventId, PurchaseProductRequestDTO dto){
+        Event event = eventRepository.findById(eventId).orElseThrow(() -> new NotFoundError("Event not found"));
+        Product product = productRepository.findById(dto.getProductId()).orElseThrow(() -> new NotFoundError("Product not found"));
+        Purchase purchase = purchaseMapper.toPurchase(event,product);
+        purchase.getPrice().setCurrency("EUR");
+        if(!product.isAvailable()){
+            throw new InvalidRequestError("Product is not available");
+        }
+        if(!isProductCategorySuitableForEvent(event,product)){
+            throw new InvalidRequestError("Product category is not suitable for event");
+        }
+        Double leftMoney = getLeftMoneyFromBudgetItem(eventId,product.getOfferingCategory().getId());
+        // does not exist budget item for offering category
+        if(leftMoney==-1){
+            BudgetItem budgetItem = new BudgetItem();
+            budgetItem.setOfferingCategory(product.getOfferingCategory());
+            budgetItem.setEvent(event);
+            budgetItem.setMoney(new Money(purchase.getPrice().getAmount(), "EUR"));
+            budgetItemRepository.save(budgetItem);
+            return purchaseMapper.toProductResponseDTO(purchaseRepository.save(purchase));
+        }
+        // exists and have enough money
+        if(product.getPrice() <= leftMoney){
+            return purchaseMapper.toProductResponseDTO(purchaseRepository.save(purchase));
+        }else{
+            throw new InvalidRequestError("Not enough budget plan money for the product");
         }
 
-        PurchasedProductResponseDTO responseDTO = new PurchasedProductResponseDTO();
-        responseDTO.setId(1L);
-        responseDTO.setProductId(productId);
-        responseDTO.setEventId(eventId);
-        responseDTO.setPrice(object.getPrice());
-        responseDTO.setOfferingCategoryId(object.getOfferingCategoryId());
+    }
 
-        //save to repo
-        return responseDTO;
-
+    private boolean isProductCategorySuitableForEvent(Event event, Product product){
+        return event.getEventType().getOfferingCategories().stream().map(OfferingCategory::getId).anyMatch(product.getOfferingCategory().getId()::equals);
     }
 
     public PurchaseServiceResponseDTO purchaseService(PurchaseServiceRequestDTO requestDTO, Long eventId, Long serviceId) {
@@ -98,12 +110,12 @@ public class PurchaseService {
         return !purchaseRepository.exists(specification);
     }
 
-    public boolean isOfferingSuitable(Money servicePrice, OfferingCategory offeringCategory, Event event){
+    public boolean isOfferingSuitable(Money offeringPrice, OfferingCategory offeringCategory, Event event){
         Collection<BudgetItem> budgetItems = event.getBudgetItemCollection();
         for (BudgetItem budgetItem: budgetItems){
             if(budgetItem.getOfferingCategory().equals(offeringCategory)){
                 double totalSpent = purchaseRepository.findTotalSpentByEventIdAndOfferingCategoryId(event.getId(), offeringCategory.getId());
-                return budgetItem.getMoney().getAmount() - totalSpent >= servicePrice.getAmount();
+                return budgetItem.getMoney().getAmount() - totalSpent >= offeringPrice.getAmount();
             }
         }
         return true;
@@ -111,7 +123,10 @@ public class PurchaseService {
 
     public Double getLeftMoneyFromBudgetItem(Long eventId, Long categoryId) {
         double totalSpent = purchaseRepository.findTotalSpentByEventIdAndOfferingCategoryId(eventId, categoryId);
-        BudgetItem budgetItem = budgetItemRepository.findBudgetItemByEventIdAndOfferingCategoryId(eventId, categoryId).orElseThrow(() -> new NotFoundError("Budget item not found"));
+        BudgetItem budgetItem = budgetItemRepository.findBudgetItemByEventIdAndOfferingCategoryId(eventId, categoryId).orElse(null);
+        if(budgetItem == null){
+            return -1.0;
+        }
         return budgetItem.getMoney().getAmount()-totalSpent;
     }
 }
