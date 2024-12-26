@@ -72,7 +72,6 @@ public class OfferingService {
         Sort.Direction direction = Sort.Direction.fromString(sortDirection);
         Pageable pageable = PageRequest.of(page, size, Sort.by(direction, sortBy));
         Page<Offering> offeringPage = offeringRepository.findAll(spec, pageable);
-        System.out.println(offeringPage.getContent());
         pageable = PageRequest.of(0,size, Sort.by(direction, sortBy));
         List<OfferingPreviewResponseDTO> offeringsWithRatings = offeringRepository.findOfferingsWithAverageRating(offeringPage.getContent(), pageable);
         return new PageImpl<>(offeringsWithRatings, pageable, offeringPage.getTotalElements());

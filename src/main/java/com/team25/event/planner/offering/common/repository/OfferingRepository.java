@@ -31,18 +31,23 @@ public interface OfferingRepository extends JpaRepository<Offering, Long>, JpaSp
     @Query("SELECT new com.team25.event.planner.offering.common.dto.OfferingPreviewResponseDTO(" +
             "o.id, " +
             "o.name, " +
-            "o.owner.firstName || ' ' || o.owner.lastName, " +
+            "CONCAT(o.owner.firstName, ' ', o.owner.lastName), " +
             "o.description, " +
             "o.owner.companyAddress.country, " +
             "o.owner.companyAddress.city, " +
             "COALESCE(AVG(r.rating), 0), " +
-            "o.price) " +
+            "o.price, " +
+            "(CASE WHEN COUNT(s.id) = 0 THEN true ELSE false END)) " +
             "FROM Offering o " +
+            "LEFT JOIN Service s ON s.id = o.id " +
             "LEFT JOIN Purchase p ON p.offering.id = o.id " +
             "LEFT JOIN OfferingReview r ON r.purchase.id = p.id " +
             "WHERE o IN :offerings " +
-            "GROUP BY o.id, o.name, o.owner.firstName, o.owner.lastName, o.description, o.owner.companyAddress.country, o.owner.companyAddress.city, o.price")
-    List<OfferingPreviewResponseDTO> findOfferingsWithAverageRating(@Param("offerings") List<Offering> offerings,Pageable pageable);
+            "GROUP BY o.id, o.name, o.owner.firstName, o.owner.lastName, " +
+            "o.description, o.owner.companyAddress.country, o.owner.companyAddress.city, o.price")
+    List<OfferingPreviewResponseDTO> findOfferingsWithAverageRating(@Param("offerings") List<Offering> offerings,
+            Pageable pageable);
+
 
     @Query("SELECT new com.team25.event.planner.offering.common.dto.OfferingPreviewResponseDTO(" +
             "o.id, " +
@@ -52,8 +57,10 @@ public interface OfferingRepository extends JpaRepository<Offering, Long>, JpaSp
             "o.owner.companyAddress.country, " +
             "o.owner.companyAddress.city, " +
             "COALESCE(AVG(r.rating), 0), " +
-            "o.price) " +
+            "o.price," +
+            "(CASE WHEN COUNT(s.id) = 0 THEN true ELSE false END))  " +
             "FROM Offering o " +
+            "LEFT JOIN Service s ON s.id = o.id " +
             "LEFT JOIN Purchase p ON p.offering.id = o.id " +
             "LEFT JOIN OfferingReview r ON r.purchase.id = p.id " +
             "WHERE " +

@@ -14,4 +14,5 @@ public class OfferingPreviewResponseDTO {
     private String city;
     private double rating;
     private double price;
+    private Boolean isService;
 }
