@@ -72,6 +72,7 @@ public class ProductController {
         return ResponseEntity.ok(productService.getAllProducts(filter, page, size, sortBy, sortDirection));
     }
 
+
     @PostMapping
     @Secured("ROLE_OWNER")
     public ResponseEntity<ProductResponseDTO> createProduct(@Valid @RequestBody ProductRequestDTO productDto) {

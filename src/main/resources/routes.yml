@@ -32,4 +32,6 @@ security:
         - POST
         - PUT
         - DELETE
+    - path: /api/purchase/**
+      methods: [ POST ]
 
