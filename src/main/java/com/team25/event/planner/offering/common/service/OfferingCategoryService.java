@@ -2,6 +2,7 @@ package com.team25.event.planner.offering.common.service;
 
 import com.team25.event.planner.common.exception.InvalidRequestError;
 import com.team25.event.planner.common.exception.NotFoundError;
+import com.team25.event.planner.event.repository.BudgetItemRepository;
 import com.team25.event.planner.offering.common.dto.*;
 import com.team25.event.planner.offering.common.mapper.OfferingCategoryCommonMapper;
 import com.team25.event.planner.offering.common.model.Offering;
@@ -25,6 +26,7 @@ public class OfferingCategoryService {
     private final OfferingCategoryRepository offeringCategoryRepository;
     private final OfferingRepository offeringRepository;
     private final OfferingCategoryCommonMapper offeringCategoryCommonMapper;
+    private final BudgetItemRepository budgetItemRepository;
 
     public List<OfferingCategoryResponseDTO> getOfferingCategories() {
         return offeringCategoryRepository.findOfferingCategoriesByStatus(OfferingCategoryType.ACCEPTED).stream().map(offeringCategoryCommonMapper::toResponseDTO).collect(Collectors.toList());
@@ -89,11 +91,15 @@ public class OfferingCategoryService {
         return offeringCategoryCommonMapper.toResponseDTO(offeringCategoryRepository.save(offeringCategory));
     }
 
+    @Transactional
     public ResponseEntity<?> deleteOfferingCategory(Long id) {
         if(offeringCategoryRepository.existsById(id)) {
             if(offeringCategoryRepository.existsInUnlinkedOfferingType(id)){
+                deleteOfferingFromEventTypes(id);
+                deleteBudgetItemsByOfferingId(id);
                 int rowsDeleted = offeringCategoryRepository.deleteOfferingTypeById(id);
                 if(rowsDeleted == 1){
+
                     return ResponseEntity.noContent().build();
                 }else{
                     throw new InvalidRequestError("Deletion of offering category failed");
@@ -104,5 +110,12 @@ public class OfferingCategoryService {
         }else{
             throw new NotFoundError("Offering category not found");
         }
+    }
+
+    private void deleteBudgetItemsByOfferingId(Long offeringId) {
+        budgetItemRepository.deleteAllByOfferingCategory(offeringId);
+    }
+    private  void deleteOfferingFromEventTypes(Long offeringId){
+        offeringCategoryRepository.deleteCategoryFromEventTypes(offeringId);
     }
 }

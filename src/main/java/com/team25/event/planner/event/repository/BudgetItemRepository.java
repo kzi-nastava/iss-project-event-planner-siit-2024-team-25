@@ -5,6 +5,7 @@ import com.team25.event.planner.event.model.BudgetItem;
 import com.team25.event.planner.event.model.Event;
 import com.team25.event.planner.offering.common.model.OfferingCategory;
 import org.springframework.data.jpa.repository.JpaRepository;
+import org.springframework.data.jpa.repository.Modifying;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
 
@@ -22,4 +23,8 @@ public interface BudgetItemRepository extends JpaRepository<BudgetItem, Long> {
     BudgetItem findByOfferingCategory(OfferingCategory offeringCategory);
 
     Optional<BudgetItem> findBudgetItemByEventIdAndOfferingCategoryId(Long eventId, Long categoryId);
+
+    @Modifying
+    @Query("DELETE FROM BudgetItem b WHERE b.offeringCategory.id = :offeringId")
+    void deleteAllByOfferingCategory(Long offeringId);
 }
