@@ -20,7 +20,6 @@ public class PurchaseController {
 
     private final PurchaseService purchaseService;
 
-
     @PostMapping(value = "events/{eventId}/products")
     @Secured("ROLE_EVENT_ORGANIZER")
     public ResponseEntity<PurchasedProductResponseDTO> purchaseProduct(@PathVariable("eventId") Long eventId,
