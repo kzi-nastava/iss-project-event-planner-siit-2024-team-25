@@ -37,7 +37,7 @@ public interface OfferingRepository extends JpaRepository<Offering, Long>, JpaSp
             "o.owner.companyAddress.city, " +
             "COALESCE(AVG(r.rating), 0), " +
             "o.price, " +
-            "(CASE WHEN COUNT(s.id) = 0 THEN true ELSE false END)) " +
+            "(CASE WHEN COUNT(s.id) = 0 THEN false ELSE true END)) " +
             "FROM Offering o " +
             "LEFT JOIN Service s ON s.id = o.id " +
             "LEFT JOIN Purchase p ON p.offering.id = o.id " +
@@ -58,7 +58,7 @@ public interface OfferingRepository extends JpaRepository<Offering, Long>, JpaSp
             "o.owner.companyAddress.city, " +
             "COALESCE(AVG(r.rating), 0), " +
             "o.price," +
-            "(CASE WHEN COUNT(s.id) = 0 THEN true ELSE false END))  " +
+            "(CASE WHEN COUNT(s.id) = 0 THEN false ELSE true END))  " +
             "FROM Offering o " +
             "LEFT JOIN Service s ON s.id = o.id " +
             "LEFT JOIN Purchase p ON p.offering.id = o.id " +
