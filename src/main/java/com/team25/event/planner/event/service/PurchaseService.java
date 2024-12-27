@@ -10,18 +10,16 @@ import com.team25.event.planner.event.repository.EventRepository;
 import com.team25.event.planner.event.repository.PurchaseRepository;
 import com.team25.event.planner.event.specification.PurchaseSpecification;
 import com.team25.event.planner.offering.common.model.OfferingCategory;
-import com.team25.event.planner.offering.common.model.OfferingType;
 import com.team25.event.planner.offering.product.model.Product;
 import com.team25.event.planner.offering.product.repository.ProductRepository;
 import com.team25.event.planner.offering.service.repository.ServiceRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.jpa.domain.Specification;
-import org.springframework.http.HttpStatusCode;
 import org.springframework.stereotype.Service;
 
+import java.time.LocalDate;
+import java.time.LocalDateTime;
 import java.util.Collection;
-import java.util.List;
-import java.util.Objects;
 
 @Service
 @RequiredArgsConstructor
@@ -44,7 +42,7 @@ public class PurchaseService {
         if(!product.isAvailable()){
             throw new InvalidRequestError("Product is not available");
         }
-        if(!isProductCategorySuitableForEvent(event,product)){
+        if(!isProductCategorySuitableForEvent(event,product.getOfferingCategory().getId())){
             throw new InvalidRequestError("Product category is not suitable for event");
         }
         Double leftMoney = getLeftMoneyFromBudgetItem(eventId,product.getOfferingCategory().getId());
@@ -66,8 +64,8 @@ public class PurchaseService {
 
     }
 
-    private boolean isProductCategorySuitableForEvent(Event event, Product product){
-        return event.getEventType().getOfferingCategories().stream().map(OfferingCategory::getId).anyMatch(product.getOfferingCategory().getId()::equals);
+    private boolean isProductCategorySuitableForEvent(Event event, Long offeringCategoryId){
+        return event.getEventType().getOfferingCategories().stream().map(OfferingCategory::getId).anyMatch(offeringCategoryId::equals);
     }
 
     public PurchaseServiceResponseDTO purchaseService(PurchaseServiceRequestDTO requestDTO, Long eventId, Long serviceId) {
@@ -76,49 +74,72 @@ public class PurchaseService {
         Event event = eventRepository.findById(eventId).orElseThrow(() -> new NotFoundError("Event not found"));
         Purchase purchase = purchaseMapper.toPurchase(requestDTO, event, service);
         purchase.getPrice().setCurrency("$");
-        boolean isPurchaseRequestValid = this.isPurchaseRequestValid(purchase, event);
-        boolean isServiceSuitable = this.isOfferingSuitable(purchase.getPrice(),service.getOfferingCategory(), event);
+        boolean isPurchaseRequestValid = this.isPurchaseRequestValid(purchase, event, service);
 
-        if(isServiceAvailable && isServiceSuitable && isPurchaseRequestValid){
+        if(!service.isAvailable()) {
+            throw new InvalidRequestError("Service is not available");
+        }else if(!isServiceAvailable){
+            throw new InvalidRequestError("Service is not available in this period");
+        }
+        else if(!isProductCategorySuitableForEvent(event,service.getOfferingCategory().getId())){
+            throw new InvalidRequestError("Product category is not suitable for event");
+        } else if (!isPurchaseRequestValid) {
+            throw new InvalidRequestError("Purchase request has invalid date and time");
+        }
+
+        Double leftMoney = getLeftMoneyFromBudgetItem(eventId, service.getOfferingCategory().getId());
+        if(leftMoney==-1){
             BudgetItem budgetItem = new BudgetItem();
             budgetItem.setOfferingCategory(service.getOfferingCategory());
             budgetItem.setEvent(event);
-            budgetItem.setMoney(purchase.getPrice());
+            budgetItem.setMoney(new Money(purchase.getPrice().getAmount(), "EUR"));
             budgetItemRepository.save(budgetItem);
-            purchaseRepository.save(purchase);
-            return purchaseMapper.toServiceResponseDTO(purchase);
-        } else if (!isServiceAvailable) {
-            throw new InvalidRequestError("Service is not available in the specified period.");
+            return purchaseMapper.toServiceResponseDTO(purchaseRepository.save(purchase));
         }
-        else if(!isServiceSuitable){
-            throw new InvalidRequestError("Service is not suitable in the requested budget list");
+        double servicePrice = service.getPrice() * (100-service.getDiscount()) / 100;
+        if(servicePrice <= leftMoney){
+            return purchaseMapper.toServiceResponseDTO(purchaseRepository.save(purchase));
         }else{
-            throw new InvalidRequestError("Purchase request has invalid date and time");
+            throw new InvalidRequestError("Not enough budget plan money for the product");
         }
     }
 
-    private boolean isPurchaseRequestValid(Purchase purchase, Event event) {
-        return event.getStartDate() == purchase.getStartDate()
-                && event.getEndDate() == purchase.getEndDate()
-                && event.getStartTime() == purchase.getStartTime()
-                && event.getEndTime() == purchase.getEndTime();
+    private boolean isPurchaseRequestValid(Purchase purchase, Event event, com.team25.event.planner.offering.service.model.Service service) {
+        if(event.getEndDate().isBefore(LocalDate.now())){
+            return false;
+        }
+
+        LocalDateTime purchaseStartDateTime = LocalDateTime.of(purchase.getStartDate(), purchase.getStartTime());
+        LocalDateTime purchaseRequest = LocalDateTime.now();
+        long deadline = java.time.Duration.between(purchaseRequest, purchaseStartDateTime).toHours();
+
+        boolean idDeadlineEnd = deadline >= service.getReservationDeadline();
+
+        LocalDateTime purchaseEndDateTime = LocalDateTime.of(purchase.getEndDate(), purchase.getEndTime());
+
+        LocalDateTime eventStartDateTime = LocalDateTime.of(event.getStartDate(), event.getStartTime());
+        LocalDateTime eventEndDateTime = LocalDateTime.of(event.getEndDate(), event.getEndTime());
+
+        boolean isTimeValid = !purchaseStartDateTime.isBefore(eventStartDateTime) &&
+                !purchaseStartDateTime.isAfter(eventEndDateTime) &&
+                !purchaseEndDateTime.isBefore(eventStartDateTime) &&
+                !purchaseEndDateTime.isAfter(eventEndDateTime);
+
+        long durationInMinutes = java.time.Duration.between(purchaseStartDateTime, purchaseEndDateTime).toMinutes();
+        boolean isDurationValid;
+        if(service.getDuration() > 0){
+            isDurationValid= durationInMinutes == service.getDuration()*60;
+        }else isDurationValid = durationInMinutes <= service.getMaximumArrangement()*60 && durationInMinutes >= service.getMinimumArrangement()*60;
+
+
+        return isTimeValid && isDurationValid && idDeadlineEnd;
     }
+
 
 
     public boolean isServiceAvailable(Long serviceId, PurchaseServiceRequestDTO requestDTO){
         Specification<Purchase> specification = purchaseSpecification.createServiceSpecification(requestDTO, serviceId);
         return !purchaseRepository.exists(specification);
-    }
-
-    public boolean isOfferingSuitable(Money offeringPrice, OfferingCategory offeringCategory, Event event){
-        Collection<BudgetItem> budgetItems = event.getBudgetItemCollection();
-        for (BudgetItem budgetItem: budgetItems){
-            if(budgetItem.getOfferingCategory().equals(offeringCategory)){
-                double totalSpent = purchaseRepository.findTotalSpentByEventIdAndOfferingCategoryId(event.getId(), offeringCategory.getId());
-                return budgetItem.getMoney().getAmount() - totalSpent >= offeringPrice.getAmount();
-            }
-        }
-        return true;
     }
 
     public Double getLeftMoneyFromBudgetItem(Long eventId, Long categoryId) {
