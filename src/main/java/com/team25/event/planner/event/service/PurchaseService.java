@@ -2,6 +2,8 @@ package com.team25.event.planner.event.service;
 
 import com.team25.event.planner.common.exception.InvalidRequestError;
 import com.team25.event.planner.common.exception.NotFoundError;
+import com.team25.event.planner.communication.model.NotificationCategory;
+import com.team25.event.planner.communication.service.NotificationService;
 import com.team25.event.planner.event.dto.*;
 import com.team25.event.planner.event.mapper.PurchaseMapper;
 import com.team25.event.planner.event.model.*;
@@ -33,6 +35,7 @@ public class PurchaseService {
     private final BudgetItemRepository budgetItemRepository;
     private final PurchaseSpecification purchaseSpecification;
     private final ProductRepository productRepository;
+    private final NotificationService notificationService;
 
 
     // mapper
@@ -74,6 +77,7 @@ public class PurchaseService {
         boolean isServiceAvailable = isServiceAvailable(serviceId,requestDTO);
         com.team25.event.planner.offering.service.model.Service service = serviceRepository.findById(serviceId).orElseThrow(() -> new NotFoundError("Service not found"));
         Event event = eventRepository.findById(eventId).orElseThrow(() -> new NotFoundError("Event not found"));
+        notificationService.sendNotification("Event", "Dear, you receive this notification!", eventId, NotificationCategory.EVENT, event.getOrganizer());
         Purchase purchase = purchaseMapper.toPurchase(requestDTO, event, service);
         purchase.getPrice().setCurrency("$");
         boolean isPurchaseRequestValid = this.isPurchaseRequestValid(purchase, event);
@@ -86,6 +90,7 @@ public class PurchaseService {
             budgetItem.setMoney(purchase.getPrice());
             budgetItemRepository.save(budgetItem);
             purchaseRepository.save(purchase);
+
             return purchaseMapper.toServiceResponseDTO(purchase);
         } else if (!isServiceAvailable) {
             throw new InvalidRequestError("Service is not available in the specified period.");
