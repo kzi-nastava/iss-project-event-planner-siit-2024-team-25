@@ -5,5 +5,9 @@ import com.team25.event.planner.event.model.EventAttendanceId;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.JpaSpecificationExecutor;
 
+import java.util.List;
+
 public interface EventAttendanceRepository extends JpaRepository<EventAttendance, EventAttendanceId>, JpaSpecificationExecutor<EventAttendance> {
+
+    List<EventAttendance> findByEventId(Long entityId);
 }

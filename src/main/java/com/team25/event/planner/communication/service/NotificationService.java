@@ -10,8 +10,13 @@ import com.team25.event.planner.communication.model.Notification;
 import com.team25.event.planner.communication.model.NotificationCategory;
 import com.team25.event.planner.communication.repository.NotificationRepository;
 import com.team25.event.planner.communication.specification.NotificationSpeficition;
+import com.team25.event.planner.event.model.Event;
+import com.team25.event.planner.event.model.EventAttendance;
+import com.team25.event.planner.event.repository.EventAttendanceRepository;
+import com.team25.event.planner.offering.common.model.OfferingCategory;
 import com.team25.event.planner.security.user.UserDetailsImpl;
 import com.team25.event.planner.user.model.User;
+import com.team25.event.planner.user.model.UserRole;
 import com.team25.event.planner.user.repository.UserRepository;
 import com.team25.event.planner.user.service.CurrentUserService;
 import jakarta.validation.Valid;
@@ -37,6 +42,122 @@ public class NotificationService {
     private final SimpMessagingTemplate messagingTemplate;
     private final UserRepository userRepository;
     private final CurrentUserService currentUserService;
+    private final EventAttendanceRepository eventAttendanceRepository;
+
+    private Notification createNotification(String title, String message, Long entityId, NotificationCategory notificationCategory, User user) {
+        Notification notification = Notification.builder()
+                .title(title)
+                .message(message)
+                .entityId(entityId)
+                .notificationCategory(notificationCategory)
+                .user(user)
+                .isViewed(false)
+                .build();
+
+        return notificationRepository.save(notification);
+    }
+
+    public void sendEventUpdateNotificationToAllUsers(Event event) {
+        String title = event.getName() + " update";
+        String message ="The event '" + event.getName() + "' has been updated. Please, take a look.";
+        Long entityId = event.getId();
+        eventAttendanceRepository.findByEventId(entityId).stream().forEach(attendance -> {
+            Notification notification = this.createNotification(title, message, entityId, NotificationCategory.EVENT, attendance.getAttendee());
+            NotificationResponseDTO notificationResponseDTO = notificationMapper.toDTO(notification);
+            messagingTemplate.convertAndSend("/notifications/user/"+attendance.getAttendee().getId().toString(), notificationResponseDTO);
+        });
+    }
+
+    public void sendOfferingCategoryNotificationToAdmin(OfferingCategory offeringCategory) {
+        String title = offeringCategory.getName() + " offering category suggestion";
+        String message ="The offering category '" + offeringCategory.getName() + "' has been suggested. Please, take a look.";
+        Long entityId = offeringCategory.getId();
+        userRepository.findByUserRole(UserRole.ADMINISTRATOR).forEach(user -> {
+            Notification notification = this.createNotification(title, message, entityId, NotificationCategory.OFFERING_CATEGORY, user);
+            NotificationResponseDTO notificationResponseDTO = notificationMapper.toDTO(notification);
+            messagingTemplate.convertAndSend("/notifications/user/"+user.getId(), notificationResponseDTO);
+        });
+    }
+
+    public void sendOfferingCategoryAcceptNotificationToOwner(Event event, NotificationCategory notificationCategory) {
+        String title = event.getName() + " update";
+        String message ="The event '" + event.getName() + "' has been updated. Please, take a look.";
+        Long entityId = event.getId();
+        eventAttendanceRepository.findByEventId(entityId).stream().forEach(attendance -> {
+            Notification notification = Notification.builder()
+                    .title(title)
+                    .message(message)
+                    .entityId(entityId)
+                    .notificationCategory(notificationCategory)
+                    .user(attendance.getAttendee())
+                    .isViewed(false)
+                    .build();
+
+            notificationRepository.save(notification);
+            NotificationResponseDTO notificationResponseDTO = notificationMapper.toDTO(notification);
+            messagingTemplate.convertAndSend("/notifications/user/"+attendance.getAttendee().getId().toString(), notificationResponseDTO);
+        });
+    }
+
+    public void sendOfferingCategoryNotificationToOwner(Event event, NotificationCategory notificationCategory) {
+        String title = event.getName() + " update";
+        String message ="The event '" + event.getName() + "' has been updated. Please, take a look.";
+        Long entityId = event.getId();
+        eventAttendanceRepository.findByEventId(entityId).stream().forEach(attendance -> {
+            Notification notification = Notification.builder()
+                    .title(title)
+                    .message(message)
+                    .entityId(entityId)
+                    .notificationCategory(notificationCategory)
+                    .user(attendance.getAttendee())
+                    .isViewed(false)
+                    .build();
+
+            notificationRepository.save(notification);
+            NotificationResponseDTO notificationResponseDTO = notificationMapper.toDTO(notification);
+            messagingTemplate.convertAndSend("/notifications/user/"+attendance.getAttendee().getId().toString(), notificationResponseDTO);
+        });
+    }
+
+    public void sendEventCommentNotificationToEventOrganizer(Event event, NotificationCategory notificationCategory) {
+        String title = event.getName() + " update";
+        String message ="The event '" + event.getName() + "' has been updated. Please, take a look.";
+        Long entityId = event.getId();
+        eventAttendanceRepository.findByEventId(entityId).stream().forEach(attendance -> {
+            Notification notification = Notification.builder()
+                    .title(title)
+                    .message(message)
+                    .entityId(entityId)
+                    .notificationCategory(notificationCategory)
+                    .user(attendance.getAttendee())
+                    .isViewed(false)
+                    .build();
+
+            notificationRepository.save(notification);
+            NotificationResponseDTO notificationResponseDTO = notificationMapper.toDTO(notification);
+            messagingTemplate.convertAndSend("/notifications/user/"+attendance.getAttendee().getId().toString(), notificationResponseDTO);
+        });
+    }
+
+    public void sendOfferingCommentNotificationToOwner(Event event, NotificationCategory notificationCategory) {
+        String title = event.getName() + " update";
+        String message ="The event '" + event.getName() + "' has been updated. Please, take a look.";
+        Long entityId = event.getId();
+        eventAttendanceRepository.findByEventId(entityId).stream().forEach(attendance -> {
+            Notification notification = Notification.builder()
+                    .title(title)
+                    .message(message)
+                    .entityId(entityId)
+                    .notificationCategory(notificationCategory)
+                    .user(attendance.getAttendee())
+                    .isViewed(false)
+                    .build();
+
+            notificationRepository.save(notification);
+            NotificationResponseDTO notificationResponseDTO = notificationMapper.toDTO(notification);
+            messagingTemplate.convertAndSend("/notifications/user/"+attendance.getAttendee().getId().toString(), notificationResponseDTO);
+        });
+    }
 
     public Page<NotificationResponseDTO> getNotifications(NotificationFilterDTO filter, int page, int size, String sortBy, String sortDirection, Long userId) {
         User user = userRepository.findById(userId).orElseThrow(()->new NotFoundError("User not found"));
@@ -52,7 +173,7 @@ public class NotificationService {
         return notificationRepository.findAll(spec, pageable).map(notificationMapper::toDTO);
     }
 
-    public void sendNotification(String title, String message, Long entityId,NotificationCategory notificationCategory, User user) {
+    public void sendNotification(String title, String message, Long entityId, NotificationCategory notificationCategory, User user) {
         Notification notification = Notification.builder()
                 .title(title)
                 .message(message)

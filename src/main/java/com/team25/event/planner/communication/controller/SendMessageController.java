@@ -1,11 +1,10 @@
-package com.team25.event.planner.communication.controllers;
+package com.team25.event.planner.communication.controller;
 
 import com.team25.event.planner.communication.dto.SendMessageRequestDTO;
 import com.team25.event.planner.communication.dto.SendMessageResponseDTO;
 import com.team25.event.planner.communication.service.ChatService;
 import jakarta.validation.Valid;
 import lombok.AllArgsConstructor;
-import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;

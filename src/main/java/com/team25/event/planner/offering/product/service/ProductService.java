@@ -1,9 +1,11 @@
 package com.team25.event.planner.offering.product.service;
 
+import com.team25.event.planner.communication.service.NotificationService;
 import com.team25.event.planner.offering.common.dto.OfferingFilterDTO;
 import com.team25.event.planner.offering.common.dto.OfferingPreviewResponseDTO;
 import com.team25.event.planner.offering.common.mapper.OfferingMapper;
 import com.team25.event.planner.offering.common.model.Offering;
+import com.team25.event.planner.offering.common.model.OfferingCategory;
 import com.team25.event.planner.offering.common.repository.OfferingRepository;
 import com.team25.event.planner.offering.product.dto.ProductRequestDTO;
 import com.team25.event.planner.offering.product.dto.ProductResponseDTO;
@@ -26,6 +28,7 @@ public class ProductService {
     private final OfferingRepository offeringRepository;
     private final ProductSpecification productSpecification;
     private final ProductRepository productRepository;
+    private final NotificationService notificationService;
 
     public Page<OfferingPreviewResponseDTO> getAllProducts(OfferingFilterDTO filter, int page, int size, String sortBy, String sortDirection) {
         Specification<Product> spec = productSpecification.createSpecification(filter);
@@ -41,6 +44,9 @@ public class ProductService {
 
 
     public ProductResponseDTO createProduct(@Valid ProductRequestDTO productDto) {
+        ///TODO: Send notification if offering category doesn't exist
+        OfferingCategory offeringCategory = new OfferingCategory();
+        notificationService.sendOfferingCategoryNotificationToAdmin(offeringCategory);
         return null;
     }
 
