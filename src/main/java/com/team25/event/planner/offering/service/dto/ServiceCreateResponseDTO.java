@@ -2,6 +2,7 @@ package com.team25.event.planner.offering.service.dto;
 
 import com.team25.event.planner.offering.common.model.OfferingType;
 import com.team25.event.planner.offering.service.model.ReservationType;
+import com.team25.event.planner.user.dto.UserResponseDTO;
 import lombok.Getter;
 import lombok.Setter;
 
@@ -28,5 +29,5 @@ public class ServiceCreateResponseDTO {
     private int maximumArrangement;
     private List<Long> eventTypesIDs;
     private Long OfferingCategoryID;
-    private Long ownerID;
+    private UserResponseDTO ownerInfo;
 }
