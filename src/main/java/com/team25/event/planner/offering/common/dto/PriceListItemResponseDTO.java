@@ -6,8 +6,7 @@ import java.security.PrivateKey;
 
 @Data
 public class PriceListItemResponseDTO {
-    private Long id;
-    private int number;
+    private Long offeringId;
     private String name;
     private double price;
     private double discount;
