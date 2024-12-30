@@ -12,6 +12,8 @@ import com.team25.event.planner.offering.common.model.OfferingCategoryType;
 import com.team25.event.planner.offering.common.model.OfferingType;
 import com.team25.event.planner.offering.common.repository.OfferingCategoryRepository;
 import com.team25.event.planner.offering.common.repository.OfferingRepository;
+import com.team25.event.planner.user.model.Owner;
+import com.team25.event.planner.user.model.User;
 import lombok.AllArgsConstructor;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
@@ -77,6 +79,8 @@ public class OfferingCategoryService {
         offeringCategory.setDescription(offeringCategoryUpdateRequestDTO.getDescription());
         offeringCategory.setStatus(offeringCategoryUpdateRequestDTO.getStatus());
 
+        notificationService.sendOfferingCategoryUpdateNotificationToOwner(offeringCategory);
+
         return offeringCategoryCommonMapper.toResponseDTO(offeringCategoryRepository.save(offeringCategory));
     }
 
@@ -91,6 +95,7 @@ public class OfferingCategoryService {
 
         offering.setStatus(OfferingType.ACCEPTED);
         offeringRepository.save(offering);
+        notificationService.sendOfferingCategoryApproveNotificationToAdmin(offeringCategory, offering.getOwner());
         return offeringCategoryCommonMapper.toResponseDTO(offeringCategoryRepository.save(offeringCategory));
     }
 

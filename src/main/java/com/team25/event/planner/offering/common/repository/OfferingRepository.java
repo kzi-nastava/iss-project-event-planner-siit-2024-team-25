@@ -3,6 +3,8 @@ package com.team25.event.planner.offering.common.repository;
 import com.team25.event.planner.offering.common.dto.OfferingPreviewResponseDTO;
 import com.team25.event.planner.offering.common.dto.OfferingSubmittedResponseDTO;
 import com.team25.event.planner.offering.common.model.Offering;
+import com.team25.event.planner.user.model.Owner;
+import com.team25.event.planner.user.model.User;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.repository.JpaRepository;
@@ -68,4 +70,9 @@ public interface OfferingRepository extends JpaRepository<Offering, Long>, JpaSp
             "GROUP BY o.id, o.name, o.owner.firstName, o.owner.lastName, o.description, o.owner.companyAddress.country, o.owner.companyAddress.city, o.price, s.id " +
             "ORDER BY COALESCE(AVG(r.rating), 0) DESC")
     Page<OfferingPreviewResponseDTO> findTopOfferings(String country, String city, Pageable pageable);
+
+    @Query("SELECT o FROM Owner o " +
+            "LEFT JOIN Offering off ON off.owner.id = o.id " +
+            "WHERE (off IS NULL OR off.offeringCategory.id = :id)")
+    List<Owner> findOwnersByOfferingCategoryId(@Param("id") Long id);
 }
