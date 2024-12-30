@@ -26,6 +26,6 @@ security:
       methods: [ GET ]
     - path: /api/users/{userId}/pictures/{pictureId}
       methods: [ GET ]
-
-
+    - path: /socket/**
+      methods: [ GET ]
 

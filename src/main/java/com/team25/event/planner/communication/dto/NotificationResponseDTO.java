@@ -13,6 +13,4 @@ public class NotificationResponseDTO {
     private String message;
     private LocalDateTime createdDate;
     private Boolean isViewed;
-
-
 }
