@@ -9,6 +9,7 @@ import com.team25.event.planner.offering.product.dto.ProductDetailsResponseDTO;
 import com.team25.event.planner.offering.product.dto.ProductRequestDTO;
 import com.team25.event.planner.offering.product.dto.ProductResponseDTO;
 import com.team25.event.planner.offering.product.service.ProductService;
+import com.team25.event.planner.user.dto.UserResponseDTO;
 import jakarta.validation.Valid;
 import lombok.AllArgsConstructor;
 import org.springframework.data.domain.Page;
@@ -32,7 +33,7 @@ public class ProductController {
 
         ProductDetailsResponseDTO productDetailsResponseDTO = new ProductDetailsResponseDTO();
 
-        productDetailsResponseDTO.setId(1L);
+        productDetailsResponseDTO.setId(27L);
         if (!Objects.equals(productDetailsResponseDTO.getId(), id)) { // if the service exist => update else not found the service
             return new ResponseEntity<ProductDetailsResponseDTO>(HttpStatus.NOT_FOUND);
         }
@@ -57,6 +58,12 @@ public class ProductController {
         productDetailsResponseDTO.setEventTypes(eventTypes2);
 
         productDetailsResponseDTO.setOfferingCategory(new OfferingCategoryResponseDTO(1L, "Premium", "desc", OfferingCategoryType.ACCEPTED));
+
+        UserResponseDTO owner = new UserResponseDTO();
+        owner.setId(2L);
+        owner.setFirstName("owners first name");
+        owner.setLastName("lastname");
+        productDetailsResponseDTO.setOwnerInfo(owner);
 
         return new ResponseEntity<ProductDetailsResponseDTO>(productDetailsResponseDTO, HttpStatus.OK);
     }

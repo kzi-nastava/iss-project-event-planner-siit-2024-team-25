@@ -32,8 +32,8 @@ public interface ServiceMapper {
     @Mapping(source = "available", target = "available")
     Service toUpdatedService(ServiceUpdateResponseDTO serviceUpdateResponseDTO);
 
-    @Mapping(source = "dto.available", target = "available")
-    @Mapping(source = "dto.visible", target = "visible")
+    @Mapping(source = "available", target = "available")
+    @Mapping(source = "visible", target = "visible")
     @Mapping(target = "status", ignore = true)
     Service toEntity(ServiceCreateRequestDTO dto);
 
