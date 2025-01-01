@@ -71,6 +71,9 @@ public class EventService {
             if(this.checkInvitation(user.getAccount().getEmail(), invitationCode)){
                 return eventMapper.toDTO(event);
             }
+            if(this.checkAttendance(user.getId(), event)){
+                return eventMapper.toDTO(event);
+            }
         }else{
             return eventMapper.toDTO(event);
         }
@@ -222,6 +225,14 @@ public class EventService {
                 return true;
             }
             throw new InvalidRequestError("This invitation was already accepted");
+        }
+        return false;
+    }
+
+    public boolean checkAttendance(Long userId, Event event) {
+        Optional<EventAttendance> eventAttendance = eventAttendanceRepository.getEventAttendanceByAttendeeIdAndEventId(userId, event.getId());
+        if (eventAttendance.isPresent()) {
+            return true;
         }
         return false;
     }

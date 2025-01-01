@@ -95,7 +95,7 @@ public class OfferingCategoryService {
 
         offering.setStatus(OfferingType.ACCEPTED);
         offeringRepository.save(offering);
-        notificationService.sendOfferingCategoryApproveNotificationToAdmin(offeringCategory, offering.getOwner());
+        notificationService.sendOfferingCategoryApproveNotificationToOwner(offeringCategory, offering.getOwner());
         return offeringCategoryCommonMapper.toResponseDTO(offeringCategoryRepository.save(offeringCategory));
     }
 

@@ -75,7 +75,7 @@ public class NotificationService {
         });
     }
 
-    public void sendOfferingCategoryApproveNotificationToAdmin(OfferingCategory offeringCategory, Owner owner) {
+    public void sendOfferingCategoryApproveNotificationToOwner(OfferingCategory offeringCategory, Owner owner) {
         String title = offeringCategory.getName() + " approved";
         String message ="The offering category '" + offeringCategory.getName() + "' has been approve. Please, take a look.";
         Long entityId = offeringCategory.getId();
