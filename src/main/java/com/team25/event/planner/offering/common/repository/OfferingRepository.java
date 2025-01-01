@@ -73,6 +73,6 @@ public interface OfferingRepository extends JpaRepository<Offering, Long>, JpaSp
 
     @Query("SELECT o FROM Owner o " +
             "LEFT JOIN Offering off ON off.owner.id = o.id " +
-            "WHERE (off IS NULL OR off.offeringCategory.id = :id)")
+            "WHERE (off IS NOT NULL AND off.offeringCategory.id = :id)")
     List<Owner> findOwnersByOfferingCategoryId(@Param("id") Long id);
 }

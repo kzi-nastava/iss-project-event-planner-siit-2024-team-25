@@ -12,6 +12,7 @@ import com.team25.event.planner.communication.repository.NotificationRepository;
 import com.team25.event.planner.communication.specification.NotificationSpeficition;
 import com.team25.event.planner.event.model.Event;
 import com.team25.event.planner.event.repository.EventAttendanceRepository;
+import com.team25.event.planner.offering.common.model.Offering;
 import com.team25.event.planner.offering.common.model.OfferingCategory;
 import com.team25.event.planner.offering.common.repository.OfferingRepository;
 import com.team25.event.planner.user.model.Owner;
@@ -93,6 +94,15 @@ public class NotificationService {
             NotificationResponseDTO notificationResponseDTO = notificationMapper.toDTO(notification);
             messagingTemplate.convertAndSend("/notifications/user/"+owner.getId().toString(), notificationResponseDTO);
         });
+    }
+
+    public void sendOfferingsCategoryUpdateNotificationToOwner(Offering offering, NotificationCategory notificationCategory) {
+        String title = offering.getName() + " updated";
+        String message ="The offering category for '" + offering.getName() + "' has been updated. Please, take a look.";
+        Long entityId = offering.getId();
+        Notification notification = this.createNotification(title, message, entityId, notificationCategory, offering.getOwner());
+        NotificationResponseDTO notificationResponseDTO = notificationMapper.toDTO(notification);
+        messagingTemplate.convertAndSend("/notifications/user/"+offering.getOwner().getId().toString(), notificationResponseDTO);
     }
 
     public void sendEventCommentNotificationToEventOrganizer(Event event, NotificationCategory notificationCategory) {
