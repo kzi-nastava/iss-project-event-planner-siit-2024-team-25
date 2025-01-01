@@ -156,7 +156,9 @@ public class NotificationService {
         Sort.Direction direction = Sort.Direction.fromString(sortDirection);
         Pageable pageable = PageRequest.of(page, size, Sort.by(direction, sortBy));
 
-        return notificationRepository.findAll(spec, pageable).map(notificationMapper::toDTO);
+        Page<NotificationResponseDTO> notificationResponseDTOS= notificationRepository.findAll(spec, pageable).map(notificationMapper::toDTO);
+
+        return notificationResponseDTOS;
     }
 
     public NotificationResponseDTO updateNotification(@Valid  NotificationRequestDTO requestDTO) {

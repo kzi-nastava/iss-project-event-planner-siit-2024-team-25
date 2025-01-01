@@ -13,7 +13,7 @@ import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
 
 @RestController
-@RequestMapping("/api/notification")
+@RequestMapping("/api/notifications")
 @RequiredArgsConstructor
 public class NotificationController {
     private final NotificationService notificationService;
@@ -26,12 +26,12 @@ public class NotificationController {
             @RequestParam(defaultValue = "0") int page,
             @RequestParam(defaultValue = "10") int size,
             @RequestParam(defaultValue = "createdDate") String sortBy,
-            @RequestParam(defaultValue = "asc") String sortDirection
+            @RequestParam(defaultValue = "desc") String sortDirection
     ){
         return ResponseEntity.ok(notificationService.getNotifications(filter, page, size, sortBy, sortDirection, userId));
     }
 
-    @PostMapping(value = "/{userId}/view")
+    @PutMapping(value = "/{userId}/view")
     @PreAuthorize("authentication.principal.userId = #userId")
     public ResponseEntity<NotificationResponseDTO> updateNotification(@RequestBody NotificationRequestDTO notification) {
         NotificationResponseDTO savedNotification = notificationService.updateNotification(notification);
