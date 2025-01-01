@@ -6,6 +6,7 @@ import com.team25.event.planner.common.exception.NotFoundError;
 import com.team25.event.planner.common.exception.UnauthorizedError;
 import com.team25.event.planner.common.service.GeocodingService;
 import com.team25.event.planner.common.util.VerificationCodeGenerator;
+import com.team25.event.planner.communication.service.NotificationService;
 import com.team25.event.planner.email.service.EmailService;
 import com.team25.event.planner.event.dto.*;
 import com.team25.event.planner.event.mapper.ActivityMapper;
@@ -57,6 +58,7 @@ public class EventService {
     private final ActivityRepository activityRepository;
     private final UserRepository userRepository;
     private final GeocodingService geocodingService;
+    private final NotificationService notificationService;
 
     public EventResponseDTO getEventById(Long id, String invitationCode) {
         Event event = eventRepository.findById(id).orElseThrow(() -> new NotFoundError("Event not found"));
@@ -163,6 +165,8 @@ public class EventService {
 
         event = eventRepository.save(event);
 
+        notificationService.sendEventUpdateNotificationToAllUsers(event);
+
         return eventMapper.toDTO(event);
     }
 
@@ -182,21 +186,6 @@ public class EventService {
                 .findTopEvents(country, city, pageable)
                 .map(eventMapper::toEventPreviewResponseDTO);
     }
-
-    /*public boolean isProductSuitable(double price, OfferingCategoryType offeringCategoryType, Long eventId) {
-        Event event = eventRepository.findById(eventId).orElseThrow(() -> new NotFoundError("Event not found"));
-        Collection<BudgetItem> items = event.getBudgetItemCollection();
-        for (BudgetItem item : items) {
-            if (item.getOfferingCategoryType().equals(offeringCategoryType)) {
-                if (price <= item.getMoney().getAmount()) {
-                    item.getMoney().setAmount(item.getMoney().getAmount() - price);// save to repo
-                    return true;
-                }
-                return false;
-            }
-        }
-        return false;
-    }*/
 
     public void sendInvitations(Long eventId, List<EventInvitationRequestDTO> requestDTO) {
         Event event = eventRepository.findById(eventId).orElseThrow(() -> new NotFoundError("Event not found"));
@@ -262,6 +251,9 @@ public class EventService {
         activity.setEvent(event);
 
         activity = activityRepository.save(activity);
+
+        notificationService.sendEventUpdateNotificationToAllUsers(event);
+
         return activityMapper.toDTO(activity);
     }
 
@@ -278,6 +270,7 @@ public class EventService {
             throw new UnauthorizedError();
         }
 
+        notificationService.sendEventUpdateNotificationToAllUsers(activity.getEvent());
         activityRepository.delete(activity);
     }
 
