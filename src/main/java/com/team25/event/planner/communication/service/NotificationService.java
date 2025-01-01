@@ -12,6 +12,8 @@ import com.team25.event.planner.communication.repository.NotificationRepository;
 import com.team25.event.planner.communication.specification.NotificationSpeficition;
 import com.team25.event.planner.event.model.Event;
 import com.team25.event.planner.event.repository.EventAttendanceRepository;
+import com.team25.event.planner.event.repository.EventRepository;
+import com.team25.event.planner.event.specification.EventSpecification;
 import com.team25.event.planner.offering.common.model.Offering;
 import com.team25.event.planner.offering.common.model.OfferingCategory;
 import com.team25.event.planner.offering.common.repository.OfferingRepository;
@@ -27,6 +29,9 @@ import org.springframework.data.jpa.domain.Specification;
 import org.springframework.messaging.simp.SimpMessagingTemplate;
 import org.springframework.stereotype.Service;
 
+import java.time.LocalDate;
+import java.time.LocalDateTime;
+import java.time.LocalTime;
 import java.util.Objects;
 
 @Service
@@ -40,6 +45,8 @@ public class NotificationService {
     private final CurrentUserService currentUserService;
     private final EventAttendanceRepository eventAttendanceRepository;
     private final OfferingRepository offeringRepository;
+    private final EventRepository eventRepository;
+    private final EventSpecification eventSpecification;
 
     private Notification createNotification(String title, String message, Long entityId, NotificationCategory notificationCategory, User user) {
         Notification notification = Notification.builder()
@@ -166,5 +173,20 @@ public class NotificationService {
         notification.setIsViewed(requestDTO.getIsViewed());
         notificationRepository.save(notification);
         return notificationMapper.toDTO(notification);
+    }
+
+    public void sendEventStartsSoonNotificationToEventOrganizer() {
+        LocalDateTime startDateTime = LocalDateTime.now();
+        LocalDate startDate = startDateTime.toLocalDate();
+        LocalTime startTime = LocalTime.of(startDateTime.getHour(), startDateTime.getMinute()).plusHours(1);
+        Specification<Event> specification = eventSpecification.createEventNotificationSpecification(startDate, startTime);
+        eventRepository.findAll(specification).stream().forEach(event ->{
+            String title = event.getName() + " starts soon";
+            String message ="The event '" + event.getName() + "' will start for 1 hour. Be ready.";
+            Long entityId = event.getId();
+            Notification notification = this.createNotification(title, message,entityId,NotificationCategory.EVENT,event.getOrganizer());
+            NotificationResponseDTO notificationResponseDTO = notificationMapper.toDTO(notification);
+            messagingTemplate.convertAndSend("/notifications/user/"+event.getOrganizer().getId().toString(), notificationResponseDTO);
+        });
     }
 }

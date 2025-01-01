@@ -9,6 +9,7 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
 
@@ -36,5 +37,10 @@ public class NotificationController {
     public ResponseEntity<NotificationResponseDTO> updateNotification(@RequestBody NotificationRequestDTO notification) {
         NotificationResponseDTO savedNotification = notificationService.updateNotification(notification);
         return ResponseEntity.status(HttpStatus.CREATED).body(savedNotification);
+    }
+
+    @Scheduled(cron = "${greeting.cron}")
+    public void notifyEventOrganizer(){
+        notificationService.sendEventStartsSoonNotificationToEventOrganizer();
     }
 }
