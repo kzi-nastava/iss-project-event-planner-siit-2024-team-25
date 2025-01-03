@@ -17,7 +17,9 @@ public interface ServiceMapper {
     @Mapping(source = "visible", target = "visible")
     @Mapping(source = "available", target = "available")
     @Mapping(source = "eventTypes", target = "eventTypesIDs")
-    @Mapping(source = "owner", target = "ownerID")
+    @Mapping(source = "owner", target = "ownerInfo.id")
+    @Mapping(source = "owner.firstName", target = "ownerInfo.firstName")
+    @Mapping(source = "owner.lastName", target = "ownerInfo.lastName")
     @Mapping(source = "offeringCategory", target = "offeringCategoryID")
     ServiceCreateResponseDTO toDTO(Service service);
 
@@ -30,8 +32,8 @@ public interface ServiceMapper {
     @Mapping(source = "available", target = "available")
     Service toUpdatedService(ServiceUpdateResponseDTO serviceUpdateResponseDTO);
 
-    @Mapping(source = "dto.available", target = "available")
-    @Mapping(source = "dto.visible", target = "visible")
+    @Mapping(source = "available", target = "available")
+    @Mapping(source = "visible", target = "visible")
     @Mapping(target = "status", ignore = true)
     Service toEntity(ServiceCreateRequestDTO dto);
 

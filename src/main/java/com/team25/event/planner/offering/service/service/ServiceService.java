@@ -91,6 +91,7 @@ public class ServiceService {
     }
     public ServiceCreateResponseDTO getService(Long id){
         com.team25.event.planner.offering.service.model.Service service = serviceRepository.findById(id).orElseThrow(()->new NotFoundError("Service not found"));
+
         return serviceMapper.toDTO(service);
     }
 
