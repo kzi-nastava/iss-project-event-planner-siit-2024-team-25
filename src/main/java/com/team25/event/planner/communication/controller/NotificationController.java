@@ -19,17 +19,15 @@ import org.springframework.web.bind.annotation.*;
 public class NotificationController {
     private final NotificationService notificationService;
 
-    @GetMapping(value = "/{userId}")
-    @PreAuthorize("authentication.principal.userId = #userId")
-    public ResponseEntity<Page<NotificationResponseDTO>> getNotifications(
-            @PathVariable("userId") Long userId,
+    @GetMapping(value = "/")
+    public ResponseEntity<Page<NotificationResponseDTO>> getMyNotifications(
             @ModelAttribute NotificationFilterDTO filter,
             @RequestParam(defaultValue = "0") int page,
             @RequestParam(defaultValue = "10") int size,
             @RequestParam(defaultValue = "createdDate") String sortBy,
             @RequestParam(defaultValue = "desc") String sortDirection
     ){
-        return ResponseEntity.ok(notificationService.getNotifications(filter, page, size, sortBy, sortDirection, userId));
+        return ResponseEntity.ok(notificationService.getMyNotifications(filter, page, size, sortBy, sortDirection));
     }
 
     @PutMapping(value = "/{userId}/view")

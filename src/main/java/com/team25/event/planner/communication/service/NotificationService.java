@@ -138,12 +138,8 @@ public class NotificationService {
         messagingTemplate.convertAndSend("/notifications/user/"+offering.getOwner().getId().toString(), notificationResponseDTO);
     }
 
-    public Page<NotificationResponseDTO> getNotifications(NotificationFilterDTO filter, int page, int size, String sortBy, String sortDirection, Long userId) {
-        User user = userRepository.findById(userId).orElseThrow(()->new NotFoundError("User not found"));
-        Long currentUserId = currentUserService.getCurrentUserId();
-        if(!Objects.equals(user.getId(), currentUserId)){
-            throw new UnauthorizedError("Unauthorized access");
-        }
+    public Page<NotificationResponseDTO> getMyNotifications(NotificationFilterDTO filter, int page, int size, String sortBy, String sortDirection) {
+        User user = userRepository.findById(currentUserService.getCurrentUserId()).orElseThrow(() -> new NotFoundError("User not found"));
         Specification<Notification> spec = notificationSpeficition.createSpecification(filter,user);
 
         Sort.Direction direction = Sort.Direction.fromString(sortDirection);
