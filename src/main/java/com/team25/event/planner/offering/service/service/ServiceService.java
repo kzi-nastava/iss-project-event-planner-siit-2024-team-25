@@ -3,6 +3,7 @@ package com.team25.event.planner.offering.service.service;
 import com.team25.event.planner.common.exception.InvalidRequestError;
 import com.team25.event.planner.common.exception.NotFoundError;
 import com.team25.event.planner.common.model.Location;
+import com.team25.event.planner.communication.service.NotificationService;
 import com.team25.event.planner.event.model.EventType;
 import com.team25.event.planner.event.repository.EventTypeRepository;
 import com.team25.event.planner.offering.common.dto.OfferingFilterDTO;
@@ -52,6 +53,7 @@ public class ServiceService {
     private final OfferingRepository offeringRepository;
     private final UserRepository userRepository;
     private final CurrentUserService currentUserService;
+    private final NotificationService notificationService;
 
     @Transactional
     public ServiceCreateResponseDTO createService(ServiceCreateRequestDTO requestDTO){
@@ -62,6 +64,7 @@ public class ServiceService {
             service.setStatus(OfferingType.PENDING);
             OfferingCategory offeringCategory = offeringCategoryRepository.save(new OfferingCategory(requestDTO.getOfferingCategoryName(),"",OfferingCategoryType.PENDING));
             service.setOfferingCategory(offeringCategory);
+            notificationService.sendOfferingCategoryNotificationToAdmin(offeringCategory);
         }else{
             service.setStatus(OfferingType.ACCEPTED);
         }

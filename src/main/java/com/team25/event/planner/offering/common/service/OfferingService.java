@@ -2,6 +2,8 @@ package com.team25.event.planner.offering.common.service;
 
 import com.team25.event.planner.common.exception.NotFoundError;
 import com.team25.event.planner.common.model.ReviewStatus;
+import com.team25.event.planner.communication.model.NotificationCategory;
+import com.team25.event.planner.communication.service.NotificationService;
 import com.team25.event.planner.event.model.Event;
 import com.team25.event.planner.event.model.Money;
 import com.team25.event.planner.event.model.Purchase;
@@ -44,6 +46,7 @@ public class OfferingService {
     private final PurchaseRepository purchaseRepository;
     private final OfferingReviewRepository offeringReviewRepository;
     private final EventRepository eventRepository;
+    private final NotificationService notificationService;
 
     public List<OfferingSubmittedResponseDTO> getSubmittedOfferings(){
         return offeringRepository.getOfferingSubmittedResponseDTOs();
@@ -61,10 +64,14 @@ public class OfferingService {
         offering.setStatus(OfferingType.ACCEPTED);
         offering.setOfferingCategory(categoryUpdate);
         offeringRepository.save(offering);
+        if(offering instanceof Product){
+            notificationService.sendOfferingsCategoryUpdateNotificationToOwner(offering, NotificationCategory.PRODUCT);
+        }else{
+            notificationService.sendOfferingsCategoryUpdateNotificationToOwner(offering, NotificationCategory.SERVICE);
+        }
         if(offeringRepository.countOfferingsByOfferingCategoryId(categoryId) == 0){
             offeringCategoryRepository.deleteById(categoryId);
         }
-
     }
 
     public Page<OfferingPreviewResponseDTO> getOfferings(OfferingFilterDTO filter, int page, int size, String sortBy, String sortDirection) {

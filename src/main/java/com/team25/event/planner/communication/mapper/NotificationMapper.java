@@ -14,6 +14,7 @@ public interface NotificationMapper {
 
 
     @Mapping(source = "createdDate", target = "createdDate")
+    @Mapping(source = "title", target = "title")
     NotificationResponseDTO toDTO(Notification notification);
 
     default LocalDateTime instantToLocalDateTime(Instant instant) {

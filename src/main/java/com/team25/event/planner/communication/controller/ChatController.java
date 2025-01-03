@@ -1,4 +1,4 @@
-package com.team25.event.planner.communication.controllers;
+package com.team25.event.planner.communication.controller;
 
 import com.team25.event.planner.communication.dto.ChatResponseDTO;
 import com.team25.event.planner.communication.dto.SendMessageResponseDTO;

@@ -8,6 +8,8 @@ import jakarta.persistence.criteria.Predicate;
 import org.springframework.data.jpa.domain.Specification;
 import org.springframework.stereotype.Component;
 
+import java.time.LocalDate;
+import java.time.LocalTime;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -122,6 +124,17 @@ public class EventSpecification {
             }
 
             predicates.add(cb.equal(root.get("organizer").get("id"), organizer.getId()));
+
+            return cb.and(predicates.toArray(new Predicate[0]));
+        };
+    }
+
+    public Specification<Event> createEventNotificationSpecification(LocalDate startDate, LocalTime startTime){
+        return (root, query, cb) -> {
+            List<Predicate> predicates = new ArrayList<>();
+
+            predicates.add(cb.equal(root.get("startDate"), startDate));
+            predicates.add(cb.equal(root.get("startTime"), startTime));
 
             return cb.and(predicates.toArray(new Predicate[0]));
         };
