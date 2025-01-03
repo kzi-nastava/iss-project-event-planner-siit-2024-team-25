@@ -30,8 +30,7 @@ public class NotificationController {
         return ResponseEntity.ok(notificationService.getMyNotifications(filter, page, size, sortBy, sortDirection));
     }
 
-    @PutMapping(value = "/{userId}/view")
-    @PreAuthorize("authentication.principal.userId = #userId")
+    @PutMapping(value = "/")
     public ResponseEntity<NotificationResponseDTO> updateNotification(@RequestBody NotificationRequestDTO notification) {
         NotificationResponseDTO savedNotification = notificationService.updateNotification(notification);
         return ResponseEntity.status(HttpStatus.CREATED).body(savedNotification);

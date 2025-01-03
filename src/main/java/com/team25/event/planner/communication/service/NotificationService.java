@@ -151,7 +151,11 @@ public class NotificationService {
     }
 
     public NotificationResponseDTO updateNotification(@Valid  NotificationRequestDTO requestDTO) {
+        User user = userRepository.findById(currentUserService.getCurrentUserId()).orElseThrow(() -> new NotFoundError("User not found"));
         Notification notification = notificationRepository.findById(requestDTO.getId()).orElseThrow(()->new NotFoundError("Notification not found"));
+        if(!notification.getUser().equals(user)){
+            throw new UnauthorizedError();
+        }
         notification.setIsViewed(requestDTO.getIsViewed());
         notificationRepository.save(notification);
         return notificationMapper.toDTO(notification);
