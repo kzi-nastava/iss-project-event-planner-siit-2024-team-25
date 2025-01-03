@@ -28,4 +28,6 @@ security:
       methods: [ GET ]
     - path: /socket/**
       methods: [ GET ]
+    - path: /api/price-list/**
+      methods: [GET, PUT]
 
