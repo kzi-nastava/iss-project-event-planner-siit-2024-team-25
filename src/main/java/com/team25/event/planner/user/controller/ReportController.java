@@ -19,12 +19,11 @@ import org.springframework.web.bind.annotation.*;
 public class ReportController {
     private final ReportService reportService;
 
-    @PostMapping(value = "/{reportedUserId}/report")
+    @PostMapping(value = "/report")
     public ResponseEntity<Void> createReport(
-            @PathVariable("reportedUserId") Long reportedUserId,
             @RequestBody ReportRequestDTO requestDTO
     ) {
-        reportService.createReport(requestDTO, reportedUserId);
+        reportService.createReport(requestDTO);
         return ResponseEntity.ok().build();
     }
 

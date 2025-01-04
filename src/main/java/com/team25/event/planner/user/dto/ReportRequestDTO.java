@@ -5,7 +5,7 @@ import lombok.Data;
 
 @Data
 public class ReportRequestDTO {
-    private Long userId;
+    private Long reportedUserId;
 
     @NotNull(message = "Report message is required")
     private String reportMessage;

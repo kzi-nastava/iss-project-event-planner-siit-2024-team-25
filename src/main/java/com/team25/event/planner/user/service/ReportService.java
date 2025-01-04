@@ -30,11 +30,11 @@ public class ReportService {
     private final UserRepository userRepository;
     private final ReportRepository reportRepository;
     private final ReportMapper reportMapper;
-    private final ReportSpecification reportSpecification;
+    private final CurrentUserService currentUserService;
 
-    public ReportResponseDTO createReport(@Valid ReportRequestDTO requestDTO, Long reportedUserId) {
-        User user = userRepository.findById(requestDTO.getUserId()).orElseThrow(() -> new InvalidRequestError("User not found"));
-        User reportedUser = userRepository.findById(reportedUserId).orElseThrow(() -> new InvalidRequestError("User not found"));
+    public ReportResponseDTO createReport(@Valid ReportRequestDTO requestDTO) {
+        User user = userRepository.findById(currentUserService.getCurrentUserId()).orElseThrow(() -> new InvalidRequestError("User not found"));
+        User reportedUser = userRepository.findById(requestDTO.getReportedUserId()).orElseThrow(() -> new InvalidRequestError("User not found"));
 
         Report report = reportMapper.toReport(requestDTO, user, reportedUser);
         report.setIsViewed(false);
