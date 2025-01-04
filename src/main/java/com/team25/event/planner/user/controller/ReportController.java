@@ -20,12 +20,12 @@ public class ReportController {
     private final ReportService reportService;
 
     @PostMapping(value = "/{reportedUserId}/report")
-    @Secured("ROLE_USER")
-    public ResponseEntity<ReportResponseDTO> createReport(
+    public ResponseEntity<Void> createReport(
             @PathVariable("reportedUserId") Long reportedUserId,
             @RequestBody ReportRequestDTO requestDTO
     ) {
-        return ResponseEntity.status(HttpStatus.CREATED).body(reportService.createReport(requestDTO, reportedUserId));
+        reportService.createReport(requestDTO, reportedUserId);
+        return ResponseEntity.ok().build();
     }
 
     @GetMapping(value = "/reports")

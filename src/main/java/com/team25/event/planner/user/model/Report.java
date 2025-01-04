@@ -1,11 +1,11 @@
 package com.team25.event.planner.user.model;
 
 import jakarta.persistence.*;
-import jakarta.validation.constraints.NotNull;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
+import org.hibernate.annotations.CreationTimestamp;
 
 import java.time.Instant;
 
@@ -27,6 +27,7 @@ public class Report {
 
     private String reportMessage;
 
+    @CreationTimestamp
     private Instant createdDate;
 
     private Boolean isViewed;
