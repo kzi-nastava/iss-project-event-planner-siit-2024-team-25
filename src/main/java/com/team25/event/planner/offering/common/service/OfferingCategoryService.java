@@ -68,7 +68,9 @@ public class OfferingCategoryService {
     public OfferingCategoryResponseDTO createOfferingCategory(OfferingCategoryCreateRequestDTO offeringCategoryRequestDTO, OfferingCategoryType status) {
         OfferingCategory offeringCategory = offeringCategoryCommonMapper.toOfferingCategory(offeringCategoryRequestDTO);
         offeringCategory.setStatus(status);
-        notificationService.sendOfferingCategoryNotificationToAdmin(offeringCategory);
+        if(status.equals(OfferingCategoryType.PENDING)){
+            notificationService.sendOfferingCategoryNotificationToAdmin(offeringCategory);
+        }
         return offeringCategoryCommonMapper.toResponseDTO(offeringCategoryRepository.save(offeringCategory));
     }
 
