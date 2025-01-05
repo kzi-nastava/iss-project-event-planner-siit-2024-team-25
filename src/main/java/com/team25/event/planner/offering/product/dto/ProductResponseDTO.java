@@ -1,7 +1,8 @@
 package com.team25.event.planner.offering.product.dto;
 
-import com.team25.event.planner.event.dto.EventTypePreviewResponseDTO;
+import com.team25.event.planner.event.dto.EventTypeServiceResponseDTO;
 import com.team25.event.planner.offering.common.dto.OfferingCategoryResponseDTO;
+import com.team25.event.planner.offering.common.dto.OwnerPreviewResponseDTO;
 import lombok.Data;
 
 import java.util.List;
@@ -11,11 +12,12 @@ public class ProductResponseDTO {
     private Long id;
     private String name;
     private String description;
-    private Double price;
-    private Double discount;
+    private double price;
+    private double discount;
     private List<String> images;
     private boolean isVisible;
     private boolean isAvailable;
-    private List<EventTypePreviewResponseDTO> eventTypes;
+    private List<EventTypeServiceResponseDTO> eventTypes;
     private OfferingCategoryResponseDTO offeringCategory;
+    private OwnerPreviewResponseDTO ownerInfo;
 }

@@ -1,10 +1,10 @@
 package com.team25.event.planner.offering.product.specification;
 
 import com.team25.event.planner.offering.common.dto.OfferingFilterDTO;
-import com.team25.event.planner.offering.common.model.Offering;
 import com.team25.event.planner.offering.product.model.Product;
-import jakarta.persistence.criteria.Join;
-import jakarta.persistence.criteria.Predicate;
+import com.team25.event.planner.user.service.CurrentUserService;
+import jakarta.persistence.criteria.*;
+import lombok.RequiredArgsConstructor;
 import org.springframework.data.jpa.domain.Specification;
 import org.springframework.stereotype.Component;
 
@@ -12,7 +12,10 @@ import java.util.ArrayList;
 import java.util.List;
 
 @Component
+@RequiredArgsConstructor
 public class ProductSpecification {
+    private final CurrentUserService currentUserService;
+
     public Specification<Product> createSpecification(OfferingFilterDTO filter) {
         return (root, query, cb) -> {
             List<Predicate> predicates = new ArrayList<>();
@@ -42,7 +45,15 @@ public class ProductSpecification {
                 predicates.add(cb.equal(root.get("isAvailable"), filter.getIsAvailable()));
             }
 
+            predicates.add(cb.equal(root.get("deleted"), false));
+            predicates.add(getVisiblePredicate(root, cb));
+
             return cb.and(predicates.toArray(new Predicate[0]));
         };
+    }
+
+    private Predicate getVisiblePredicate(Root<Product> root, CriteriaBuilder cb) {
+        final Long currentUserId = currentUserService.getCurrentUserId();
+        return cb.or(cb.equal(root.get("owner").get("id"), currentUserId), cb.equal(root.get("isVisible"), true));
     }
 }
