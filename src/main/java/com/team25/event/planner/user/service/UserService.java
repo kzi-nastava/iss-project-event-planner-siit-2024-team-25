@@ -37,7 +37,6 @@ import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.ArrayList;
-import java.util.Collection;
 import java.util.List;
 import java.util.UUID;
 
@@ -101,7 +100,7 @@ public class UserService {
             final LatLongDTO latLong = geocodingService.getLatLong(registerRequestDTO.getOwnerFields().getCompanyAddress());
             owner.getCompanyAddress().setLatitude(latLong.getLatitude());
             owner.getCompanyAddress().setLongitude(latLong.getLongitude());
-        } else if(user instanceof EventOrganizer organizer) {
+        } else if (user instanceof EventOrganizer organizer) {
             assert registerRequestDTO.getEventOrganizerFields() != null;
             final LatLongDTO latLong = geocodingService.getLatLong(registerRequestDTO.getEventOrganizerFields().getLivingAddress());
             organizer.getLivingAddress().setLatitude(latLong.getLatitude());
@@ -117,7 +116,7 @@ public class UserService {
             // @Transactional rolls back all database changes if an exception occurs, but not the filesystem changes,
             // so this needs to be done manually
             if (user instanceof Owner) {
-                deleteFiles(companyPicturesFileStorageLocation, ((Owner) user).getCompanyPictures());
+                FileUtils.deleteFiles(companyPicturesFileStorageLocation, ((Owner) user).getCompanyPictures());
             }
             throw e;
         }
@@ -206,21 +205,11 @@ public class UserService {
 
         if (failException != null) {
             // clean up all successfully saved pictures if one failed
-            deleteFiles(companyPicturesFileStorageLocation, filenames);
+            FileUtils.deleteFiles(companyPicturesFileStorageLocation, filenames);
             throw failException;
         }
 
         return filenames;
-    }
-
-    private static void deleteFiles(Path location, Collection<String> filenames) {
-        for (String filename : filenames) {
-            try {
-                Files.deleteIfExists(location.resolve(filename));
-            } catch (IOException cleanupException) {
-                logger.error("Failed to delete file during cleanup: {}", filename);
-            }
-        }
     }
 
     public Resource getProfilePicture(Long userId) {
