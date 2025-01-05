@@ -19,13 +19,12 @@ import org.springframework.web.bind.annotation.*;
 public class ReportController {
     private final ReportService reportService;
 
-    @PostMapping(value = "/{reportedUserId}/report")
-    @Secured("ROLE_USER")
-    public ResponseEntity<ReportResponseDTO> createReport(
-            @PathVariable("reportedUserId") Long reportedUserId,
+    @PostMapping(value = "/report")
+    public ResponseEntity<Void> createReport(
             @RequestBody ReportRequestDTO requestDTO
     ) {
-        return ResponseEntity.status(HttpStatus.CREATED).body(reportService.createReport(requestDTO, reportedUserId));
+        reportService.createReport(requestDTO);
+        return ResponseEntity.ok().build();
     }
 
     @GetMapping(value = "/reports")

@@ -11,6 +11,7 @@ import com.team25.event.planner.user.mapper.ReportMapper;
 import com.team25.event.planner.user.model.Report;
 import com.team25.event.planner.user.model.User;
 import com.team25.event.planner.user.repository.ReportRepository;
+import com.team25.event.planner.user.repository.UserRepository;
 import com.team25.event.planner.user.specification.ReportSpecification;
 import jakarta.validation.Valid;
 import lombok.AllArgsConstructor;
@@ -26,23 +27,18 @@ import java.util.List;
 @Service
 @AllArgsConstructor
 public class ReportService {
-    private final UserService userService;
+    private final UserRepository userRepository;
     private final ReportRepository reportRepository;
     private final ReportMapper reportMapper;
-    private final ReportSpecification reportSpecification;
+    private final CurrentUserService currentUserService;
 
-    public ReportResponseDTO createReport(@Valid ReportRequestDTO requestDTO, Long reportedUserId) {
-//        User user = userService.Get(requestDTO.getUserId());
-//        User reportedUser = userService.Get(reportedUserId);
-          User user = new User();
-          user.setId(requestDTO.getUserId());
-          User reportedUser = new User();
-          reportedUser.setId(reportedUserId);
-          reportedUser.setFirstName("First name");
-          reportedUser.setLastName("Last name");
+    public ReportResponseDTO createReport(@Valid ReportRequestDTO requestDTO) {
+        User user = userRepository.findById(currentUserService.getCurrentUserId()).orElseThrow(() -> new InvalidRequestError("User not found"));
+        User reportedUser = userRepository.findById(requestDTO.getReportedUserId()).orElseThrow(() -> new InvalidRequestError("User not found"));
 
         Report report = reportMapper.toReport(requestDTO, user, reportedUser);
-//        report = reportRepository.save(report);
+        report.setIsViewed(false);
+        report = reportRepository.save(report);
         return reportMapper.toDTO(report);
     }
 
@@ -72,8 +68,8 @@ public class ReportService {
 //        Report report = reportRepository.findById(requestDTO.getReportId()).orElseThrow(() -> new InvalidRequestError("Report do not exist"));
         Report report = new Report();
         report.setId(1L);
-        report.setIsViewed(false);
-        report.setIsViewed(requestDTO.getIsViewed());
+//        report.setIsViewed(false);
+//        report.setIsViewed(requestDTO.getIsViewed());
 //        reportRepository.save(report);
 
         return reportMapper.toDTO(report);
