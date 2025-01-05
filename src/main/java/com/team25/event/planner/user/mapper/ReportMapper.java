@@ -9,10 +9,13 @@ import org.mapstruct.Mapping;
 
 @Mapper(componentModel = "spring")
 public interface ReportMapper {
-    @Mapping(target = "reportedUserFirstName", source = "report.reportedUser.firstName")
-    @Mapping(target = "reportedUserLastName", source = "report.reportedUser.lastName")
-    @Mapping(target = "userId", source = "report.user.id")
-    @Mapping(target = "reportedUserId", source = "report.reportedUser.id")
+    @Mapping(target = "reportedUserFirstName", source = "reportedUser.firstName")
+    @Mapping(target = "reportedUserLastName", source = "reportedUser.lastName")
+    @Mapping(target = "userFirstName", source = "user.firstName")
+    @Mapping(target = "userLastName", source = "user.lastName")
+    @Mapping(target = "reportedUserId", source = "reportedUser.id")
+    @Mapping(target = "userId", source = "user.id")
+    @Mapping(target = "id", source = "id")
     ReportResponseDTO toDTO(Report report);
 
     @Mapping(target = "id", ignore = true)
