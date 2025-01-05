@@ -75,7 +75,6 @@ public class PurchaseService {
         boolean isServiceAvailable = isServiceAvailable(serviceId,requestDTO);
         com.team25.event.planner.offering.service.model.Service service = serviceRepository.findById(serviceId).orElseThrow(() -> new NotFoundError("Service not found"));
         Event event = eventRepository.findById(eventId).orElseThrow(() -> new NotFoundError("Event not found"));
-        notificationService.sendNotification("Event", "Dear, you receive this notification!", eventId, NotificationCategory.EVENT, event.getOrganizer());
         Purchase purchase = purchaseMapper.toPurchase(requestDTO, event, service);
         purchase.getPrice().setCurrency("$");
         boolean isPurchaseRequestValid = this.isPurchaseRequestValid(purchase, event, service);

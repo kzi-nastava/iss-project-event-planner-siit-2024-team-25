@@ -7,6 +7,7 @@ import com.team25.event.planner.common.exception.UnauthorizedError;
 import com.team25.event.planner.common.util.FileUtils;
 import com.team25.event.planner.event.model.EventType;
 import com.team25.event.planner.event.repository.EventTypeRepository;
+import com.team25.event.planner.communication.service.NotificationService;
 import com.team25.event.planner.offering.common.dto.OfferingFilterDTO;
 import com.team25.event.planner.offering.common.dto.OfferingPreviewResponseDTO;
 import com.team25.event.planner.offering.common.model.Offering;
@@ -55,13 +56,19 @@ public class ProductService {
     private final OwnerRepository ownerRepository;
     private final OfferingCategoryRepository offeringCategoryRepository;
     private final EventTypeRepository eventTypeRepository;
+    private final NotificationService notificationService;
 
     public ProductService(
             OfferingRepository offeringRepository,
             ProductSpecification productSpecification,
             ProductRepository productRepository,
             ProductMapper productMapper,
-            @Value("${file-storage.images.product}") String productImagesSaveDirectory, OwnerRepository ownerRepository, OfferingCategoryRepository offeringCategoryRepository, EventTypeRepository eventTypeRepository) {
+            @Value("${file-storage.images.product}") String productImagesSaveDirectory,
+            OwnerRepository ownerRepository,
+            OfferingCategoryRepository offeringCategoryRepository,
+            EventTypeRepository eventTypeRepository,
+            NotificationService notificationService
+        ) {
         this.offeringRepository = offeringRepository;
         this.productSpecification = productSpecification;
         this.productRepository = productRepository;
@@ -70,6 +77,7 @@ public class ProductService {
         this.ownerRepository = ownerRepository;
         this.offeringCategoryRepository = offeringCategoryRepository;
         this.eventTypeRepository = eventTypeRepository;
+        this.notificationService = notificationService;
     }
 
     public ProductResponseDTO getProduct(Long productId) {
@@ -117,6 +125,7 @@ public class ProductService {
         } else if(productDto.getOfferingCategoryName() != null && !productDto.getOfferingCategoryName().isBlank()) {
             offeringCategory = new OfferingCategory(productDto.getOfferingCategoryName(), "", OfferingCategoryType.PENDING);
             offeringCategoryRepository.save(offeringCategory);
+            notificationService.sendOfferingCategoryNotificationToAdmin(offeringCategory);
             status = OfferingType.PENDING;
         } else {
             Map<String, String> errors = new HashMap<>();

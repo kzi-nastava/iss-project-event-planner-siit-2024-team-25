@@ -40,8 +40,8 @@ public class Notification {
     @Column(nullable = false)
     private Long entityId;
 
-    @NotNull(message = "Privacy type is required")
-    @Enumerated(EnumType.STRING)
+    @NotNull(message = "Notification category is required")
+    @Enumerated(EnumType.ORDINAL)
     private NotificationCategory notificationCategory;
 
     @ManyToOne

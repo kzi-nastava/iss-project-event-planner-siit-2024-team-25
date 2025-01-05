@@ -11,6 +11,7 @@ public class NotificationResponseDTO {
     private Long entityId;
     private NotificationCategory notificationCategory;
     private String message;
+    private String title;
     private LocalDateTime createdDate;
     private Boolean isViewed;
 }

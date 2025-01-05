@@ -2,6 +2,7 @@ package com.team25.event.planner.offering.common.service;
 
 import com.team25.event.planner.common.exception.InvalidRequestError;
 import com.team25.event.planner.common.exception.NotFoundError;
+import com.team25.event.planner.communication.service.NotificationService;
 import com.team25.event.planner.event.repository.BudgetItemRepository;
 import com.team25.event.planner.offering.common.dto.*;
 import com.team25.event.planner.offering.common.mapper.OfferingCategoryCommonMapper;
@@ -11,6 +12,8 @@ import com.team25.event.planner.offering.common.model.OfferingCategoryType;
 import com.team25.event.planner.offering.common.model.OfferingType;
 import com.team25.event.planner.offering.common.repository.OfferingCategoryRepository;
 import com.team25.event.planner.offering.common.repository.OfferingRepository;
+import com.team25.event.planner.user.model.Owner;
+import com.team25.event.planner.user.model.User;
 import lombok.AllArgsConstructor;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
@@ -27,6 +30,7 @@ public class OfferingCategoryService {
     private final OfferingRepository offeringRepository;
     private final OfferingCategoryCommonMapper offeringCategoryCommonMapper;
     private final BudgetItemRepository budgetItemRepository;
+    private final NotificationService notificationService;
 
     public List<OfferingCategoryResponseDTO> getOfferingCategories() {
         return offeringCategoryRepository.findOfferingCategoriesByStatus(OfferingCategoryType.ACCEPTED).stream().map(offeringCategoryCommonMapper::toResponseDTO).collect(Collectors.toList());
@@ -64,6 +68,7 @@ public class OfferingCategoryService {
     public OfferingCategoryResponseDTO createOfferingCategory(OfferingCategoryCreateRequestDTO offeringCategoryRequestDTO, OfferingCategoryType status) {
         OfferingCategory offeringCategory = offeringCategoryCommonMapper.toOfferingCategory(offeringCategoryRequestDTO);
         offeringCategory.setStatus(status);
+        notificationService.sendOfferingCategoryNotificationToAdmin(offeringCategory);
         return offeringCategoryCommonMapper.toResponseDTO(offeringCategoryRepository.save(offeringCategory));
     }
 
@@ -73,6 +78,8 @@ public class OfferingCategoryService {
         offeringCategory.setName(offeringCategoryUpdateRequestDTO.getName());
         offeringCategory.setDescription(offeringCategoryUpdateRequestDTO.getDescription());
         offeringCategory.setStatus(offeringCategoryUpdateRequestDTO.getStatus());
+
+        notificationService.sendOfferingCategoryUpdateNotificationToOwner(offeringCategory);
 
         return offeringCategoryCommonMapper.toResponseDTO(offeringCategoryRepository.save(offeringCategory));
     }
@@ -88,6 +95,7 @@ public class OfferingCategoryService {
 
         offering.setStatus(OfferingType.ACCEPTED);
         offeringRepository.save(offering);
+        notificationService.sendOfferingCategoryApproveNotificationToOwner(offeringCategory, offering.getOwner());
         return offeringCategoryCommonMapper.toResponseDTO(offeringCategoryRepository.save(offeringCategory));
     }
 
