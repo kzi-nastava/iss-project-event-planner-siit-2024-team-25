@@ -15,6 +15,7 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.annotation.Secured;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
 
 import java.io.IOException;
@@ -62,7 +63,7 @@ public class ProductController {
     }
 
     @PutMapping("/{id}")
-    @Secured("ROLE_OWNER")
+    @PreAuthorize("hasRole('ROLE_OWNER') and @offeringPermissionEvaluator.canEdit(authentication, #id)")
     public ResponseEntity<ProductResponseDTO> updateProduct(
             @PathVariable Long id,
             @Valid @ModelAttribute ProductRequestDTO productDto
@@ -71,7 +72,7 @@ public class ProductController {
     }
 
     @DeleteMapping("/{id}")
-    @Secured("ROLE_OWNER")
+    @PreAuthorize("hasRole('ROLE_OWNER') and @offeringPermissionEvaluator.canEdit(authentication, #id)")
     public ResponseEntity<Void> deleteProduct(@PathVariable Long id) {
         productService.deleteProduct(id);
         return ResponseEntity.noContent().build();

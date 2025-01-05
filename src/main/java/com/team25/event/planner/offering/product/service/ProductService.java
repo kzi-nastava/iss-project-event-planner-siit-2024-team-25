@@ -5,9 +5,9 @@ import com.team25.event.planner.common.exception.NotFoundError;
 import com.team25.event.planner.common.exception.ServerError;
 import com.team25.event.planner.common.exception.UnauthorizedError;
 import com.team25.event.planner.common.util.FileUtils;
+import com.team25.event.planner.communication.service.NotificationService;
 import com.team25.event.planner.event.model.EventType;
 import com.team25.event.planner.event.repository.EventTypeRepository;
-import com.team25.event.planner.communication.service.NotificationService;
 import com.team25.event.planner.offering.common.dto.OfferingFilterDTO;
 import com.team25.event.planner.offering.common.dto.OfferingPreviewResponseDTO;
 import com.team25.event.planner.offering.common.model.Offering;
@@ -51,24 +51,24 @@ public class ProductService {
     private final ProductSpecification productSpecification;
     private final ProductRepository productRepository;
     private final ProductMapper productMapper;
-
-    private final Path productImagesFileStorageLocation;
     private final OwnerRepository ownerRepository;
     private final OfferingCategoryRepository offeringCategoryRepository;
     private final EventTypeRepository eventTypeRepository;
     private final NotificationService notificationService;
+
+    private final Path productImagesFileStorageLocation;
 
     public ProductService(
             OfferingRepository offeringRepository,
             ProductSpecification productSpecification,
             ProductRepository productRepository,
             ProductMapper productMapper,
-            @Value("${file-storage.images.product}") String productImagesSaveDirectory,
             OwnerRepository ownerRepository,
             OfferingCategoryRepository offeringCategoryRepository,
             EventTypeRepository eventTypeRepository,
-            NotificationService notificationService
-        ) {
+            NotificationService notificationService,
+            @Value("${file-storage.images.product}") String productImagesSaveDirectory
+    ) {
         this.offeringRepository = offeringRepository;
         this.productSpecification = productSpecification;
         this.productRepository = productRepository;
@@ -118,11 +118,11 @@ public class ProductService {
         OfferingCategory offeringCategory;
         OfferingType status;
 
-        if(productDto.getOfferingCategoryId() != null) {
+        if (productDto.getOfferingCategoryId() != null) {
             offeringCategory = offeringCategoryRepository.findById(productDto.getOfferingCategoryId())
                     .orElseThrow(() -> new NotFoundError("Offering Category not found"));
             status = OfferingType.ACCEPTED;
-        } else if(productDto.getOfferingCategoryName() != null && !productDto.getOfferingCategoryName().isBlank()) {
+        } else if (productDto.getOfferingCategoryName() != null && !productDto.getOfferingCategoryName().isBlank()) {
             offeringCategory = new OfferingCategory(productDto.getOfferingCategoryName(), "", OfferingCategoryType.PENDING);
             offeringCategoryRepository.save(offeringCategory);
             notificationService.sendOfferingCategoryNotificationToAdmin(offeringCategory);
@@ -134,7 +134,7 @@ public class ProductService {
         }
 
         final List<EventType> eventTypes = eventTypeRepository.findAllById(productDto.getEventTypeIds());
-        if(eventTypes.isEmpty()) {
+        if (eventTypes.isEmpty()) {
             throw new InvalidRequestError("No valid event types were provided");
         }
 
@@ -155,7 +155,6 @@ public class ProductService {
         return productMapper.toDTO(product);
     }
 
-
     public ProductResponseDTO updateProduct(Long productId, @Valid ProductRequestDTO productDto) {
         Product product = productRepository.findById(productId)
                 .orElseThrow(() -> new NotFoundError("Product not found"));
@@ -167,12 +166,12 @@ public class ProductService {
         product.setVisible(productDto.isVisible());
         product.setAvailable(productDto.isAvailable());
 
-        if(productDto.getImagesToDelete() != null) {
+        if (productDto.getImagesToDelete() != null) {
             product.getImages().removeAll(productDto.getImagesToDelete());
             FileUtils.deleteFiles(productImagesFileStorageLocation, productDto.getImagesToDelete());
         }
 
-        if(productDto.getImages() != null) {
+        if (productDto.getImages() != null) {
             final List<String> filenames = saveProductImages(productDto.getImages());
             product.getImages().addAll(filenames);
         }
