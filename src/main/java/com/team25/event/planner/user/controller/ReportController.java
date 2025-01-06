@@ -30,8 +30,8 @@ public class ReportController {
             @ModelAttribute ReportFilterDTO filter,
             @RequestParam(defaultValue = "0") int page,
             @RequestParam(defaultValue = "10") int size,
-            @RequestParam(defaultValue = "reportedUserId") String sortBy,
-            @RequestParam(defaultValue = "asc") String sortDirection
+            @RequestParam(defaultValue = "createdDate") String sortBy,
+            @RequestParam(defaultValue = "desc") String sortDirection
     ) {
         return ResponseEntity.ok(reportService.getReports(filter, page, size, sortBy, sortDirection));
     }
@@ -50,5 +50,16 @@ public class ReportController {
             @RequestBody SuspensionRequestDTO requestDTO
     ) {
         return ResponseEntity.status(HttpStatus.CREATED).body(reportService.suspendUser(requestDTO));
+    }
+
+    @GetMapping(value = "/suspended")
+    @Secured("ROLE_ADMIN")
+    public ResponseEntity<Page<SuspensionResponseDTO>> getSuspensions(
+            @RequestParam(defaultValue = "0") int page,
+            @RequestParam(defaultValue = "10") int size,
+            @RequestParam(defaultValue = "expirationTime") String sortBy,
+            @RequestParam(defaultValue = "desc") String sortDirection
+    ) {
+        return ResponseEntity.ok(reportService.getSuspensions(page, size, sortBy, sortDirection));
     }
 }

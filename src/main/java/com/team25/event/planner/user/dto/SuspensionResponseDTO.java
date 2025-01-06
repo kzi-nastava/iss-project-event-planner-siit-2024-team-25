@@ -10,6 +10,8 @@ import java.time.Instant;
 @Builder
 public class SuspensionResponseDTO {
     private Long id;
-    private Long userId;
+    private Long suspendedUserId;
+    private String suspendedUserFirstName;
+    private String suspendedUserLastName;
     private Instant expirationTime;
 }

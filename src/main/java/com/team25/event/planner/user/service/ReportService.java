@@ -6,6 +6,7 @@ import com.team25.event.planner.event.dto.EventPreviewResponseDTO;
 import com.team25.event.planner.event.model.Event;
 import com.team25.event.planner.user.dto.*;
 import com.team25.event.planner.user.mapper.ReportMapper;
+import com.team25.event.planner.user.mapper.SuspensionMapper;
 import com.team25.event.planner.user.model.Account;
 import com.team25.event.planner.user.model.Report;
 import com.team25.event.planner.user.model.Suspension;
@@ -23,10 +24,7 @@ import org.springframework.stereotype.Service;
 import java.time.Instant;
 import java.time.temporal.ChronoUnit;
 import java.time.temporal.TemporalUnit;
-import java.util.ArrayList;
-import java.util.Collection;
-import java.util.Collections;
-import java.util.List;
+import java.util.*;
 
 @Service
 @AllArgsConstructor
@@ -37,6 +35,7 @@ public class ReportService {
     private final ReportSpecification reportSpecification;
     private final UserRepository userRepository;
     private final SuspensionRepository suspensionRepository;
+    private final SuspensionMapper suspensionMapper;
 
     public ReportResponseDTO createReport(@Valid ReportRequestDTO requestDTO) {
 //        User user = userService.Get(requestDTO.getUserId());
@@ -75,17 +74,28 @@ public class ReportService {
         report.setIsViewed(true);
         reportRepository.save(report);
 
+        Suspension suspension = suspensionRepository.findSuspensionByAccountId(user.getAccount().getId()).orElse(null);
         Instant expirationTime = Instant.now().plus(3, ChronoUnit.DAYS);
-        Suspension suspension = Suspension.builder()
-                .account(user.getAccount())
-                .expirationTime(expirationTime)
-                .build();
-        suspensionRepository.save(suspension);
-        SuspensionResponseDTO responseDTO = SuspensionResponseDTO.builder()
-                .id(suspension.getId())
-                .expirationTime(suspension.getExpirationTime())
-                .userId(requestDTO.getUserId())
-                .build();
-        return responseDTO;
+
+        if(suspension != null) {
+            suspension.setExpirationTime(expirationTime);
+            suspensionRepository.save(suspension);
+        }else{
+            suspension = Suspension.builder()
+                    .account(user.getAccount())
+                    .expirationTime(expirationTime)
+                    .build();
+
+            suspensionRepository.save(suspension);
+        }
+
+        return suspensionMapper.toDTO(suspension);
+    }
+
+    public Page<SuspensionResponseDTO> getSuspensions(int page, int size, String sortBy, String sortDirection) {
+        Sort.Direction direction = Sort.Direction.fromString(sortDirection);
+        Pageable pageable = PageRequest.of(page, size, Sort.by(direction, sortBy));
+
+        return suspensionRepository.findAll(pageable).map(suspensionMapper::toDTO);
     }
 }
