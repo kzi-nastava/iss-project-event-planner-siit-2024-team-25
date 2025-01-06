@@ -36,7 +36,7 @@ public class ReportController {
         return ResponseEntity.ok(reportService.getReports(filter, page, size, sortBy, sortDirection));
     }
 
-    @PutMapping(value = "/reports")
+    @PutMapping(value = "/report")
     @Secured("ROLE_ADMIN")
     public ResponseEntity<ReportResponseDTO> updateReport(
             @RequestBody ReportUpdateRequestDTO requestDTO
