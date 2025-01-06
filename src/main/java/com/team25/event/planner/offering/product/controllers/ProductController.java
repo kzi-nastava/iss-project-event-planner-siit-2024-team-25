@@ -1,26 +1,26 @@
 package com.team25.event.planner.offering.product.controllers;
 
-import com.team25.event.planner.event.dto.EventTypeServiceResponseDTO;
-import com.team25.event.planner.offering.common.dto.OfferingCategoryResponseDTO;
+import com.team25.event.planner.common.exception.ServerError;
 import com.team25.event.planner.offering.common.dto.OfferingFilterDTO;
 import com.team25.event.planner.offering.common.dto.OfferingPreviewResponseDTO;
-import com.team25.event.planner.offering.common.model.OfferingCategoryType;
-import com.team25.event.planner.offering.product.dto.ProductDetailsResponseDTO;
 import com.team25.event.planner.offering.product.dto.ProductRequestDTO;
 import com.team25.event.planner.offering.product.dto.ProductResponseDTO;
 import com.team25.event.planner.offering.product.service.ProductService;
-import com.team25.event.planner.user.dto.UserResponseDTO;
 import jakarta.validation.Valid;
 import lombok.AllArgsConstructor;
+import org.springframework.core.io.Resource;
 import org.springframework.data.domain.Page;
+import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.annotation.Secured;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
 
-import java.util.ArrayList;
-import java.util.Objects;
+import java.io.IOException;
+import java.nio.file.Files;
+import java.nio.file.Path;
 
 @RestController
 @RequestMapping("api/products")
@@ -29,43 +29,8 @@ public class ProductController {
     private final ProductService productService;
 
     @GetMapping(value = "/{id}", produces = MediaType.APPLICATION_JSON_VALUE)
-    public ResponseEntity<ProductDetailsResponseDTO> getProduct(@PathVariable("id") Long id) {
-
-        ProductDetailsResponseDTO productDetailsResponseDTO = new ProductDetailsResponseDTO();
-
-        productDetailsResponseDTO.setId(27L);
-        if (!Objects.equals(productDetailsResponseDTO.getId(), id)) { // if the service exist => update else not found the service
-            return new ResponseEntity<ProductDetailsResponseDTO>(HttpStatus.NOT_FOUND);
-        }
-
-
-        productDetailsResponseDTO.setName("Wedding Photography");
-        productDetailsResponseDTO.setDescription("Professional photography services for weddings.");
-        productDetailsResponseDTO.setPrice(1000.00);
-        productDetailsResponseDTO.setDiscount(10.0);
-        productDetailsResponseDTO.setAvailable(false);
-
-        ArrayList<String> images2 = new ArrayList<>();
-        images2.add("wedding1.jpg");
-        images2.add("wedding2.jpg");
-        productDetailsResponseDTO.setImages(images2);
-
-        ArrayList<EventTypeServiceResponseDTO> eventTypes2 = new ArrayList<>();
-        EventTypeServiceResponseDTO eventType21 = new EventTypeServiceResponseDTO(3L, "Photography");
-        EventTypeServiceResponseDTO eventType22 = new EventTypeServiceResponseDTO(4L, "Videography");
-        eventTypes2.add(eventType21);
-        eventTypes2.add(eventType22);
-        productDetailsResponseDTO.setEventTypes(eventTypes2);
-
-        productDetailsResponseDTO.setOfferingCategory(new OfferingCategoryResponseDTO(1L, "Premium", "desc", OfferingCategoryType.ACCEPTED));
-
-        UserResponseDTO owner = new UserResponseDTO();
-        owner.setId(2L);
-        owner.setFirstName("owners first name");
-        owner.setLastName("lastname");
-        productDetailsResponseDTO.setOwnerInfo(owner);
-
-        return new ResponseEntity<ProductDetailsResponseDTO>(productDetailsResponseDTO, HttpStatus.OK);
+    public ResponseEntity<ProductResponseDTO> getProduct(@PathVariable("id") Long id) {
+        return ResponseEntity.ok(productService.getProduct(id));
     }
 
     @GetMapping("/all")
@@ -75,30 +40,61 @@ public class ProductController {
             @RequestParam(defaultValue = "10") int size,
             @RequestParam(defaultValue = "name") String sortBy,
             @RequestParam(defaultValue = "asc") String sortDirection
-    ){
+    ) {
         return ResponseEntity.ok(productService.getAllProducts(filter, page, size, sortBy, sortDirection));
     }
 
+    @GetMapping("/owner/{ownerId}")
+    public ResponseEntity<Page<OfferingPreviewResponseDTO>> getOwnerProducts(
+            @PathVariable Long ownerId,
+            @ModelAttribute OfferingFilterDTO filter,
+            @RequestParam(defaultValue = "0") int page,
+            @RequestParam(defaultValue = "10") int size,
+            @RequestParam(defaultValue = "name") String sortBy,
+            @RequestParam(defaultValue = "asc") String sortDirection
+    ) {
+        return ResponseEntity.ok(productService.getOwnerProducts(ownerId, filter, page, size, sortBy, sortDirection));
+    }
 
     @PostMapping
     @Secured("ROLE_OWNER")
-    public ResponseEntity<ProductResponseDTO> createProduct(@Valid @RequestBody ProductRequestDTO productDto) {
+    public ResponseEntity<ProductResponseDTO> createProduct(@Valid @ModelAttribute ProductRequestDTO productDto) {
         return ResponseEntity.status(HttpStatus.CREATED).body(productService.createProduct(productDto));
     }
 
     @PutMapping("/{id}")
-    @Secured("ROLE_OWNER")
+    @PreAuthorize("hasRole('ROLE_OWNER') and @offeringPermissionEvaluator.canEdit(authentication, #id)")
     public ResponseEntity<ProductResponseDTO> updateProduct(
             @PathVariable Long id,
-            @Valid @RequestBody ProductRequestDTO productDto
+            @Valid @ModelAttribute ProductRequestDTO productDto
     ) {
         return ResponseEntity.ok(productService.updateProduct(id, productDto));
     }
 
     @DeleteMapping("/{id}")
-    @Secured("ROLE_OWNER")
+    @PreAuthorize("hasRole('ROLE_OWNER') and @offeringPermissionEvaluator.canEdit(authentication, #id)")
     public ResponseEntity<Void> deleteProduct(@PathVariable Long id) {
         productService.deleteProduct(id);
         return ResponseEntity.noContent().build();
+    }
+
+    @GetMapping("/{productId}/images/{imageId}")
+    public ResponseEntity<Resource> getProductImage(@PathVariable Long productId, @PathVariable String imageId) {
+        try {
+            Resource resource = productService.getProductImage(productId, imageId);
+
+            // Determine the content type (e.g., image/jpeg)
+            String contentType = Files.probeContentType(Path.of(resource.getFile().getAbsolutePath()));
+            if (contentType == null) {
+                contentType = "application/octet-stream"; // Fallback to binary stream
+            }
+
+            return ResponseEntity.ok()
+                    .contentType(MediaType.parseMediaType(contentType))
+                    .header(HttpHeaders.CONTENT_DISPOSITION, "inline; filename=\"" + resource.getFilename() + "\"")
+                    .body(resource);
+        } catch (IOException e) {
+            throw new ServerError("Could not load image", 500);
+        }
     }
 }

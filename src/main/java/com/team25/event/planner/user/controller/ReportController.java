@@ -17,11 +17,11 @@ public class ReportController {
     private final ReportService reportService;
 
     @PostMapping(value = "/report")
-    @Secured("ROLE_USER")
-    public ResponseEntity<ReportResponseDTO> createReport(
+    public ResponseEntity<Void> createReport(
             @RequestBody ReportRequestDTO requestDTO
     ) {
-        return ResponseEntity.status(HttpStatus.CREATED).body(reportService.createReport(requestDTO));
+        reportService.createReport(requestDTO);
+        return ResponseEntity.ok().build();
     }
 
     @GetMapping(value = "/reports")
