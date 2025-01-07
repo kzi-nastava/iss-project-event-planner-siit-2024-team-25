@@ -5,6 +5,7 @@ import lombok.Builder;
 import lombok.Data;
 
 import java.time.Instant;
+import java.time.LocalDateTime;
 
 @Data
 @Builder
@@ -13,5 +14,5 @@ public class SuspensionResponseDTO {
     private Long suspendedUserId;
     private String suspendedUserFirstName;
     private String suspendedUserLastName;
-    private Instant expirationTime;
+    private LocalDateTime expirationTime;
 }

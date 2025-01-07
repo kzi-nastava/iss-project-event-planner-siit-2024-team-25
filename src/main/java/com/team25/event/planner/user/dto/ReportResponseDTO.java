@@ -3,6 +3,7 @@ package com.team25.event.planner.user.dto;
 import lombok.Data;
 
 import java.time.Instant;
+import java.time.LocalDateTime;
 
 @Data
 public class ReportResponseDTO {
@@ -15,5 +16,5 @@ public class ReportResponseDTO {
     private String reportedUserFirstName;
     private String reportedUserLastName;
     private Boolean isViewed;
-    private Instant createdDate;
+    private LocalDateTime createdDate;
 }
