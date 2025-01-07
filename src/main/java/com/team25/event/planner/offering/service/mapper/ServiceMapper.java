@@ -3,9 +3,12 @@ package com.team25.event.planner.offering.service.mapper;
 
 import com.team25.event.planner.event.dto.EventTypePreviewResponseDTO;
 import com.team25.event.planner.event.model.EventType;
+import com.team25.event.planner.offering.common.dto.OfferingCategoryPreviewResponseDTO;
+import com.team25.event.planner.offering.common.dto.OwnerPreviewResponseDTO;
 import com.team25.event.planner.offering.common.model.OfferingCategory;
 import com.team25.event.planner.offering.service.dto.*;
 import com.team25.event.planner.offering.service.model.Service;
+import com.team25.event.planner.user.dto.OwnerResponseDTO;
 import com.team25.event.planner.user.model.Owner;
 import org.mapstruct.Mapper;
 import org.mapstruct.Mapping;
@@ -19,11 +22,8 @@ public interface ServiceMapper {
     @Mapping(source = "visible", target = "visible")
     @Mapping(source = "available", target = "available")
     @Mapping(source = "eventTypes", target = "eventTypes")
-    @Mapping(source = "owner", target = "ownerInfo.id")
-    @Mapping(source = "owner.firstName", target = "ownerInfo.firstName")
-    @Mapping(source = "owner.lastName", target = "ownerInfo.lastName")
-    @Mapping(source = "offeringCategory.id", target = "offeringCategory.id")
-    @Mapping(source = "offeringCategory.name", target = "offeringCategory.name")
+    @Mapping(source = "owner", target = "owner")
+    @Mapping(source = "offeringCategory", target = "offeringCategory")
     ServiceCreateResponseDTO toDTO(Service service);
 
     @Mapping(source = "visible", target = "visible")
@@ -40,8 +40,11 @@ public interface ServiceMapper {
     @Mapping(target = "status", ignore = true)
     Service toEntity(ServiceCreateRequestDTO dto);
 
-    default Long mapOwnerToId(Owner owner) {
-        return owner != null ? owner.getId() : null;
+    default OfferingCategoryPreviewResponseDTO mapOfferingCategoryToDTO(OfferingCategory off){
+        return new OfferingCategoryPreviewResponseDTO(off.getId(), off.getName());
+    }
+    default OwnerPreviewResponseDTO mapOwnerToId(Owner owner) {
+        return new OwnerPreviewResponseDTO(owner.getId(), owner.getFirstName() +" " + owner.getLastName());
     }
 
     default Long mapEventTypeToId(EventType eventType) {
