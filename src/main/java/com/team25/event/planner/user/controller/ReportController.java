@@ -1,9 +1,6 @@
 package com.team25.event.planner.user.controller;
 
-import com.team25.event.planner.user.dto.ReportFilterDTO;
-import com.team25.event.planner.user.dto.ReportRequestDTO;
-import com.team25.event.planner.user.dto.ReportResponseDTO;
-import com.team25.event.planner.user.dto.ReportUpdateRequestDTO;
+import com.team25.event.planner.user.dto.*;
 import com.team25.event.planner.user.service.ReportService;
 import lombok.AllArgsConstructor;
 import org.springframework.data.domain.Page;
@@ -33,17 +30,36 @@ public class ReportController {
             @ModelAttribute ReportFilterDTO filter,
             @RequestParam(defaultValue = "0") int page,
             @RequestParam(defaultValue = "10") int size,
-            @RequestParam(defaultValue = "reportedUserId") String sortBy,
-            @RequestParam(defaultValue = "asc") String sortDirection
+            @RequestParam(defaultValue = "createdDate") String sortBy,
+            @RequestParam(defaultValue = "desc") String sortDirection
     ) {
         return ResponseEntity.ok(reportService.getReports(filter, page, size, sortBy, sortDirection));
     }
 
-    @PutMapping(value = "/reports")
+    @PutMapping(value = "/report")
     @Secured("ROLE_ADMIN")
     public ResponseEntity<ReportResponseDTO> updateReport(
             @RequestBody ReportUpdateRequestDTO requestDTO
     ) {
         return ResponseEntity.status(HttpStatus.CREATED).body(reportService.updateReport(requestDTO));
+    }
+
+    @PostMapping(value = "/suspend")
+    @Secured("ROLE_ADMIN")
+    public ResponseEntity<SuspensionResponseDTO> suspendUser(
+            @RequestBody SuspensionRequestDTO requestDTO
+    ) {
+        return ResponseEntity.status(HttpStatus.CREATED).body(reportService.suspendUser(requestDTO));
+    }
+
+    @GetMapping(value = "/suspended")
+    @Secured("ROLE_ADMIN")
+    public ResponseEntity<Page<SuspensionResponseDTO>> getSuspensions(
+            @RequestParam(defaultValue = "0") int page,
+            @RequestParam(defaultValue = "10") int size,
+            @RequestParam(defaultValue = "expirationTime") String sortBy,
+            @RequestParam(defaultValue = "desc") String sortDirection
+    ) {
+        return ResponseEntity.ok(reportService.getSuspensions(page, size, sortBy, sortDirection));
     }
 }

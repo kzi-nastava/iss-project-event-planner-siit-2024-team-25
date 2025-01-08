@@ -11,12 +11,10 @@ import com.team25.event.planner.security.user.UserDetailsImpl;
 import com.team25.event.planner.user.dto.*;
 import com.team25.event.planner.user.exception.UnauthenticatedError;
 import com.team25.event.planner.user.mapper.UserMapper;
-import com.team25.event.planner.user.model.Account;
-import com.team25.event.planner.user.model.AccountStatus;
-import com.team25.event.planner.user.model.RegistrationRequest;
-import com.team25.event.planner.user.model.User;
+import com.team25.event.planner.user.model.*;
 import com.team25.event.planner.user.repository.AccountRepository;
 import com.team25.event.planner.user.repository.RegistrationRequestRepository;
+import com.team25.event.planner.user.repository.SuspensionRepository;
 import com.team25.event.planner.user.repository.UserRepository;
 import jakarta.validation.Valid;
 import org.springframework.beans.factory.annotation.Value;
@@ -51,8 +49,8 @@ public class AuthService {
     private final UserRepository userRepository;
     private final UserMapper userMapper;
     private final EventService eventService;
-
     private final Duration activationTimeLimit;
+    private final SuspensionRepository suspensionRepository;
 
     public AuthService(
             UserService userService,
@@ -65,7 +63,8 @@ public class AuthService {
             UserRepository userRepository,
             UserMapper userMapper,
             EventService eventService,
-            @Value("${activation.duration-minutes}") Long activationMinutesTimeLimit
+            @Value("${activation.duration-minutes}") Long activationMinutesTimeLimit,
+            SuspensionRepository suspensionRepository
     ) {
         this.userService = userService;
         this.passwordEncoder = passwordEncoder;
@@ -78,6 +77,7 @@ public class AuthService {
         this.userMapper = userMapper;
         this.eventService = eventService;
         this.activationTimeLimit = Duration.ofMinutes(activationMinutesTimeLimit);
+        this.suspensionRepository = suspensionRepository;
     }
 
     @Transactional
@@ -180,6 +180,7 @@ public class AuthService {
     }
 
     public LoginResponseDTO login(@Valid LoginRequestDTO loginRequestDTO) {
+
         UsernamePasswordAuthenticationToken auth =
                 new UsernamePasswordAuthenticationToken(loginRequestDTO.getEmail(), loginRequestDTO.getPassword());
 
@@ -192,6 +193,27 @@ public class AuthService {
             User user = userRepository.findById(userDetails.getUserId())
                     .orElseThrow(() -> new UnauthenticatedError("Invalid credentials"));
 
+            Suspension suspension = user.getAccount().getSuspension();
+            if(suspension != null){
+                Instant expirationTime = suspension.getExpirationTime();
+                Instant now = Instant.now();
+
+                if (expirationTime.isBefore(now)) {
+                    user.getAccount().setSuspension(null);
+                    suspensionRepository.deleteById(suspension.getId());
+                }
+                else{
+                    return new LoginResponseDTO(userDetails.getUserId(),
+                            userDetails.getUsername(),
+                            user.getFullName(),
+                            userDetails.getUserRole(),
+                            null,
+                            suspension.getExpirationTime()
+                    );
+                }
+            }
+
+
             String jwt = jwtService.generateToken(userDetails);
 
             return new LoginResponseDTO(
@@ -199,7 +221,8 @@ public class AuthService {
                     userDetails.getUsername(),
                     user.getFullName(),
                     userDetails.getUserRole(),
-                    jwt
+                    jwt,
+                    null
             );
         } catch (DisabledException e) {
             throw new UnauthenticatedError("Account has been deactivated");
