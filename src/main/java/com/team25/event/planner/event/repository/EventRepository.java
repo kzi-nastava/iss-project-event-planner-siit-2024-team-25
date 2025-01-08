@@ -17,7 +17,6 @@ public interface EventRepository extends JpaRepository<Event, Long>, JpaSpecific
             "AND (e.privacyType =  com.team25.event.planner.event.model.PrivacyType.PUBLIC )" +
             "ORDER BY e.createdDate DESC")
     Page<Event> findTopEvents(@Param("country") String country,
-
                               @Param("city") String city,
                               Pageable pageable);
 

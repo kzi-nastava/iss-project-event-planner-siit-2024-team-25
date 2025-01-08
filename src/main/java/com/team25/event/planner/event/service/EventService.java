@@ -187,12 +187,14 @@ public class EventService {
 
 
     public Page<EventPreviewResponseDTO> getTopEvents() {
-        LocationResponseDTO location = userService.getUserAddress(currentUserService.getCurrentUserId());
         String country = null;
         String city = null;
-        if(location != null) {
-            country = location.getCountry();
-            city = location.getCity();
+        if(currentUserService.getCurrentUserId() != null){
+            LocationResponseDTO location = userService.getUserAddress(currentUserService.getCurrentUserId());
+            if(location != null) {
+                country = location.getCountry();
+                city = location.getCity();
+            }
         }
         PageRequest pageable = PageRequest.of(0, 5);
         return eventRepository
