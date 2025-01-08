@@ -1,10 +1,14 @@
 package com.team25.event.planner.user.controller;
 
+import com.team25.event.planner.event.dto.EventPreviewResponseDTO;
 import com.team25.event.planner.user.dto.*;
+import com.team25.event.planner.user.service.UserFavoritesService;
+import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.annotation.Secured;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.ArrayList;
@@ -13,7 +17,9 @@ import java.util.Objects;
 
 @RestController
 @RequestMapping("api/users")
+@RequiredArgsConstructor
 public class UserFavoritesController {
+    private final UserFavoritesService userFavoritesService;
 
     @GetMapping(value = "/{id}/favourite-offerings", produces = MediaType.APPLICATION_JSON_VALUE)
     @Secured("ROLE_USER")
@@ -53,63 +59,25 @@ public class UserFavoritesController {
     }
 
     @GetMapping(value = "/{id}/favorite-events", produces = MediaType.APPLICATION_JSON_VALUE)
-    @Secured("ROLE_USER")
-    public ResponseEntity<Collection<FavoriteEventResponseDTO>> getFavoriteEvents(@PathVariable("id") Long id) {
-        Collection<FavoriteEventResponseDTO> responseDTOS = new ArrayList<>();
-
-        FavoriteEventResponseDTO event1 = new FavoriteEventResponseDTO();
-        event1.setId(1L);
-        event1.setName("Summer Music Festival");
-        event1.setDescription("Annual outdoor music festival with top artists");
-        event1.setEventType("Music");
-
-        FavoriteEventResponseDTO event2 = new FavoriteEventResponseDTO();
-        event2.setId(2L);
-        event2.setName("Tech Innovation Conference");
-        event2.setDescription("Leading technology and innovation conference");
-        event2.setEventType("Conference");
-
-        responseDTOS.add(event1);
-        responseDTOS.add(event2);
-
-        return new ResponseEntity<>(responseDTOS, HttpStatus.OK);
+    @PreAuthorize("hasRole('ROLE_USER') and authentication.principal.userId = #userId")
+    public ResponseEntity<Collection<EventPreviewResponseDTO>> getFavoriteEvents(@PathVariable("id") Long userId) {
+        return ResponseEntity.ok(userFavoritesService.getFavoriteEvents(userId));
     }
 
     @PostMapping(value = "/{id}/favorite-events", consumes = MediaType.APPLICATION_JSON_VALUE, produces = MediaType.APPLICATION_JSON_VALUE)
-    @Secured("ROLE_USER")
-    public ResponseEntity<FavoriteEventResponseDTO> addFavoriteEvent(
-            @PathVariable("id") Long id,
+    @PreAuthorize("hasRole('ROLE_USER') and authentication.principal.userId = #userId")
+    public ResponseEntity<EventPreviewResponseDTO> addFavoriteEvent(
+            @PathVariable("id") Long userId,
             @RequestBody FavoriteEventRequestDTO requestDTO) {
-
-        // Validate user ID
-        if (!Objects.equals(id, requestDTO.getUserId())) {
-            return new ResponseEntity<>(HttpStatus.FORBIDDEN);
-        }
-
-        // Create response DTO with event details
-        FavoriteEventResponseDTO responseDTO = new FavoriteEventResponseDTO();
-        responseDTO.setId(requestDTO.getEventId());
-        responseDTO.setName("Summer Music Festival"); // Mock data
-        responseDTO.setDescription("Annual outdoor music festival with top artists");
-        responseDTO.setEventType("Music");
-
-        return new ResponseEntity<>(responseDTO, HttpStatus.CREATED);
+        return ResponseEntity.status(HttpStatus.CREATED).body(userFavoritesService.addFavoriteEvent(userId, requestDTO));
     }
 
     @DeleteMapping("/{userId}/favorite-events/{favId}")
-    @Secured("ROLE_USER")
+    @PreAuthorize("hasRole('ROLE_USER') and authentication.principal.userId = #userId")
     public ResponseEntity<Void> removeEventFromFavorites(
             @PathVariable Long userId,
             @PathVariable Long favId) {
-
-        // Mock check to simulate finding the favorite event
-        FavoriteEventResponseDTO mockEvent = new FavoriteEventResponseDTO();
-        mockEvent.setId(1L);
-
-        if (!Objects.equals(mockEvent.getId(), favId)) {
-            return new ResponseEntity<>(HttpStatus.NOT_FOUND);
-        }
-
+        userFavoritesService.removeEventFromFavorites(userId, favId);
         return new ResponseEntity<>(HttpStatus.NO_CONTENT);
     }
 }
