@@ -1,5 +1,6 @@
 package com.team25.event.planner.offering.common.service;
 
+import com.team25.event.planner.common.dto.LocationResponseDTO;
 import com.team25.event.planner.common.exception.NotFoundError;
 import com.team25.event.planner.common.model.ReviewStatus;
 import com.team25.event.planner.communication.model.NotificationCategory;
@@ -22,6 +23,8 @@ import com.team25.event.planner.offering.common.repository.OfferingRepository;
 import com.team25.event.planner.offering.common.repository.OfferingReviewRepository;
 import com.team25.event.planner.offering.common.specification.OfferingSpecification;
 import com.team25.event.planner.offering.product.model.Product;
+import com.team25.event.planner.user.service.CurrentUserService;
+import com.team25.event.planner.user.service.UserService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.*;
 import org.springframework.data.jpa.domain.Specification;
@@ -47,6 +50,9 @@ public class OfferingService {
     private final OfferingReviewRepository offeringReviewRepository;
     private final EventRepository eventRepository;
     private final NotificationService notificationService;
+    private final UserService userService;
+    private final CurrentUserService currentUserService;
+
 
     public List<OfferingSubmittedResponseDTO> getSubmittedOfferings(){
         return offeringRepository.getOfferingSubmittedResponseDTOs();
@@ -83,7 +89,17 @@ public class OfferingService {
         List<OfferingPreviewResponseDTO> offeringsWithRatings = offeringRepository.findOfferingsWithAverageRating(offeringPage.getContent(), pageable);
         return new PageImpl<>(offeringsWithRatings, pageable, offeringPage.getTotalElements());
     }
-    public Page<OfferingPreviewResponseDTO> getTopOfferings(String country, String city) {
+    public Page<OfferingPreviewResponseDTO> getTopOfferings() {
+        String country = null;
+        String city = null;
+        if(currentUserService.getCurrentUserId() != null){
+            LocationResponseDTO location = userService.getUserAddress(currentUserService.getCurrentUserId());
+            if(location != null) {
+                country = location.getCountry();
+                city = location.getCity();
+            }
+        }
+
         Pageable pageable = PageRequest.of(0, 5);
         return offeringRepository
                 .findTopOfferings(country, city, pageable);
