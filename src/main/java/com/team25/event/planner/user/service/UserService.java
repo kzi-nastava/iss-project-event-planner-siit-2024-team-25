@@ -39,6 +39,7 @@ import java.nio.file.Paths;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.UUID;
+import java.util.stream.Collectors;
 
 @Service
 public class UserService {
@@ -110,7 +111,7 @@ public class UserService {
         try {
             final String filename = saveProfilePicture(registerRequestDTO.getProfilePicture());
             user.setProfilePictureUrl(filename);
-
+            user.setUserStatus(UserStatus.ONLINE);
             return userRepository.save(user);
         } catch (Exception e) {
             // @Transactional rolls back all database changes if an exception occurs, but not the filesystem changes,
@@ -300,6 +301,7 @@ public class UserService {
                     "UserLast" + userId,
                     null,
                     UserRole.REGULAR,
+                    UserStatus.ONLINE,
                     null,
                     null,
                     null,
@@ -341,4 +343,16 @@ public class UserService {
         }
         return null;
     }
+
+    public void disconnect(Long userId) {
+        User user = userRepository.findById(userId).orElseThrow(() -> new NotFoundError("User not found"));
+        user.setUserStatus(UserStatus.OFFLINE);
+        userRepository.save(user);
+    }
+
+    public List<UserResponseDTO> findConnectedUsers(){
+        return userRepository.findAllByUserStatus(UserStatus.ONLINE)
+                .stream()
+                .map(userMapper::toDTO)
+                .collect(Collectors.toList());    }
 }
