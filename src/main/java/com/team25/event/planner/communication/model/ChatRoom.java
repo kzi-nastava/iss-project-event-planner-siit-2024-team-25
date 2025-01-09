@@ -1,9 +1,7 @@
 package com.team25.event.planner.communication.model;
 
-import jakarta.persistence.Entity;
-import jakarta.persistence.GeneratedValue;
-import jakarta.persistence.GenerationType;
-import jakarta.persistence.Id;
+import com.team25.event.planner.user.model.User;
+import jakarta.persistence.*;
 import lombok.*;
 
 @Entity
@@ -16,6 +14,8 @@ public class ChatRoom {
     @Id
     private String id;
     private String chatId;
-    private Long senderId;
-    private Long receiverId;
+    @ManyToOne
+    private User sender;
+    @ManyToOne
+    private User receiver;
 }

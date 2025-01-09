@@ -31,8 +31,6 @@ public class WebSocketConfig implements WebSocketMessageBrokerConfigurer {
     }
 
     //message convertor
-
-
     @Override
     public boolean configureMessageConverters(List<MessageConverter> messageConverters) {
         DefaultContentTypeResolver resolver = new DefaultContentTypeResolver();

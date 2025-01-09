@@ -1,5 +1,6 @@
 package com.team25.event.planner.communication.model;
 
+import com.team25.event.planner.user.model.User;
 import jakarta.persistence.*;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
@@ -17,8 +18,10 @@ public class ChatMessage {
     @Id
     private String id;
     private String chatId;
-    private Long senderId;
-    private Long recipientId;
+    @ManyToOne
+    private User sender;
+    @ManyToOne
+    private User receiver;
     private String content;
     private Date timestamp;
 }
