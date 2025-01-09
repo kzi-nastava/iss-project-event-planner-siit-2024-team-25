@@ -21,4 +21,5 @@ public class EventResponseDTO {
     private LocalTime endTime;
     private LocationResponseDTO location;
     private EventOrganizerPreviewResponseDTO organizer;
+    private Boolean isFavorite;
 }

@@ -14,7 +14,7 @@ import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.time.LocalTime;
 
-@Mapper(componentModel = "spring", uses = {EventTypeMapper.class, LocationMapper.class})
+@Mapper(componentModel = "spring", uses = {EventTypeMapper.class, LocationMapper.class, EventMapperHelper.class})
 public interface EventMapper {
     @Mapping(target = "organizer.id", source = "organizer.id")
     @Mapping(target = "organizer.name", source = "organizer.fullName")
