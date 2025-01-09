@@ -1,5 +1,8 @@
 package com.team25.event.planner.offering.service.dto;
 
+import com.team25.event.planner.event.dto.EventTypePreviewResponseDTO;
+import com.team25.event.planner.offering.common.dto.OfferingCategoryPreviewResponseDTO;
+import com.team25.event.planner.offering.common.dto.OwnerPreviewResponseDTO;
 import com.team25.event.planner.offering.common.model.OfferingType;
 import com.team25.event.planner.offering.service.model.ReservationType;
 import com.team25.event.planner.user.dto.UserResponseDTO;
@@ -27,7 +30,7 @@ public class ServiceCreateResponseDTO {
     private int cancellationDeadline;
     private int minimumArrangement;
     private int maximumArrangement;
-    private List<Long> eventTypesIDs;
-    private Long OfferingCategoryID;
-    private UserResponseDTO ownerInfo;
+    private List<EventTypePreviewResponseDTO> eventTypes;
+    private OfferingCategoryPreviewResponseDTO offeringCategory;
+    private OwnerPreviewResponseDTO owner;
 }
