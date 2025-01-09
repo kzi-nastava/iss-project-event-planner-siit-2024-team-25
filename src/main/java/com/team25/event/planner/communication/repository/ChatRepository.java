@@ -1,9 +1,0 @@
-package com.team25.event.planner.communication.repository;
-
-import com.team25.event.planner.communication.model.Chat;
-import org.springframework.data.jpa.repository.JpaRepository;
-import org.springframework.stereotype.Repository;
-
-@Repository
-public interface ChatRepository extends JpaRepository<Chat, Long> {
-}

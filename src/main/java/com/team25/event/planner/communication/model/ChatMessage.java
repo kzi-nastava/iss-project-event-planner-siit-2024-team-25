@@ -1,30 +1,24 @@
 package com.team25.event.planner.communication.model;
 
-import com.team25.event.planner.user.model.User;
 import jakarta.persistence.*;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
 
-import java.time.LocalDateTime;
+import java.util.Date;
 
 @Entity
 @Getter
 @Setter
 @NoArgsConstructor
 @AllArgsConstructor
-public class Message {
+public class ChatMessage {
     @Id
-    @GeneratedValue(strategy = GenerationType.IDENTITY)
-    private long id;
-
-    @ManyToOne
-    private Chat chat;
-
+    private String id;
+    private String chatId;
+    private Long senderId;
+    private Long recipientId;
     private String content;
-    private LocalDateTime timestamp;
-
-    @ManyToOne
-    private User sender;
+    private Date timestamp;
 }

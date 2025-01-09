@@ -40,10 +40,6 @@ public class User {
     @Enumerated(EnumType.ORDINAL)
     private UserRole userRole;
 
-    @Column(nullable = false)
-    @Enumerated(EnumType.ORDINAL)
-    private UserStatus userStatus;
-
     @OneToOne(fetch = FetchType.LAZY)
     @JoinColumn(unique = true)
     private Account account;
