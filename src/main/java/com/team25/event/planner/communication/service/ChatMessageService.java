@@ -39,8 +39,9 @@ public class ChatMessageService {
         chatMessage.setContent(requestDTO.getContent());
         chatMessage.setTimestamp(new Date());
 
-        return chatMessageMapper.toChatMessageResponseDTO(chatMessageRepository.save(chatMessage));
-
+        ChatMessage ch = chatMessageRepository.save(chatMessage);
+        ChatMessageResponseDTO as = chatMessageMapper.toChatMessageResponseDTO(ch);
+        return as;
     }
 
     public List<ChatMessageResponseDTO> findChatMessages(Long senderId, Long recipientId) {

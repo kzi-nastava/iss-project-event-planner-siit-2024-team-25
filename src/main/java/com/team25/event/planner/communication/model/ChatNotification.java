@@ -10,7 +10,7 @@ import lombok.NoArgsConstructor;
 @NoArgsConstructor
 @Builder
 public class ChatNotification {
-    private String id;
+    private Long id;
     private Long senderId;
     private Long recipientId;
     private String content;

@@ -16,7 +16,8 @@ import java.util.Date;
 @AllArgsConstructor
 public class ChatMessage {
     @Id
-    private String id;
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
+    private Long id;
     private String chatId;
     @ManyToOne
     private User sender;

@@ -8,7 +8,7 @@ import java.util.Date;
 
 @Data
 public class ChatMessageResponseDTO {
-    private String id;
+    private Long id;
     private String chatId;
     private UserResponseDTO sender;
     private UserResponseDTO receiver;
