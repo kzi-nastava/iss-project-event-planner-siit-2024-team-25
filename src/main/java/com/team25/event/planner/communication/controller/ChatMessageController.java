@@ -37,7 +37,7 @@ public class ChatMessageController {
         );
     }
 
-    @GetMapping("/messages/{senderId}/{recipientId}")
+    @GetMapping("/api/messages/{senderId}/{recipientId}")
     public ResponseEntity<List<ChatMessageResponseDTO>> findChatMessages(@PathVariable Long senderId,
                                                                          @PathVariable Long recipientId) {
         return ResponseEntity
