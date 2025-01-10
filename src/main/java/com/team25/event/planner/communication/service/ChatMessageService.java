@@ -10,11 +10,16 @@ import com.team25.event.planner.communication.repository.ChatMessageRepository;
 import com.team25.event.planner.user.model.User;
 import com.team25.event.planner.user.repository.UserRepository;
 import lombok.RequiredArgsConstructor;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
+import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Service;
 
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
+import java.util.Optional;
 import java.util.stream.Collectors;
 
 @Service
@@ -44,12 +49,16 @@ public class ChatMessageService {
         return as;
     }
 
-    public List<ChatMessageResponseDTO> findChatMessages(Long senderId, Long recipientId) {
-        var chatId = chatRoomService.getChatRoomId(new ChatRoomRequestDTO(senderId, recipientId, false));
-        return chatId
-                .map(id -> chatMessageRepository.findByChatId(id).stream()
-                        .map(chatMessageMapper::toChatMessageResponseDTO)
-                        .collect(Collectors.toList()))
-                .orElse(new ArrayList<>());
+    public Page<ChatMessageResponseDTO> findChatMessages(Long senderId, Long recipientId, int page, int size, String sortBy, String sortDirection) {
+        Optional<String> chatId = chatRoomService.getChatRoomId(new ChatRoomRequestDTO(senderId, recipientId, false));
+        if(chatId.isEmpty()){
+            throw new NotFoundError("Chat problem");
+        }
+        Sort.Direction direction = Sort.Direction.fromString(sortDirection);
+        Pageable pageable = PageRequest.of(page, size, Sort.by(direction, sortBy));
+        Page<ChatMessageResponseDTO> res = chatMessageRepository.findByChatId(chatId.get(), pageable)
+                .map(chatMessageMapper::toChatMessageResponseDTO);
+        return res;
+
     }
 }
