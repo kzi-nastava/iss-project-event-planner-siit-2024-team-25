@@ -1,9 +1,8 @@
 package com.team25.event.planner.event.service;
 
 import com.team25.event.planner.common.dto.LatLongDTO;
-import com.team25.event.planner.common.exception.InvalidRequestError;
-import com.team25.event.planner.common.exception.NotFoundError;
-import com.team25.event.planner.common.exception.UnauthorizedError;
+import com.team25.event.planner.common.dto.ResourceResponseDTO;
+import com.team25.event.planner.common.exception.*;
 import com.team25.event.planner.common.service.GeocodingService;
 import com.team25.event.planner.common.util.VerificationCodeGenerator;
 import com.team25.event.planner.communication.service.NotificationService;
@@ -26,11 +25,13 @@ import jakarta.persistence.criteria.JoinType;
 import jakarta.persistence.criteria.Predicate;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
+import org.springframework.core.io.Resource;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
 import org.springframework.data.jpa.domain.Specification;
+import org.springframework.http.MediaType;
 import org.springframework.stereotype.Service;
 
 import java.time.LocalDate;
@@ -42,6 +43,8 @@ import java.util.Optional;
 @RequiredArgsConstructor
 public class EventService {
     private final static int VERIFICATION_CODE_LENGTH = 64;
+
+    private final static String eventDetailsReportFilenameTemplate = "event_$ID_$TIME.pdf";
 
     private final EventRepository eventRepository;
     private final EventTypeRepository eventTypeRepository;
@@ -59,22 +62,23 @@ public class EventService {
     private final UserRepository userRepository;
     private final GeocodingService geocodingService;
     private final NotificationService notificationService;
+    private final EventReportService eventReportService;
 
     public EventResponseDTO getEventById(Long id, String invitationCode) {
         Event event = eventRepository.findById(id).orElseThrow(() -> new NotFoundError("Event not found"));
 
-        if(event.getPrivacyType() == PrivacyType.PRIVATE){
-            if(Objects.equals(event.getOrganizer().getId(), currentUserService.getCurrentUserId())){
+        if (event.getPrivacyType() == PrivacyType.PRIVATE) {
+            if (Objects.equals(event.getOrganizer().getId(), currentUserService.getCurrentUserId())) {
                 return eventMapper.toDTO(event);
             }
             User user = userRepository.findById(currentUserService.getCurrentUserId()).orElseThrow(() -> new NotFoundError("User not found"));
-            if(this.checkInvitation(user.getAccount().getEmail(), invitationCode)){
+            if (this.checkInvitation(user.getAccount().getEmail(), invitationCode)) {
                 return eventMapper.toDTO(event);
             }
-            if(this.checkAttendance(user.getId(), event)){
+            if (this.checkAttendance(user.getId(), event)) {
                 return eventMapper.toDTO(event);
             }
-        }else{
+        } else {
             return eventMapper.toDTO(event);
         }
         throw new UnauthorizedError("You must be event organizer or invited user to visit this event page");
@@ -220,8 +224,7 @@ public class EventService {
                 eventInvitation.get().setStatus(EventInvitationStatus.ACCEPTED);
                 eventInvitationRepository.save(eventInvitation.get());
                 return true;
-            }
-            else if(eventInvitation.get().getStatus() == EventInvitationStatus.ACCEPTED){
+            } else if (eventInvitation.get().getStatus() == EventInvitationStatus.ACCEPTED) {
                 return true;
             }
             throw new InvalidRequestError("This invitation was already accepted");
@@ -299,5 +302,21 @@ public class EventService {
         eventAttendanceRepository.save(eventAttendance);
     }
 
+    public ResourceResponseDTO getEventReport(Long eventId, String invitationCode) {
+        EventResponseDTO event = getEventById(eventId, invitationCode);
+        List<ActivityResponseDTO> agenda = getEventAgenda(eventId);
 
+        try {
+            Resource resource = eventReportService.generateEventDetailsReport(event, agenda);
+
+            String filename = eventDetailsReportFilenameTemplate
+                    .replace("$ID", event.getId().toString())
+                    .replace("$TIME", Long.toString(System.currentTimeMillis()));
+
+            return new ResourceResponseDTO(resource, filename, MediaType.APPLICATION_PDF);
+
+        } catch (ReportGenerationFailedException e) {
+            throw new ServerError("Failed to generate report", 500);
+        }
+    }
 }

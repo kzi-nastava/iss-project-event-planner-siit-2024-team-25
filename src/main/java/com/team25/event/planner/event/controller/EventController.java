@@ -1,13 +1,14 @@
 package com.team25.event.planner.event.controller;
 
+import com.team25.event.planner.common.dto.ResourceResponseDTO;
 import com.team25.event.planner.event.dto.*;
 import com.team25.event.planner.event.service.EventService;
 import com.team25.event.planner.security.user.UserDetailsImpl;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
+import org.springframework.core.io.Resource;
 import org.springframework.data.domain.Page;
-import org.springframework.http.HttpStatus;
-import org.springframework.http.ResponseEntity;
+import org.springframework.http.*;
 import org.springframework.security.access.annotation.Secured;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
@@ -24,7 +25,7 @@ public class EventController {
     @GetMapping("/{id}")
     @PreAuthorize("@eventPermissionEvaluator.canView(authentication, #id)")
     public ResponseEntity<EventResponseDTO> getEvent(@PathVariable Long id, @RequestParam(required = false) String invitationCode) {
-        return ResponseEntity.ok(eventService.getEventById(id,invitationCode));
+        return ResponseEntity.ok(eventService.getEventById(id, invitationCode));
     }
 
     @GetMapping("/")
@@ -109,5 +110,18 @@ public class EventController {
     public ResponseEntity<Void> removeActivityFromAgenda(@PathVariable Long eventId, @PathVariable Long activityId) {
         eventService.removeActivityFromAgenda(eventId, activityId);
         return ResponseEntity.noContent().build();
+    }
+
+    @GetMapping("/{id}/report")
+    @PreAuthorize("@eventPermissionEvaluator.canView(authentication, #id)")
+    public ResponseEntity<Resource> getEventReport(@PathVariable Long id, @RequestParam(required = false) String invitationCode) {
+        ResourceResponseDTO resourceResponse = eventService.getEventReport(id, invitationCode);
+        return ResponseEntity.ok()
+                .contentType(resourceResponse.getMimeType())
+                .header(HttpHeaders.CONTENT_DISPOSITION, ContentDisposition.attachment()
+                        .filename(resourceResponse.getFilename())
+                        .build().toString()
+                )
+                .body(resourceResponse.getResource());
     }
 }
