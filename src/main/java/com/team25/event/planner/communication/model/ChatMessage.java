@@ -1,6 +1,5 @@
 package com.team25.event.planner.communication.model;
 
-import com.team25.event.planner.user.model.EventOrganizer;
 import com.team25.event.planner.user.model.User;
 import jakarta.persistence.*;
 import lombok.AllArgsConstructor;
@@ -8,25 +7,22 @@ import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
 
-import java.util.List;
+import java.util.Date;
 
 @Entity
 @Getter
 @Setter
 @NoArgsConstructor
 @AllArgsConstructor
-public class Chat {
+public class ChatMessage {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
-    private long id;
-
+    private Long id;
+    private String chatId;
     @ManyToOne
-    private User user;
-
+    private User sender;
     @ManyToOne
-    private EventOrganizer eventOrganizer;
-
-    @OneToMany(cascade = CascadeType.ALL, mappedBy = "chat")
-    private List<Message> messages;
-
+    private User receiver;
+    private String content;
+    private Date timestamp;
 }

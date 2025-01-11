@@ -39,6 +39,7 @@ import java.nio.file.Paths;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.UUID;
+import java.util.stream.Collectors;
 
 @Service
 public class UserService {
@@ -110,7 +111,6 @@ public class UserService {
         try {
             final String filename = saveProfilePicture(registerRequestDTO.getProfilePicture());
             user.setProfilePictureUrl(filename);
-
             return userRepository.save(user);
         } catch (Exception e) {
             // @Transactional rolls back all database changes if an exception occurs, but not the filesystem changes,
@@ -341,4 +341,5 @@ public class UserService {
         }
         return null;
     }
+
 }

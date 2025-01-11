@@ -16,4 +16,5 @@ public interface UserRepository extends JpaRepository<User, Long>, JpaSpecificat
     void deleteAllByIds(Collection<Long> ids);
 
     List<User> findByUserRole(UserRole userRole);
+
 }
