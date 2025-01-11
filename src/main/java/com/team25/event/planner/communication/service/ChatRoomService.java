@@ -23,14 +23,11 @@ public class ChatRoomService {
                 .findBySenderIdAndReceiverId(requestDTO.getSenderId(), requestDTO.getReceiverId())
                 .map(ChatRoom::getChatId)
                 .or(() -> {
-                    if(requestDTO.isCreateNewRoomIfNotExists()) {
                         User sender = userRepository.findById(requestDTO.getSenderId()).orElseThrow(()->new NotFoundError("Sender not found"));
                         User receiver =userRepository.findById(requestDTO.getReceiverId()).orElseThrow(()->new NotFoundError("Receiver not found"));
                         var chatId = createChatId(sender,receiver);
                         return Optional.of(chatId);
-                    }
 
-                    return  Optional.empty();
                 });
     }
 

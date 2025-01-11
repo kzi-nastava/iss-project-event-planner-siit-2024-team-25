@@ -8,5 +8,4 @@ import lombok.Data;
 public class ChatRoomRequestDTO {
     Long senderId;
     Long receiverId;
-    boolean createNewRoomIfNotExists;
 }

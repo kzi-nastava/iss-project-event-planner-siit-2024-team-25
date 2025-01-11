@@ -34,7 +34,7 @@ public class ChatMessageService {
         User sender = userRepository.findById(requestDTO.getSenderId()).orElseThrow(()->new NotFoundError("Sender is not found"));
         User receiver = userRepository.findById(requestDTO.getReceiverId()).orElseThrow(()->new NotFoundError("Receiver is not found"));
         var chatId = chatRoomService
-                .getChatRoomId(new ChatRoomRequestDTO(requestDTO.getSenderId(),requestDTO.getReceiverId(),true))
+                .getChatRoomId(new ChatRoomRequestDTO(requestDTO.getSenderId(),requestDTO.getReceiverId()))
                 .orElseThrow(()->new IllegalArgumentException("Chat problem"));
 
         ChatMessage chatMessage = new ChatMessage();
@@ -50,7 +50,7 @@ public class ChatMessageService {
     }
 
     public Page<ChatMessageResponseDTO> findChatMessages(Long senderId, Long recipientId, int page, int size, String sortBy, String sortDirection) {
-        Optional<String> chatId = chatRoomService.getChatRoomId(new ChatRoomRequestDTO(senderId, recipientId, false));
+        Optional<String> chatId = chatRoomService.getChatRoomId(new ChatRoomRequestDTO(senderId, recipientId));
         if(chatId.isEmpty()){
             throw new NotFoundError("Chat problem");
         }
