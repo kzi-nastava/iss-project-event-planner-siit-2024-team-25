@@ -23,6 +23,8 @@ public class CurrentUserService {
     }
 
     public User getCurrentUser() {
+        final Long currentUserId = getCurrentUserId();
+        if(currentUserId == null) return null;
         return userRepository.findById(getCurrentUserId()).orElse(null);
     }
 }
