@@ -2,9 +2,7 @@ package com.team25.event.planner.event.dto;
 
 import lombok.Data;
 
-import java.time.LocalDate;
 import java.time.LocalDateTime;
-import java.time.LocalTime;
 
 @Data
 public class EventPreviewResponseDTO {
@@ -15,4 +13,5 @@ public class EventPreviewResponseDTO {
     private String city;
     private String country;
     private String organizerName;
+    private Boolean isFavorite;
 }

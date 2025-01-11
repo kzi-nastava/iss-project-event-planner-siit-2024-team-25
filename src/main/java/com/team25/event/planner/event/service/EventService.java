@@ -1,6 +1,7 @@
 package com.team25.event.planner.event.service;
 
 import com.team25.event.planner.common.dto.LatLongDTO;
+import com.team25.event.planner.common.dto.LocationResponseDTO;
 import com.team25.event.planner.common.dto.ResourceResponseDTO;
 import com.team25.event.planner.common.exception.*;
 import com.team25.event.planner.common.service.GeocodingService;
@@ -21,6 +22,7 @@ import com.team25.event.planner.user.repository.AccountRepository;
 import com.team25.event.planner.user.repository.EventOrganizerRepository;
 import com.team25.event.planner.user.repository.UserRepository;
 import com.team25.event.planner.user.service.CurrentUserService;
+import com.team25.event.planner.user.service.UserService;
 import jakarta.persistence.criteria.JoinType;
 import jakarta.persistence.criteria.Predicate;
 import jakarta.validation.Valid;
@@ -62,6 +64,7 @@ public class EventService {
     private final UserRepository userRepository;
     private final GeocodingService geocodingService;
     private final NotificationService notificationService;
+    private final UserService userService;
     private final EventReportService eventReportService;
 
     public EventResponseDTO getEventById(Long id, String invitationCode) {
@@ -187,7 +190,16 @@ public class EventService {
     }
 
 
-    public Page<EventPreviewResponseDTO> getTopEvents(String country, String city) {
+    public Page<EventPreviewResponseDTO> getTopEvents() {
+        String country = null;
+        String city = null;
+        if(currentUserService.getCurrentUserId() != null){
+            LocationResponseDTO location = userService.getUserAddress(currentUserService.getCurrentUserId());
+            if(location != null) {
+                country = location.getCountry();
+                city = location.getCity();
+            }
+        }
         PageRequest pageable = PageRequest.of(0, 5);
         return eventRepository
                 .findTopEvents(country, city, pageable)
