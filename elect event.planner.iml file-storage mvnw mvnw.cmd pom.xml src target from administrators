@@ -1,0 +1,40 @@
+                      List of relations
+ Schema |              Name               | Type  |  Owner   
+--------+---------------------------------+-------+----------
+ public | accounts                        | table | postgres
+ public | activities                      | table | postgres
+ public | administrators                  | table | postgres
+ public | budget_item                     | table | postgres
+ public | chat                            | table | postgres
+ public | event_attendance                | table | postgres
+ public | event_invitation                | table | postgres
+ public | event_invitations               | table | postgres
+ public | event_organizers                | table | postgres
+ public | event_types                     | table | postgres
+ public | event_types_offering_categories | table | postgres
+ public | events                          | table | postgres
+ public | favorite_events                 | table | postgres
+ public | favorite_products               | table | postgres
+ public | favorite_services               | table | postgres
+ public | flyway_schema_history           | table | postgres
+ public | message                         | table | postgres
+ public | notification                    | table | postgres
+ public | offering_images                 | table | postgres
+ public | offering_review                 | table | postgres
+ public | offering_type                   | table | postgres
+ public | offerings                       | table | postgres
+ public | offerings_event_types           | table | postgres
+ public | owner_company_pictures          | table | postgres
+ public | owners                          | table | postgres
+ public | product                         | table | postgres
+ public | purchases                       | table | postgres
+ public | register_requests               | table | postgres
+ public | report                          | table | postgres
+ public | review                          | table | postgres
+ public | service                         | table | postgres
+ public | suspensions                     | table | postgres
+ public | user_blocks                     | table | postgres
+ public | users                           | table | postgres
+ public | users_notifications             | table | postgres
+(35 rows)
+
