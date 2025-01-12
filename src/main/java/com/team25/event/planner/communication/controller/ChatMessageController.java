@@ -11,14 +11,12 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.messaging.handler.annotation.MessageMapping;
 import org.springframework.messaging.handler.annotation.Payload;
 import org.springframework.messaging.simp.SimpMessagingTemplate;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.PathVariable;
-import org.springframework.web.bind.annotation.RequestParam;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
 
 @RestController
+@RequestMapping("/api")
 @RequiredArgsConstructor
 public class ChatMessageController {
     private final ChatMessageService chatMessageService;
@@ -39,13 +37,13 @@ public class ChatMessageController {
         );
     }
 
-    @GetMapping("/api/messages/{senderId}/{recipientId}")
+    @GetMapping("/messages/{senderId}/{recipientId}")
     public ResponseEntity<Page<ChatMessageResponseDTO>> findChatMessages(@PathVariable Long senderId,
                                                                          @PathVariable Long recipientId,
                                                                          @RequestParam(defaultValue = "0") int page,
                                                                          @RequestParam(defaultValue = "10") int size,
                                                                          @RequestParam(defaultValue = "timestamp", required = false) String sortBy,
-                                                                         @RequestParam(defaultValue = "desc") String sortDirection) {
+                                                                         @RequestParam(defaultValue = "asc") String sortDirection) {
         return ResponseEntity
                 .ok(chatMessageService.findChatMessages(senderId, recipientId, page,size,sortBy, sortDirection));
     }
