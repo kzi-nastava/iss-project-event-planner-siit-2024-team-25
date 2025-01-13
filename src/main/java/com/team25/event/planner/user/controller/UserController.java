@@ -41,13 +41,12 @@ public class UserController {
         return ResponseEntity.ok(userService.updateUser(userId, userRequestDTO));
     }
 
-    @PostMapping("/{userId}/block")
+    @PostMapping("/block")
     @PreAuthorize("authentication.principal.userId = #userId")
     public ResponseEntity<Void> blockUser(
-            @PathVariable Long userId,
             @Valid @RequestBody BlockRequestDTO blockRequestDTO
     ) {
-        userService.blockUser(userId, blockRequestDTO);
+        userService.blockUser(blockRequestDTO);
         return new ResponseEntity<>(HttpStatus.NO_CONTENT);
     }
 

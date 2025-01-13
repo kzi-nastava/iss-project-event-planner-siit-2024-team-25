@@ -311,16 +311,13 @@ public class UserService {
         };
     }
 
-    public void blockUser(Long userId, BlockRequestDTO blockRequestDTO) {
-//        User user = userRepository.findById(userId).orElseThrow(()->new NotFoundError("User not found"));
-//        User blockedUser = userRepository.findById(blockRequestDTO.getBlockedUserId()).orElseThrow(()->new NotFoundError("User not found"));
-        User user = getDummyUser(userId);
-        User blockedUser = getDummyUser(blockRequestDTO.getBlockedUserId());
+    public void blockUser(BlockRequestDTO blockRequestDTO) {
+        User user = userRepository.findById(blockRequestDTO.getBlockerUserId()).orElseThrow(()->new NotFoundError("User not found"));
+        User blockedUser = userRepository.findById(blockRequestDTO.getBlockedUserId()).orElseThrow(()->new NotFoundError("User not found"));
         user.getBlockedUsers().add(blockedUser);
         blockedUser.getBlockedByUsers().add(user);
-
-//        userRepository.save(user);
-//        userRepository.save(blockedUser);
+        userRepository.save(user);
+        userRepository.save(blockedUser);
     }
 
     public void suspendUser(Long accountId) {
