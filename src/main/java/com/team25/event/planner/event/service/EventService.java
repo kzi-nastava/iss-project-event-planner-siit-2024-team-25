@@ -181,7 +181,8 @@ public class EventService {
     }
 
     public Page<EventPreviewResponseDTO> getAllEvents(EventFilterDTO filter, int page, int size, String sortBy, String sortDirection) {
-        Specification<Event> spec = eventSpecification.createSpecification(filter);
+        User currentUser = currentUserService.getCurrentUser();
+        Specification<Event> spec = eventSpecification.createSpecification(filter,currentUser);
         spec.and(getVisibilityCriteria());
 
         Sort.Direction direction = Sort.Direction.fromString(sortDirection);
@@ -191,6 +192,9 @@ public class EventService {
 
 
     public Page<EventPreviewResponseDTO> getTopEvents() {
+        String sortDirection = "desc";
+        String sortBy = "createdDate";
+        User user = currentUserService.getCurrentUser();
         String country = null;
         String city = null;
         if(currentUserService.getCurrentUserId() != null){
@@ -200,10 +204,10 @@ public class EventService {
                 city = location.getCity();
             }
         }
-        PageRequest pageable = PageRequest.of(0, 5);
-        return eventRepository
-                .findTopEvents(country, city, pageable)
-                .map(eventMapper::toEventPreviewResponseDTO);
+        Sort.Direction direction = Sort.Direction.fromString(sortDirection);
+        PageRequest pageable = PageRequest.of(0, 5,Sort.by(direction, sortBy));
+        Specification<Event> specification = eventSpecification.createTopEventsSpecification(country, city, user );
+        return eventRepository.findAll(specification, pageable).map(eventMapper::toEventPreviewResponseDTO);
     }
 
     public void sendInvitations(Long eventId, List<EventInvitationRequestDTO> requestDTO) {
