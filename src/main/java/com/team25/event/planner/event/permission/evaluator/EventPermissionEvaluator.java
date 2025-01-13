@@ -5,6 +5,7 @@ import com.team25.event.planner.event.model.Event;
 import com.team25.event.planner.event.model.PrivacyType;
 import com.team25.event.planner.event.repository.EventRepository;
 import com.team25.event.planner.security.user.UserDetailsImpl;
+import com.team25.event.planner.user.model.EventOrganizer;
 import lombok.RequiredArgsConstructor;
 import org.springframework.security.core.Authentication;
 import org.springframework.stereotype.Component;
@@ -20,6 +21,12 @@ public class EventPermissionEvaluator {
         if (user == null) {
             Event event = eventRepository.findById(eventId).orElseThrow(() -> new NotFoundError("Event not found"));
             return event.getPrivacyType().equals(PrivacyType.PUBLIC);
+        }else{
+            Event event = eventRepository.findById(eventId).orElseThrow(() -> new NotFoundError("Event not found"));
+            EventOrganizer eventOrganizer = event.getOrganizer();
+            if(eventOrganizer.getBlockedUsers().contains(user)){
+                return false;
+            }
         }
 
         return eventRepository.canUserViewEvent(eventId, user.getUserId(), user.getUsername());

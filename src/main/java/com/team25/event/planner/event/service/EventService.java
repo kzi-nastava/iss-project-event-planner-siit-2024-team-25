@@ -37,6 +37,7 @@ import org.springframework.http.MediaType;
 import org.springframework.stereotype.Service;
 
 import java.time.LocalDate;
+import java.time.LocalTime;
 import java.util.List;
 import java.util.Objects;
 import java.util.Optional;
@@ -64,7 +65,6 @@ public class EventService {
     private final UserRepository userRepository;
     private final GeocodingService geocodingService;
     private final NotificationService notificationService;
-    private final UserService userService;
     private final EventReportService eventReportService;
 
     public EventResponseDTO getEventById(Long id, String invitationCode) {
@@ -191,22 +191,13 @@ public class EventService {
     }
 
 
-    public Page<EventPreviewResponseDTO> getTopEvents() {
+    public Page<EventPreviewResponseDTO> getTopEvents(LocationResponseDTO location) {
         String sortDirection = "desc";
         String sortBy = "createdDate";
         User user = currentUserService.getCurrentUser();
-        String country = null;
-        String city = null;
-        if(currentUserService.getCurrentUserId() != null){
-            LocationResponseDTO location = userService.getUserAddress(currentUserService.getCurrentUserId());
-            if(location != null) {
-                country = location.getCountry();
-                city = location.getCity();
-            }
-        }
         Sort.Direction direction = Sort.Direction.fromString(sortDirection);
         PageRequest pageable = PageRequest.of(0, 5,Sort.by(direction, sortBy));
-        Specification<Event> specification = eventSpecification.createTopEventsSpecification(country, city, user );
+        Specification<Event> specification = eventSpecification.createTopEventsSpecification(location, user);
         return eventRepository.findAll(specification, pageable).map(eventMapper::toEventPreviewResponseDTO);
     }
 
@@ -334,5 +325,16 @@ public class EventService {
         } catch (ReportGenerationFailedException e) {
             throw new ServerError("Failed to generate report", 500);
         }
+    }
+
+    public void blockByEventOrganizer(User organizer, User blockedUser) {
+        LocalDate today = LocalDate.now();
+        LocalTime time = LocalTime.now();
+        eventInvitationRepository.findEventInvitationsForFutureEvents(organizer.getId(),blockedUser.getAccount().getEmail(), today, time).stream().forEach(eventInvitation -> {
+            if(eventInvitation.getStatus() == EventInvitationStatus.PENDING){
+                eventInvitation.setStatus(EventInvitationStatus.DENIED);
+            }
+            eventInvitationRepository.save(eventInvitation);
+        });
     }
 }

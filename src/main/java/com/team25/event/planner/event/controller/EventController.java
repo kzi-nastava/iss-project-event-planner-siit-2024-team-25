@@ -1,9 +1,13 @@
 package com.team25.event.planner.event.controller;
 
+import com.team25.event.planner.common.dto.LocationResponseDTO;
 import com.team25.event.planner.common.dto.ResourceResponseDTO;
 import com.team25.event.planner.event.dto.*;
 import com.team25.event.planner.event.service.EventService;
 import com.team25.event.planner.security.user.UserDetailsImpl;
+import com.team25.event.planner.user.model.User;
+import com.team25.event.planner.user.service.CurrentUserService;
+import com.team25.event.planner.user.service.UserService;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.core.io.Resource;
@@ -21,6 +25,8 @@ import java.util.List;
 @RequiredArgsConstructor
 public class EventController {
     private final EventService eventService;
+    private final CurrentUserService currentUserService;
+    private final UserService userService;
 
     @GetMapping("/{id}")
     @PreAuthorize("@eventPermissionEvaluator.canView(authentication, #id)")
@@ -54,7 +60,12 @@ public class EventController {
     @GetMapping("/top")
     public ResponseEntity<Page<EventPreviewResponseDTO>> getTopEvents(
     ) {
-        return ResponseEntity.ok(eventService.getTopEvents());
+        User currentUser = currentUserService.getCurrentUser();
+        LocationResponseDTO location = null;
+        if(currentUser != null){
+            location = userService.getUserAddress(currentUser.getId());
+        }
+        return ResponseEntity.ok(eventService.getTopEvents(location));
     }
 
 

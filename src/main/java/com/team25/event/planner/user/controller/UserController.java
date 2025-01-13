@@ -50,6 +50,12 @@ public class UserController {
         return new ResponseEntity<>(HttpStatus.NO_CONTENT);
     }
 
+    @GetMapping("/block/{blockedUserId}")
+    public ResponseEntity<Boolean> isBlocked(@PathVariable Long blockedUserId
+    ) {
+        return ResponseEntity.ok(userService.isBlocked(blockedUserId));
+    }
+
     @PostMapping("/{accountId}/suspend")
     @Secured("ROLE_ADMIN")
     public ResponseEntity<Void> suspendUser(

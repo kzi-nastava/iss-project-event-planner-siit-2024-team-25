@@ -1,5 +1,6 @@
 package com.team25.event.planner.event.specification;
 
+import com.team25.event.planner.common.dto.LocationResponseDTO;
 import com.team25.event.planner.event.dto.EventFilterDTO;
 import com.team25.event.planner.event.model.Event;
 import com.team25.event.planner.event.model.PrivacyType;
@@ -173,16 +174,18 @@ public class EventSpecification {
         };
     }
 
-    public Specification<Event> createTopEventsSpecification(String country, String city, User currentUser) {
+    public Specification<Event> createTopEventsSpecification(LocationResponseDTO location, User currentUser) {
         return (root, query, cb) -> {
             List<Predicate> predicates = new ArrayList<>();
 
-            if (country != null) {
-                predicates.add(cb.equal(root.get("location").get("country"), country));
-            }
+            if(location != null){
+                if (location.getCountry() != null) {
+                    predicates.add(cb.equal(root.get("location").get("country"), location.getCountry()));
+                }
 
-            if (city != null) {
-                predicates.add(cb.equal(root.get("location").get("city"), city));
+                if (location.getCity() != null) {
+                    predicates.add(cb.equal(root.get("location").get("city"), location.getCity()));
+                }
             }
 
             predicates.add(cb.equal(root.get("privacyType"), PrivacyType.PUBLIC));

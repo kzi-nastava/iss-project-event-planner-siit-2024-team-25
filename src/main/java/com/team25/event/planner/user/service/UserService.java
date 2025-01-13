@@ -9,6 +9,7 @@ import com.team25.event.planner.common.mapper.LocationMapper;
 import com.team25.event.planner.common.model.Location;
 import com.team25.event.planner.common.service.GeocodingService;
 import com.team25.event.planner.common.util.FileUtils;
+import com.team25.event.planner.event.service.EventService;
 import com.team25.event.planner.user.dto.BlockRequestDTO;
 import com.team25.event.planner.user.dto.RegisterRequestDTO;
 import com.team25.event.planner.user.dto.UserRequestDTO;
@@ -54,10 +55,13 @@ public class UserService {
     private final OwnerRepository ownerRepository;
     private final LocationMapper locationMapper;
     private final GeocodingService geocodingService;
+    private final EventService eventService;
 
     private final Path profilePictureFileStorageLocation;
     private final String profilePictureFilenameTemplate;
     private final Path companyPicturesFileStorageLocation;
+    private final CurrentUserService currentUserService;
+
 
     public UserService(
             UserMapper userMapper, EventOrganizerMapper eventOrganizerMapper, OwnerMapper ownerMapper,
@@ -65,7 +69,7 @@ public class UserService {
             @Value("${file-storage.images.profile}") String profilePictureSaveDirectory,
             @Value("${filename.template.profile-pic}") String profilePictureFilenameTemplate,
             @Value("${file-storage.images.company}") String companyPicturesSaveDirectory,
-            OwnerRepository ownerRepository, LocationMapper locationMapper, GeocodingService geocodingService) {
+            OwnerRepository ownerRepository, LocationMapper locationMapper, GeocodingService geocodingService, EventService eventService, CurrentUserService currentUserService) {
         this.userMapper = userMapper;
         this.eventOrganizerMapper = eventOrganizerMapper;
         this.ownerMapper = ownerMapper;
@@ -78,6 +82,8 @@ public class UserService {
         this.ownerRepository = ownerRepository;
         this.locationMapper = locationMapper;
         this.geocodingService = geocodingService;
+        this.eventService = eventService;
+        this.currentUserService = currentUserService;
     }
 
     public UserResponseDTO getUser(Long userId) {
@@ -318,6 +324,9 @@ public class UserService {
         blockedUser.getBlockedByUsers().add(user);
         userRepository.save(user);
         userRepository.save(blockedUser);
+        if(user instanceof EventOrganizer){
+            eventService.blockByEventOrganizer(user, blockedUser);
+        }
     }
 
     public void suspendUser(Long accountId) {
@@ -339,4 +348,12 @@ public class UserService {
         return null;
     }
 
+    public Boolean isBlocked(Long userId) {
+        User currentUser = currentUserService.getCurrentUser();
+        User user = userRepository.findById(userId).orElseThrow(() -> new NotFoundError("User not found"));
+        if(currentUser.getBlockedUsers().contains(user)){
+            return true;
+        }
+        return false;
+    }
 }
