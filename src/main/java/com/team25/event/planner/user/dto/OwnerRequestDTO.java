@@ -30,4 +30,6 @@ public class OwnerRequestDTO {
     private String description;
 
     private List<MultipartFile> companyPictures;
+
+    private List<String> picturesToRemove;
 }

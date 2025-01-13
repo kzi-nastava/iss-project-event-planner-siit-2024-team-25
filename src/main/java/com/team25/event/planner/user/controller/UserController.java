@@ -36,7 +36,7 @@ public class UserController {
     @PreAuthorize("authentication.principal.userId = #userId")
     public ResponseEntity<UserResponseDTO> updateUser(
             @PathVariable Long userId,
-            @Valid @RequestBody UserRequestDTO userRequestDTO
+            @Valid @ModelAttribute UserRequestDTO userRequestDTO
     ) {
         return ResponseEntity.ok(userService.updateUser(userId, userRequestDTO));
     }
