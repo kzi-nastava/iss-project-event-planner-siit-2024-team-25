@@ -66,10 +66,21 @@ public interface OfferingRepository extends JpaRepository<Offering, Long>, JpaSp
             "LEFT JOIN OfferingReview r ON r.purchase.id = p.id " +
             "WHERE " +
             "(:country IS NULL OR :country = '' OR o.owner.companyAddress.country = :country) AND " +
-            "(:city IS NULL OR :city = '' OR o.owner.companyAddress.city = :city) " +
+            "(:city IS NULL OR :city = '' OR o.owner.companyAddress.city = :city) AND " +
+            "(:currentUserId IS NULL OR " +
+            "(NOT EXISTS ( " +
+            "    SELECT 1 FROM User u " +
+            "    WHERE u.id = :currentUserId AND u MEMBER OF o.owner.blockedUsers" +
+            ")) AND " +
+            "(NOT EXISTS ( " +
+            "    SELECT 1 FROM User u " +
+            "    WHERE u.id = :currentUserId AND u MEMBER OF o.owner.blockedByUsers" +
+            "))) " +
             "GROUP BY o.id, o.name, o.owner.firstName, o.owner.lastName, o.description, o.owner.companyAddress.country, o.owner.companyAddress.city, o.price, s.id " +
             "ORDER BY COALESCE(AVG(r.rating), 0) DESC")
-    Page<OfferingPreviewResponseDTO> findTopOfferings(String country, String city, Pageable pageable);
+    Page<OfferingPreviewResponseDTO> findTopOfferings(String country, String city, Long currentUserId, Pageable pageable);
+
+
 
     @Query("SELECT o FROM Owner o " +
             "LEFT JOIN Offering off ON off.owner.id = o.id " +

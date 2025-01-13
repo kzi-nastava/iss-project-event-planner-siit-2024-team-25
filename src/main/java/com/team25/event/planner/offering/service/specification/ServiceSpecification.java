@@ -8,10 +8,8 @@ import com.team25.event.planner.offering.common.model.OfferingType;
 import com.team25.event.planner.offering.service.dto.ServiceFilterDTO;
 import com.team25.event.planner.offering.service.model.Service;
 import com.team25.event.planner.user.model.Account;
-import jakarta.persistence.criteria.Join;
-import jakarta.persistence.criteria.JoinType;
-import jakarta.persistence.criteria.Predicate;
-import jakarta.persistence.criteria.Root;
+import com.team25.event.planner.user.model.User;
+import jakarta.persistence.criteria.*;
 import org.springframework.data.jpa.domain.Specification;
 import org.springframework.stereotype.Component;
 
@@ -52,7 +50,7 @@ public class ServiceSpecification {
         };
     }
 
-    public Specification<Service> createSpecification(OfferingFilterDTO serviceFilterDTO) {
+    public Specification<Service> createSpecification(OfferingFilterDTO serviceFilterDTO, User currentUser) {
         return (root, query, cb) -> {
             List<Predicate> predicates = new ArrayList<>();
 
@@ -75,10 +73,6 @@ public class ServiceSpecification {
 
             if (serviceFilterDTO.getMaxPrice() != null) {
                 predicates.add(cb.lessThanOrEqualTo(root.get("price"), serviceFilterDTO.getMaxPrice()));
-            }
-
-            if (serviceFilterDTO.getIsAvailable() != null) {
-                predicates.add(cb.equal(root.get("isAvailable"), serviceFilterDTO.getIsAvailable()));
             }
 
             if (serviceFilterDTO.getDescription() != null) {
@@ -140,7 +134,39 @@ public class ServiceSpecification {
             }
 
 
-            predicates.add(cb.isTrue(root.get("isAvailable")));
+            if(currentUser != null){
+                List<Long> blockedUserIds = currentUser.getBlockedUsers().stream()
+                        .map(User::getId)
+                        .toList();
+
+                List<Long> blockedByUserIds = currentUser.getBlockedByUsers().stream()
+                        .map(User::getId)
+                        .toList();
+
+                Subquery<Long> blockedByCurrentUserSubquery = query.subquery(Long.class);
+                Root<User> blockedByUserRoot = blockedByCurrentUserSubquery.from(User.class);
+                blockedByCurrentUserSubquery.select(blockedByUserRoot.get("id"))
+                        .where(cb.and(
+                                cb.equal(blockedByUserRoot.get("id"), root.get("owner").get("id")),
+                                blockedByUserRoot.get("id").in(blockedUserIds)
+                        ));
+
+                Subquery<Long> blockedCurrentUserSubquery = query.subquery(Long.class);
+                Root<User> blockedUserRoot = blockedCurrentUserSubquery.from(User.class);
+                blockedCurrentUserSubquery.select(blockedUserRoot.get("id"))
+                        .where(cb.and(
+                                cb.equal(blockedUserRoot.get("id"), root.get("owner").get("id")),
+                                root.get("owner").get("id").in(blockedByUserIds)
+                        ));
+
+                Predicate notBlockedByCurrentUser = cb.not(cb.exists(blockedByCurrentUserSubquery));
+                Predicate notBlockedCurrentUser = cb.not(cb.exists(blockedCurrentUserSubquery));
+
+                predicates.add(cb.and(notBlockedByCurrentUser, notBlockedCurrentUser));
+            }
+
+            predicates.add(cb.equal(root.get("isAvailable"), true));
+            predicates.add(cb.equal(root.get("deleted"), false));
             predicates.add(cb.isTrue(root.get("isVisible")));
             predicates.add(cb.equal(root.get("status"), OfferingType.ACCEPTED));
 

@@ -1,7 +1,9 @@
 package com.team25.event.planner.offering.product.specification;
 
 import com.team25.event.planner.offering.common.dto.OfferingFilterDTO;
+import com.team25.event.planner.offering.common.model.OfferingType;
 import com.team25.event.planner.offering.product.model.Product;
+import com.team25.event.planner.user.model.User;
 import com.team25.event.planner.user.service.CurrentUserService;
 import jakarta.persistence.criteria.*;
 import lombok.RequiredArgsConstructor;
@@ -41,12 +43,43 @@ public class ProductSpecification {
             if (filter.getMaxPrice() != null) {
                 predicates.add(cb.lessThanOrEqualTo(root.get("price"), filter.getMaxPrice()));
             }
-            if (filter.getIsAvailable() != null) {
-                predicates.add(cb.equal(root.get("isAvailable"), filter.getIsAvailable()));
+
+            User currentUser = currentUserService.getCurrentUser();
+            if(currentUser != null){
+                List<Long> blockedUserIds = currentUser.getBlockedUsers().stream()
+                        .map(User::getId)
+                        .toList();
+
+                List<Long> blockedByUserIds = currentUser.getBlockedByUsers().stream()
+                        .map(User::getId)
+                        .toList();
+
+                Subquery<Long> blockedByCurrentUserSubquery = query.subquery(Long.class);
+                Root<User> blockedByUserRoot = blockedByCurrentUserSubquery.from(User.class);
+                blockedByCurrentUserSubquery.select(blockedByUserRoot.get("id"))
+                        .where(cb.and(
+                                cb.equal(blockedByUserRoot.get("id"), root.get("owner").get("id")),
+                                blockedByUserRoot.get("id").in(blockedUserIds)
+                        ));
+
+                Subquery<Long> blockedCurrentUserSubquery = query.subquery(Long.class);
+                Root<User> blockedUserRoot = blockedCurrentUserSubquery.from(User.class);
+                blockedCurrentUserSubquery.select(blockedUserRoot.get("id"))
+                        .where(cb.and(
+                                cb.equal(blockedUserRoot.get("id"), root.get("owner").get("id")),
+                                root.get("owner").get("id").in(blockedByUserIds)
+                        ));
+
+                Predicate notBlockedByCurrentUser = cb.not(cb.exists(blockedByCurrentUserSubquery));
+                Predicate notBlockedCurrentUser = cb.not(cb.exists(blockedCurrentUserSubquery));
+
+                predicates.add(cb.and(notBlockedByCurrentUser, notBlockedCurrentUser));
             }
 
+            predicates.add(cb.equal(root.get("isAvailable"), true));
             predicates.add(cb.equal(root.get("deleted"), false));
             predicates.add(getVisiblePredicate(root, cb));
+            predicates.add(cb.equal(root.get("status"), OfferingType.ACCEPTED));
 
             return cb.and(predicates.toArray(new Predicate[0]));
         };

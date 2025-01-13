@@ -23,6 +23,7 @@ import com.team25.event.planner.offering.common.repository.OfferingRepository;
 import com.team25.event.planner.offering.common.repository.OfferingReviewRepository;
 import com.team25.event.planner.offering.common.specification.OfferingSpecification;
 import com.team25.event.planner.offering.product.model.Product;
+import com.team25.event.planner.user.model.User;
 import com.team25.event.planner.user.service.CurrentUserService;
 import com.team25.event.planner.user.service.UserService;
 import lombok.RequiredArgsConstructor;
@@ -81,7 +82,8 @@ public class OfferingService {
     }
 
     public Page<OfferingPreviewResponseDTO> getOfferings(OfferingFilterDTO filter, int page, int size, String sortBy, String sortDirection) {
-        Specification<Offering> spec = offeringSpecification.createSpecification(filter);
+        User currentUser = currentUserService.getCurrentUser();
+        Specification<Offering> spec = offeringSpecification.createSpecification(filter, currentUser);
         Sort.Direction direction = Sort.Direction.fromString(sortDirection);
         Pageable pageable = PageRequest.of(page, size, Sort.by(direction, sortBy));
         Page<Offering> offeringPage = offeringRepository.findAll(spec, pageable);
@@ -99,9 +101,10 @@ public class OfferingService {
                 city = location.getCity();
             }
         }
-
+        User currentUser = currentUserService.getCurrentUser();
+        Long userId = currentUser != null ? currentUser.getId() : null;
         Pageable pageable = PageRequest.of(0, 5);
         return offeringRepository
-                .findTopOfferings(country, city, pageable);
+                .findTopOfferings(country, city,userId, pageable);
     }
 }

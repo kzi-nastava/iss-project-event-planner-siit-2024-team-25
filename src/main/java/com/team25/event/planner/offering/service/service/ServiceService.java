@@ -84,7 +84,8 @@ public class ServiceService {
     }
 
     public Page<OfferingPreviewResponseDTO> getAllServices(OfferingFilterDTO filter, int page, int size, String sortBy, String sortDirection) {
-        Specification<com.team25.event.planner.offering.service.model.Service> spec = serviceSpecification.createSpecification(filter);
+        User currentUser = currentUserService.getCurrentUser();
+        Specification<com.team25.event.planner.offering.service.model.Service> spec = serviceSpecification.createSpecification(filter,currentUser);
         Sort.Direction direction = Sort.Direction.fromString(sortDirection);
         Pageable pageable = PageRequest.of(page, size, Sort.by(direction, sortBy));
         Page<Offering> offeringPage = serviceRepository.findAll(spec, pageable).map(service -> (Offering)service);
