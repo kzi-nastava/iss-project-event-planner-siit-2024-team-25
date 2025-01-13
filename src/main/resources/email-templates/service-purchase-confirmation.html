@@ -1,0 +1,99 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org" lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Service Reservation Confirmation</title>
+    <style>
+        .email-container {
+            font-family: Arial, sans-serif;
+            border: 1px solid #ddd;
+            border-radius: 8px;
+            padding: 20px;
+            max-width: 600px;
+            margin: auto;
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+        }
+
+        .header {
+            text-align: center;
+            margin-bottom: 20px;
+        }
+
+        .header img {
+            max-width: 150px;
+        }
+
+        .content {
+            font-size: 16px;
+            line-height: 1.5;
+        }
+
+        .details {
+            margin-top: 20px;
+        }
+
+        .details ul {
+            list-style: none;
+            padding: 0;
+        }
+
+        .details ul li {
+            margin-bottom: 10px;
+        }
+
+        .footer {
+            margin-top: 20px;
+            font-size: 12px;
+            color: #777;
+            text-align: center;
+            border-top: 1px solid #ddd;
+            padding-top: 10px;
+        }
+
+        .button {
+            display: inline-block;
+            padding: 10px 20px;
+            color: #fff;
+            text-decoration: none;
+            border-radius: 5px;
+            margin-top: 20px;
+            text-align: center;
+        }
+
+        .button:hover {
+            background-color: #303c6c;
+            color: #eeeeee;
+        }
+    </style>
+</head>
+<body>
+<div class="email-container">
+    <div class="header">
+        <img th:src="|${resourceUrl}logo.png|" alt="Logo" />
+        <h2>Service Reservation Confirmation</h2>
+    </div>
+
+    <div class="content">
+        <p>Dear <span th:text="${organizerName}">Organizer</span>,</p>
+
+        <p>The following service has been reserved for event:</p>
+
+        <div class="details">
+            <ul>
+                <li><strong>Service:</strong> <span th:text="${serviceName}">Service Name</span></li>
+                <li><strong>Event:</strong> <span th:text="${eventName}">Event Name</span></li>
+                <li><strong>Event Duration:</strong> <span th:text="${eventStartDate} + ', ' + ${eventStartTime} + ' to ' + ${eventEndDate} + ', ' + ${eventEndTime}">Event Dates</span></li>
+                <li><strong>Service Reserved:</strong> <span th:text="${serviceStartDate} + ', ' + ${serviceStartTime} + ' to ' + ${serviceEndDate} + ', ' + ${serviceEndTime}">Service Reservation</span></li>
+                <li><strong>Event Location:</strong> <span th:text="${eventLocation}">Location</span></li>
+            </ul>
+        </div>
+
+        <a th:href="${serviceDetailsLink}" class="button">View Service Details</a>
+    </div>
+
+    <div class="footer">
+        <p>© <span th:text="${currentYear}">2024</span> Event Planner. All rights reserved.</p>
+    </div>
+</div>
+</body>
+</html>

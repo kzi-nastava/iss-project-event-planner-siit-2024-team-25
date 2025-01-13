@@ -5,7 +5,13 @@ import com.team25.event.planner.email.dto.EmailDTO;
 import com.team25.event.planner.email.dto.TestEmailBodyDTO;
 import com.team25.event.planner.event.dto.EventInvitationEmailDTO;
 import com.team25.event.planner.event.dto.EventInvitationShortEmailDTO;
+import com.team25.event.planner.event.model.Event;
+import com.team25.event.planner.event.model.Purchase;
+import com.team25.event.planner.user.model.EventOrganizer;
+import com.team25.event.planner.user.model.Owner;
 import com.team25.event.planner.user.model.RegistrationRequest;
+import jakarta.validation.constraints.NotNull;
+import jakarta.validation.constraints.Pattern;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 
@@ -59,5 +65,12 @@ public class EmailGeneratorService {
         final String url = frontendUrl + "/user/register/quick?invitationCode=" + eventInvitationShortEmailDTO.getEventInvitationCode();
         final String body = templateProcessorService.getEventInvitationShortEmailBody(url, eventInvitationShortEmailDTO);
         return new EmailDTO(email, "Event invitation", body);
+    }
+
+    public EmailDTO getServicePurchaseConfirmationEmail(String recipient, Purchase purchase){
+        final String email = recipient;
+        final String url = frontendUrl + "/services/" + purchase.getOffering().getId();
+        final String body = templateProcessorService.getServicePurchaseConfirmationBody(url, purchase);
+        return new EmailDTO(email, "Service purchase confirmation", body);
     }
 }
