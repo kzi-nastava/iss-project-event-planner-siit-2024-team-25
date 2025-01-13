@@ -232,4 +232,16 @@ public class AuthService {
             throw new UnauthenticatedError(e.getMessage());
         }
     }
+
+    public void resetPassword(long accountId, @Valid PasswordResetRequestDTO passwordResetRequest) {
+        Account account = accountRepository.findById(accountId)
+                .orElseThrow(() -> new NotFoundError("Account not found"));
+
+        if(!passwordEncoder.matches(passwordResetRequest.getOldPassword(), account.getPassword())) {
+            throw new InvalidRequestError("Incorrect old password");
+        }
+
+        account.setPassword(passwordEncoder.encode(passwordResetRequest.getNewPassword()));
+        accountRepository.save(account);
+    }
 }

@@ -34,6 +34,7 @@ public class JwtService {
         return Jwts.builder()
                 .setSubject(userDetails.getUsername())
                 .claim("user_id", userDetails.getUserId())
+                .claim("account_id", userDetails.getAccountId())
                 .claim("role", userDetails.getUserRole().toString())
                 .setIssuedAt(new Date(System.currentTimeMillis()))
                 .setExpiration(new Date(System.currentTimeMillis() + jwtConfiguration.getExpirationTimeMs()))
@@ -69,6 +70,7 @@ public class JwtService {
         }
         return new UserDetailsImpl(
                 claims.get("user_id", Long.class),
+                claims.get("account_id", Long.class),
                 claims.getSubject(),
                 UserRole.valueOf(claims.get("role", String.class))
         );
