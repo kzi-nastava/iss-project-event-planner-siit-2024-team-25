@@ -156,4 +156,13 @@ public class PurchaseService {
         }
         return budgetItem.getMoney().getAmount()-totalSpent;
     }
+
+
+    public boolean eventOrganizerHasFuturePurchases(Long organizerId) {
+        return purchaseRepository.existsByEventOrganizerIdAndStartDateGreaterThanEqual(organizerId, LocalDate.now());
+    }
+
+    public boolean ownerHasFuturePurchases(Long ownerId) {
+        return purchaseRepository.existsByOfferingOwnerIdAndStartDateGreaterThanEqual(ownerId, LocalDate.now());
+    }
 }

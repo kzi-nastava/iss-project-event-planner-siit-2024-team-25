@@ -49,8 +49,14 @@ public class AuthController {
     }
 
     @DeleteMapping("/deactivate")
-    public ResponseEntity<Void> deactivateAccount() {
+    public ResponseEntity<Void> deactivateAccount(@AuthenticationPrincipal UserDetailsImpl userDetails) {
+        authService.deactivateAccount(userDetails.getAccountId());
         return ResponseEntity.noContent().build();
+    }
+
+    @GetMapping("/can-deactivate")
+    public ResponseEntity<CanDeactivateResponseDTO> canDeactivateAccount(@AuthenticationPrincipal UserDetailsImpl userDetails) {
+        return ResponseEntity.ok(authService.canDeactivateAccount(userDetails.getAccountId()));
     }
 
     @ExceptionHandler(UnauthenticatedError.class)
