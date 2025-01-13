@@ -50,13 +50,15 @@ public class ChatMessageService {
     }
 
     public Page<ChatMessageResponseDTO> findChatMessages(Long senderId, Long recipientId, int page, int size, String sortBy, String sortDirection) {
-        Optional<String> chatId = chatRoomService.getChatRoomId(new ChatRoomRequestDTO(senderId, recipientId));
-        if(chatId.isEmpty()){
+        Optional<String> chatId1 = chatRoomService.getChatRoomId(new ChatRoomRequestDTO(senderId, recipientId));
+        Optional<String> chatId2 = chatRoomService.getChatRoomId(new ChatRoomRequestDTO(recipientId, senderId));
+
+        if(chatId1.isEmpty() || chatId2.isEmpty()) {
             throw new NotFoundError("Chat problem");
         }
         Sort.Direction direction = Sort.Direction.fromString(sortDirection);
         Pageable pageable = PageRequest.of(page, size, Sort.by(direction, sortBy));
-        Page<ChatMessageResponseDTO> res = chatMessageRepository.findByChatId(chatId.get(), pageable)
+        Page<ChatMessageResponseDTO> res = chatMessageRepository.findMessagesByChat(chatId1.get(), chatId2.get(), pageable)
                 .map(chatMessageMapper::toChatMessageResponseDTO);
         return res;
 

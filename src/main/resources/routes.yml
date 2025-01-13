@@ -33,4 +33,7 @@ security:
     - path: /api/chats/**
       methods:
         - GET
+    - path: /api/messages/**
+      methods:
+        - GET
 
