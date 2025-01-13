@@ -69,16 +69,18 @@ public class EventService {
 
     public EventResponseDTO getEventById(Long id, String invitationCode) {
         Event event = eventRepository.findById(id).orElseThrow(() -> new NotFoundError("Event not found"));
-
+        User currentUser = currentUserService.getCurrentUser();
+        if(event.getOrganizer().getBlockedUsers().contains(currentUser) || event.getOrganizer().getBlockedByUsers().contains(currentUser)) {
+            throw new UnauthorizedError("You must be event organizer or invited user to visit this event page");
+        }
         if (event.getPrivacyType() == PrivacyType.PRIVATE) {
-            if (Objects.equals(event.getOrganizer().getId(), currentUserService.getCurrentUserId())) {
+            if (Objects.equals(event.getOrganizer().getId(), currentUser.getId())) {
                 return eventMapper.toDTO(event);
             }
-            User user = userRepository.findById(currentUserService.getCurrentUserId()).orElseThrow(() -> new NotFoundError("User not found"));
-            if (this.checkInvitation(user.getAccount().getEmail(), invitationCode)) {
+            if (this.checkInvitation(currentUser.getAccount().getEmail(), invitationCode)) {
                 return eventMapper.toDTO(event);
             }
-            if (this.checkAttendance(user.getId(), event)) {
+            if (this.checkAttendance(currentUser.getId(), event)) {
                 return eventMapper.toDTO(event);
             }
         } else {
