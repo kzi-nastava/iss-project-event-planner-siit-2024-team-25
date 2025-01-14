@@ -150,7 +150,13 @@ public class UserService {
                 OwnerRequestDTO ownerDto = userDto.getOwnerFields();
                 assert ownerDto != null;
                 owner.setCompanyName(ownerDto.getCompanyName());
-                owner.setCompanyAddress(locationMapper.toLocation(ownerDto.getCompanyAddress()));
+                final Location companyAddress = locationMapper.toLocation(ownerDto.getCompanyAddress());
+                if(!owner.getCompanyAddress().sameLocationName(companyAddress)) {
+                    owner.setCompanyAddress(companyAddress);
+                    final LatLongDTO latLong = geocodingService.getLatLong(ownerDto.getCompanyAddress());
+                    owner.getCompanyAddress().setLatitude(latLong.getLatitude());
+                    owner.getCompanyAddress().setLongitude(latLong.getLongitude());
+                }
                 owner.setContactPhone(ownerDto.getContactPhone());
                 owner.setDescription(ownerDto.getDescription());
                 if(ownerDto.getCompanyPictures() != null && !ownerDto.getCompanyPictures().isEmpty()) {
@@ -165,7 +171,13 @@ public class UserService {
             } else if (user instanceof EventOrganizer organizer) {
                 EventOrganizerRequestDTO organizerDto = userDto.getEventOrganizerFields();
                 assert organizerDto != null;
-                organizer.setLivingAddress(locationMapper.toLocation(organizerDto.getLivingAddress()));
+                final Location livingAddress = locationMapper.toLocation(organizerDto.getLivingAddress());
+                if(!organizer.getLivingAddress().sameLocationName(livingAddress)) {
+                    organizer.setLivingAddress(livingAddress);
+                    final LatLongDTO latLong = geocodingService.getLatLong(organizerDto.getLivingAddress());
+                    organizer.getLivingAddress().setLatitude(latLong.getLatitude());
+                    organizer.getLivingAddress().setLongitude(latLong.getLongitude());
+                }
                 organizer.setPhoneNumber(organizerDto.getPhoneNumber());
             }
 
