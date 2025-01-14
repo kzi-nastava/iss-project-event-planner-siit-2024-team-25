@@ -5,7 +5,12 @@ import com.team25.event.planner.email.exception.EmailSendFailedException;
 import com.team25.event.planner.event.dto.EventInvitationEmailDTO;
 import com.team25.event.planner.event.dto.EventInvitationRequestDTO;
 import com.team25.event.planner.event.dto.EventInvitationShortEmailDTO;
+import com.team25.event.planner.event.model.Event;
+import com.team25.event.planner.event.model.Purchase;
+import com.team25.event.planner.user.model.EventOrganizer;
+import com.team25.event.planner.user.model.Owner;
 import com.team25.event.planner.user.model.RegistrationRequest;
+import jakarta.validation.constraints.NotNull;
 import lombok.RequiredArgsConstructor;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -58,6 +63,17 @@ public class EmailService {
             emailSenderService.sendEmail(email);
         } catch (EmailSendFailedException e) {
             logger.warn("Failed to send event invitation email for unregistered user for event: {}",guestEmail);
+        }
+    }
+
+    public void sendServicePurchaseConfirmation(Purchase purchase) {
+        EmailDTO email1 = emailGeneratorService.getServicePurchaseConfirmationEmail(purchase.getEvent().getOrganizer().getAccount().getEmail(),purchase);
+        EmailDTO email2 = emailGeneratorService.getServicePurchaseConfirmationEmail(purchase.getOffering().getOwner().getAccount().getEmail(),purchase);
+        try {
+            emailSenderService.sendEmail(email1);
+            emailSenderService.sendEmail(email2);
+        } catch (EmailSendFailedException e) {
+            logger.warn("Failed to send service purchase confirmation email.");
         }
     }
 }

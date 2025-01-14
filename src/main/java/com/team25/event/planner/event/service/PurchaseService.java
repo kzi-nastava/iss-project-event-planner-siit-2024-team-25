@@ -4,6 +4,7 @@ import com.team25.event.planner.common.exception.InvalidRequestError;
 import com.team25.event.planner.common.exception.NotFoundError;
 import com.team25.event.planner.communication.model.NotificationCategory;
 import com.team25.event.planner.communication.service.NotificationService;
+import com.team25.event.planner.email.service.EmailService;
 import com.team25.event.planner.event.dto.*;
 import com.team25.event.planner.event.mapper.PurchaseMapper;
 import com.team25.event.planner.event.model.*;
@@ -34,6 +35,7 @@ public class PurchaseService {
     private final PurchaseSpecification purchaseSpecification;
     private final ProductRepository productRepository;
     private final NotificationService notificationService;
+    private final EmailService emailService;
 
 
     // mapper
@@ -98,12 +100,14 @@ public class PurchaseService {
             budgetItem.setMoney(new Money(purchase.getPrice().getAmount(), "EUR"));
             budgetItemRepository.save(budgetItem);
             purchaseRepository.save(purchase);
+            emailService.sendServicePurchaseConfirmation(purchase);
             return purchaseMapper.toServiceResponseDTO(purchase);
         } else if (!isServiceAvailable) {
             throw new InvalidRequestError("Service is not available in the specified period.");
         }
         double servicePrice = service.getPrice() * (100-service.getDiscount()) / 100;
         if(servicePrice <= leftMoney){
+            emailService.sendServicePurchaseConfirmation(purchase);
             return purchaseMapper.toServiceResponseDTO(purchaseRepository.save(purchase));
         }else{
             throw new InvalidRequestError("Not enough budget plan money for the product");
