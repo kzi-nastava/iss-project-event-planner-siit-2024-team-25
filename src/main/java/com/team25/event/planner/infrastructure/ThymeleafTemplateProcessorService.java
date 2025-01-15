@@ -5,6 +5,8 @@ import com.team25.event.planner.email.dto.TestEmailBodyDTO;
 import com.team25.event.planner.email.service.TemplateProcessorService;
 import com.team25.event.planner.event.dto.EventInvitationEmailDTO;
 import com.team25.event.planner.event.dto.EventInvitationShortEmailDTO;
+import com.team25.event.planner.event.model.Event;
+import com.team25.event.planner.event.model.Purchase;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 import org.thymeleaf.context.Context;
@@ -80,4 +82,26 @@ public class ThymeleafTemplateProcessorService implements TemplateProcessorServi
         context.setVariable("eventAddress", dto.getEventAddress());
         return templateEngine.process("event-invitation", context);
     }
+
+    @Override
+    public String getServicePurchaseConfirmationBody(String url, Purchase purchase) {
+        Context context = getEmailTemplateContext();
+        context.setVariable("organizerName", purchase.getEvent().getOrganizer().getFullName());
+        context.setVariable("serviceName", purchase.getOffering().getName());
+        context.setVariable("eventName", purchase.getEvent().getName());
+        context.setVariable("eventStartDate", purchase.getEvent().getStartDate());
+        context.setVariable("eventStartTime", purchase.getEvent().getStartTime());
+        context.setVariable("eventEndDate", purchase.getEvent().getEndDate());
+        context.setVariable("eventEndTime", purchase.getEvent().getEndTime());
+        context.setVariable("serviceStartDate", purchase.getStartDate());
+        context.setVariable("serviceStartTime", purchase.getStartTime());
+        context.setVariable("serviceEndDate", purchase.getEndDate());
+        context.setVariable("serviceEndTime", purchase.getEndTime());
+        context.setVariable("eventLocation", purchase.getEvent().getLocation().getCountry().toString() + ", " + purchase.getEvent().getLocation().getCity() + ", " +  purchase.getEvent().getLocation().getAddress());
+        context.setVariable("serviceDetailsLink", url);
+        context.setVariable("currentYear", LocalDate.now().getYear());
+        return templateEngine.process("service-purchase-confirmation", context);
+    }
+
+
 }

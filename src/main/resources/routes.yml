@@ -30,4 +30,10 @@ security:
       methods: [ GET ]
     - path: /api/price-list/**
       methods: [GET, PUT]
+    - path: /api/chats/**
+      methods:
+        - GET
+    - path: /api/messages/**
+      methods:
+        - GET
 
