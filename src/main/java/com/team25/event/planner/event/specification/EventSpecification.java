@@ -6,6 +6,7 @@ import com.team25.event.planner.event.model.Event;
 import com.team25.event.planner.event.model.PrivacyType;
 import com.team25.event.planner.user.model.Account;
 import com.team25.event.planner.user.model.User;
+import com.team25.event.planner.user.model.UserRole;
 import jakarta.persistence.criteria.Join;
 import jakarta.persistence.criteria.Predicate;
 import jakarta.persistence.criteria.Root;
@@ -71,12 +72,10 @@ public class EventSpecification {
             }
 
             if (currentUser != null) {
-                // Izvlačenje ID-ova blokiranih korisnika
                 List<Long> blockedUserIds = currentUser.getBlockedUsers().stream()
                         .map(User::getId)
                         .toList();
 
-                // Subquery za korisnike koje je blokirao trenutni korisnik
                 Subquery<Long> blockedByCurrentUserSubquery = query.subquery(Long.class);
                 Root<User> blockedByUserRoot = blockedByCurrentUserSubquery.from(User.class);
                 blockedByCurrentUserSubquery.select(blockedByUserRoot.get("id"))
@@ -85,14 +84,29 @@ public class EventSpecification {
                                 blockedByUserRoot.get("id").in(blockedUserIds)
                         ));
 
-                // Dodajte predikat koji isključuje događaje organizovane od blokiranih korisnika
                 Predicate notBlockedByCurrentUser = cb.not(cb.exists(blockedByCurrentUserSubquery));
 
-                // Dodajte predikat u listu predikata
                 predicates.add(notBlockedByCurrentUser);
+
+                if (currentUser.getUserRole() == UserRole.REGULAR) {
+                    List<Long> blockedByUserIds = currentUser.getBlockedByUsers().stream()
+                            .filter(user -> user.getUserRole() == UserRole.EVENT_ORGANIZER)
+                            .map(User::getId)
+                            .toList();
+
+                    Subquery<Long> blockedCurrentUserSubquery = query.subquery(Long.class);
+                    Root<User> blockedUserRoot = blockedCurrentUserSubquery.from(User.class);
+                    blockedCurrentUserSubquery.select(blockedUserRoot.get("id"))
+                            .where(cb.and(
+                                    cb.equal(blockedUserRoot.get("id"), root.get("organizer").get("id")),
+                                    blockedUserRoot.get("id").in(blockedByUserIds)
+                            ));
+
+                    Predicate notBlockedCurrentUser = cb.not(cb.exists(blockedCurrentUserSubquery));
+
+                    predicates.add(notBlockedCurrentUser);
+                }
             }
-
-
             return cb.and(predicates.toArray(new Predicate[0]));
         };
     }
@@ -181,12 +195,10 @@ public class EventSpecification {
             predicates.add(cb.equal(root.get("privacyType"), PrivacyType.PUBLIC));
 
             if (currentUser != null) {
-                // Izvlačenje ID-ova blokiranih korisnika
                 List<Long> blockedUserIds = currentUser.getBlockedUsers().stream()
                         .map(User::getId)
                         .toList();
 
-                // Subquery za korisnike koje je blokirao trenutni korisnik
                 Subquery<Long> blockedByCurrentUserSubquery = query.subquery(Long.class);
                 Root<User> blockedByUserRoot = blockedByCurrentUserSubquery.from(User.class);
                 blockedByCurrentUserSubquery.select(blockedByUserRoot.get("id"))
@@ -195,11 +207,28 @@ public class EventSpecification {
                                 blockedByUserRoot.get("id").in(blockedUserIds)
                         ));
 
-                // Dodajte predikat koji isključuje događaje organizovane od blokiranih korisnika
                 Predicate notBlockedByCurrentUser = cb.not(cb.exists(blockedByCurrentUserSubquery));
 
-                // Dodajte predikat u listu predikata
                 predicates.add(notBlockedByCurrentUser);
+
+                if (currentUser.getUserRole() == UserRole.REGULAR) {
+                    List<Long> blockedByUserIds = currentUser.getBlockedByUsers().stream()
+                            .filter(user -> user.getUserRole() == UserRole.EVENT_ORGANIZER)
+                            .map(User::getId)
+                            .toList();
+
+                    Subquery<Long> blockedCurrentUserSubquery = query.subquery(Long.class);
+                    Root<User> blockedUserRoot = blockedCurrentUserSubquery.from(User.class);
+                    blockedCurrentUserSubquery.select(blockedUserRoot.get("id"))
+                            .where(cb.and(
+                                    cb.equal(blockedUserRoot.get("id"), root.get("organizer").get("id")),
+                                    blockedUserRoot.get("id").in(blockedByUserIds)
+                            ));
+
+                    Predicate notBlockedCurrentUser = cb.not(cb.exists(blockedCurrentUserSubquery));
+
+                    predicates.add(notBlockedCurrentUser);
+                }
             }
 
             return cb.and(predicates.toArray(new Predicate[0]));
