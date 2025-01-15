@@ -43,11 +43,10 @@ public class UserController {
 
     @PostMapping("/block")
     @PreAuthorize("authentication.principal.userId = #userId")
-    public ResponseEntity<Void> blockUser(
+    public ResponseEntity<Boolean> blockUser(
             @Valid @RequestBody BlockRequestDTO blockRequestDTO
     ) {
-        userService.blockUser(blockRequestDTO);
-        return new ResponseEntity<>(HttpStatus.NO_CONTENT);
+        return ResponseEntity.ok(userService.blockUser(blockRequestDTO));
     }
 
     @GetMapping("/block/{blockedUserId}")

@@ -317,7 +317,7 @@ public class UserService {
         };
     }
 
-    public void blockUser(BlockRequestDTO blockRequestDTO) {
+    public boolean blockUser(BlockRequestDTO blockRequestDTO) {
         User user = userRepository.findById(blockRequestDTO.getBlockerUserId()).orElseThrow(()->new NotFoundError("User not found"));
         User blockedUser = userRepository.findById(blockRequestDTO.getBlockedUserId()).orElseThrow(()->new NotFoundError("User not found"));
         user.getBlockedUsers().add(blockedUser);
@@ -327,6 +327,7 @@ public class UserService {
         if(user instanceof EventOrganizer){
             eventService.blockByEventOrganizer(user, blockedUser);
         }
+        return true;
     }
 
     public void suspendUser(Long accountId) {
