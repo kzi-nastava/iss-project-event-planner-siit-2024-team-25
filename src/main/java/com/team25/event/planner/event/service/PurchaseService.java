@@ -2,11 +2,13 @@ package com.team25.event.planner.event.service;
 
 import com.team25.event.planner.common.exception.InvalidRequestError;
 import com.team25.event.planner.common.exception.NotFoundError;
-import com.team25.event.planner.communication.model.NotificationCategory;
 import com.team25.event.planner.communication.service.NotificationService;
 import com.team25.event.planner.event.dto.*;
 import com.team25.event.planner.event.mapper.PurchaseMapper;
-import com.team25.event.planner.event.model.*;
+import com.team25.event.planner.event.model.BudgetItem;
+import com.team25.event.planner.event.model.Event;
+import com.team25.event.planner.event.model.Money;
+import com.team25.event.planner.event.model.Purchase;
 import com.team25.event.planner.event.repository.BudgetItemRepository;
 import com.team25.event.planner.event.repository.EventRepository;
 import com.team25.event.planner.event.repository.PurchaseRepository;
@@ -21,7 +23,7 @@ import org.springframework.stereotype.Service;
 
 import java.time.LocalDate;
 import java.time.LocalDateTime;
-import java.util.Collection;
+import java.util.List;
 
 @Service
 @RequiredArgsConstructor
@@ -157,6 +159,14 @@ public class PurchaseService {
         return budgetItem.getMoney().getAmount()-totalSpent;
     }
 
+    public List<Purchase> findOwnerPurchasesOverlappingDateRange(Long ownerId, LocalDate startDate, LocalDate endDate) {
+        return purchaseRepository.findByOfferingOwnerIdAndStartDateLessThanEqualAndEndDateGreaterThanEqual(ownerId, endDate, startDate);
+    }
+
+    public List<PurchaseServicePreviewResponseDTO> getOwnerPurchasesOverlappingDateRange(Long ownerId, LocalDate startDate, LocalDate endDate) {
+        return findOwnerPurchasesOverlappingDateRange(ownerId, startDate, endDate)
+                .stream().map(purchaseMapper::toPurchaseServicePreviewResponseDTO).toList();
+    }
 
     public boolean eventOrganizerHasFuturePurchases(Long organizerId) {
         return purchaseRepository.existsByEventOrganizerIdAndStartDateGreaterThanEqual(organizerId, LocalDate.now());

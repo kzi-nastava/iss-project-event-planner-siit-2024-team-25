@@ -314,6 +314,24 @@ public class EventService {
         eventAttendanceRepository.save(eventAttendance);
     }
 
+    public List<Event> findAttendingEventsOverlappingDateRange(Long userId, LocalDate startDate, LocalDate endDate) {
+        return eventAttendanceRepository.findByAttendeeIdOverlappingDateRange(userId, endDate, startDate);
+    }
+
+    public List<EventPreviewResponseDTO> getAttendingEventsOverlappingDateRange(Long userId, LocalDate startDate, LocalDate endDate) {
+        return findAttendingEventsOverlappingDateRange(userId, startDate, endDate)
+                .stream().map(eventMapper::toEventPreviewResponseDTO).toList();
+    }
+
+    public List<Event> findOrganizerEventsOverlappingDateRange(Long organizerId, LocalDate startDate, LocalDate endDate) {
+        return eventRepository.findByOrganizerIdAndStartDateLessThanEqualAndEndDateGreaterThanEqual(organizerId, endDate, startDate);
+    }
+
+    public List<EventPreviewResponseDTO> getOrganizerEventsOverlappingDateRange(Long organizerId, LocalDate startDate, LocalDate endDate) {
+        return findOrganizerEventsOverlappingDateRange(organizerId, startDate, endDate)
+                .stream().map(eventMapper::toEventPreviewResponseDTO).toList();
+    }
+
     public ResourceResponseDTO getEventReport(Long eventId, String invitationCode) {
         EventResponseDTO event = getEventById(eventId, invitationCode);
         List<ActivityResponseDTO> agenda = getEventAgenda(eventId);

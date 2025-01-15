@@ -14,6 +14,7 @@ import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.*;
 
+import java.time.LocalDate;
 import java.util.List;
 
 @RestController
@@ -57,6 +58,25 @@ public class EventController {
         return ResponseEntity.ok(eventService.getTopEvents());
     }
 
+    @GetMapping("/attending/{userId}")
+    @PreAuthorize("hasRole('ROLE_USER') and authentication.principal.userId == #userId")
+    public ResponseEntity<List<EventPreviewResponseDTO>> getAttendingEvents(
+            @PathVariable Long userId,
+            @RequestParam LocalDate startDate,
+            @RequestParam LocalDate endDate
+            ) {
+        return ResponseEntity.ok(eventService.getAttendingEventsOverlappingDateRange(userId, startDate, endDate));
+    }
+
+    @GetMapping("/organizer/{organizerId}")
+    @PreAuthorize("hasRole('ROLE_USER') and authentication.principal.userId == #organizerId")
+    public ResponseEntity<List<EventPreviewResponseDTO>> getOrganizerEvents(
+            @PathVariable Long organizerId,
+            @RequestParam LocalDate startDate,
+            @RequestParam LocalDate endDate
+    ) {
+        return ResponseEntity.ok(eventService.getOrganizerEventsOverlappingDateRange(organizerId, startDate, endDate));
+    }
 
     @PostMapping
     @Secured("ROLE_EVENT_ORGANIZER")
