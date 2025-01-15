@@ -71,14 +71,11 @@ public interface OfferingRepository extends JpaRepository<Offering, Long>, JpaSp
             "(NOT EXISTS ( " +
             "    SELECT 1 FROM User u " +
             "    WHERE u.id = :currentUserId AND u MEMBER OF o.owner.blockedUsers" +
-            ")) AND " +
-            "(NOT EXISTS ( " +
-            "    SELECT 1 FROM User u " +
-            "    WHERE u.id = :currentUserId AND u MEMBER OF o.owner.blockedByUsers" +
             "))) " +
             "GROUP BY o.id, o.name, o.owner.firstName, o.owner.lastName, o.description, o.owner.companyAddress.country, o.owner.companyAddress.city, o.price, s.id " +
             "ORDER BY COALESCE(AVG(r.rating), 0) DESC")
     Page<OfferingPreviewResponseDTO> findTopOfferings(String country, String city, Long currentUserId, Pageable pageable);
+
 
 
 
