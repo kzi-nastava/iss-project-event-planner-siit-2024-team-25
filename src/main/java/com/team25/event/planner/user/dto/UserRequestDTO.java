@@ -20,6 +20,8 @@ public class UserRequestDTO {
 
     private MultipartFile profilePicture;
 
+    private Boolean removeProfilePicture;
+
     @NotNull(message = "User role is required")
     private UserRole userRole;
 

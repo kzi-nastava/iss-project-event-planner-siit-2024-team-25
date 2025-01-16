@@ -26,6 +26,7 @@ import com.team25.event.planner.user.service.UserService;
 import jakarta.persistence.criteria.JoinType;
 import jakarta.persistence.criteria.Predicate;
 import jakarta.validation.Valid;
+import jakarta.validation.constraints.NotNull;
 import lombok.RequiredArgsConstructor;
 import org.springframework.core.io.Resource;
 import org.springframework.data.domain.Page;
@@ -311,6 +312,24 @@ public class EventService {
         eventAttendanceRepository.save(eventAttendance);
     }
 
+    public List<Event> findAttendingEventsOverlappingDateRange(Long userId, LocalDate startDate, LocalDate endDate) {
+        return eventAttendanceRepository.findByAttendeeIdOverlappingDateRange(userId, endDate, startDate);
+    }
+
+    public List<EventPreviewResponseDTO> getAttendingEventsOverlappingDateRange(Long userId, LocalDate startDate, LocalDate endDate) {
+        return findAttendingEventsOverlappingDateRange(userId, startDate, endDate)
+                .stream().map(eventMapper::toEventPreviewResponseDTO).toList();
+    }
+
+    public List<Event> findOrganizerEventsOverlappingDateRange(Long organizerId, LocalDate startDate, LocalDate endDate) {
+        return eventRepository.findByOrganizerIdAndStartDateLessThanEqualAndEndDateGreaterThanEqual(organizerId, endDate, startDate);
+    }
+
+    public List<EventPreviewResponseDTO> getOrganizerEventsOverlappingDateRange(Long organizerId, LocalDate startDate, LocalDate endDate) {
+        return findOrganizerEventsOverlappingDateRange(organizerId, startDate, endDate)
+                .stream().map(eventMapper::toEventPreviewResponseDTO).toList();
+    }
+
     public ResourceResponseDTO getEventReport(Long eventId, String invitationCode) {
         EventResponseDTO event = getEventById(eventId, invitationCode);
         List<ActivityResponseDTO> agenda = getEventAgenda(eventId);
@@ -332,11 +351,37 @@ public class EventService {
     public void blockByEventOrganizer(User organizer, User blockedUser) {
         LocalDate today = LocalDate.now();
         LocalTime time = LocalTime.now();
-        eventInvitationRepository.findEventInvitationsForFutureEvents(organizer.getId(),blockedUser.getAccount().getEmail(), today, time).stream().forEach(eventInvitation -> {
-            if(eventInvitation.getStatus() == EventInvitationStatus.PENDING){
+        eventInvitationRepository.findEventInvitationsForFutureEvents(organizer.getId(), blockedUser.getAccount().getEmail(), today, time).stream().forEach(eventInvitation -> {
+            if (eventInvitation.getStatus() == EventInvitationStatus.PENDING) {
                 eventInvitation.setStatus(EventInvitationStatus.DENIED);
             }
             eventInvitationRepository.save(eventInvitation);
         });
+    }
+    public Boolean isAttending(Long eventId, Long userId) {
+        return eventAttendanceRepository.existsById(new EventAttendanceId(userId, eventId));
+    }
+
+    public EventPreviewResponseDTO joinEvent(@NotNull Long eventId, @NotNull Long userId) {
+        if(isAttending(eventId, userId)) {
+            throw new InvalidRequestError("Already attending the event!");
+        }
+
+        final User user = userRepository.findById(userId).orElseThrow(() -> new NotFoundError("User not found"));
+        final Event event = eventRepository.findById(eventId).orElseThrow(() -> new NotFoundError("Event not found"));
+
+        if(event.getPrivacyType().equals(PrivacyType.PRIVATE)) {
+            throw new UnauthorizedError("You must be invited to a private event");
+        }
+
+        EventAttendance eventAttendance = new EventAttendance(
+                new EventAttendanceId(userId, eventId),
+                user,
+                event
+        );
+
+        eventAttendanceRepository.save(eventAttendance);
+
+        return eventMapper.toEventPreviewResponseDTO(event);
     }
 }

@@ -9,6 +9,7 @@ import org.springframework.data.jpa.repository.JpaSpecificationExecutor;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
 
+import java.time.LocalDate;
 import java.util.List;
 
 public interface EventRepository extends JpaRepository<Event, Long>, JpaSpecificationExecutor<Event> {
@@ -34,4 +35,5 @@ public interface EventRepository extends JpaRepository<Event, Long>, JpaSpecific
                              @Param("userId") Long userId,
                              @Param("userEmail") String userEmail);
 
+    List<Event> findByOrganizerIdAndStartDateLessThanEqualAndEndDateGreaterThanEqual(Long organizerId, LocalDate startDate, LocalDate endDate);
 }

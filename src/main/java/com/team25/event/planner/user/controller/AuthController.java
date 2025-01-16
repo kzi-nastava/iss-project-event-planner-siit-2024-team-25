@@ -1,6 +1,7 @@
 package com.team25.event.planner.user.controller;
 
 import com.team25.event.planner.common.dto.ErrorResponseDTO;
+import com.team25.event.planner.security.user.UserDetailsImpl;
 import com.team25.event.planner.user.dto.*;
 import com.team25.event.planner.user.exception.UnauthenticatedError;
 import com.team25.event.planner.user.service.AuthService;
@@ -8,8 +9,8 @@ import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.*;
-import org.springframework.web.multipart.MultipartFile;
 
 @RestController
 @RequestMapping("/api/auth")
@@ -39,13 +40,23 @@ public class AuthController {
     }
 
     @PutMapping("/password-reset")
-    public ResponseEntity<Void> resetPassword(@Valid @RequestBody PasswordResetRequestDTO passwordResetRequestDTO) {
+    public ResponseEntity<Void> resetPassword(
+            @Valid @RequestBody PasswordResetRequestDTO passwordResetRequestDTO,
+            @AuthenticationPrincipal UserDetailsImpl userDetails
+    ) {
+        authService.resetPassword(userDetails.getAccountId(), passwordResetRequestDTO);
         return ResponseEntity.noContent().build();
     }
 
     @DeleteMapping("/deactivate")
-    public ResponseEntity<Void> deactivateAccount() {
+    public ResponseEntity<Void> deactivateAccount(@AuthenticationPrincipal UserDetailsImpl userDetails) {
+        authService.deactivateAccount(userDetails.getAccountId());
         return ResponseEntity.noContent().build();
+    }
+
+    @GetMapping("/can-deactivate")
+    public ResponseEntity<CanDeactivateResponseDTO> canDeactivateAccount(@AuthenticationPrincipal UserDetailsImpl userDetails) {
+        return ResponseEntity.ok(authService.canDeactivateAccount(userDetails.getAccountId()));
     }
 
     @ExceptionHandler(UnauthenticatedError.class)
