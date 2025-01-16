@@ -24,8 +24,8 @@ public class ReviewController {
 
     @GetMapping()
     public Page<ReviewResponseDTO> getReviews(@RequestParam(defaultValue = "APPROVED") String status,
-                                              @RequestParam(required = false, defaultValue = "null") Long eventId,
-                                              @RequestParam(required = false, defaultValue = "null") Long offeringId,
+                                              @RequestParam(required = false) Long eventId,
+                                              @RequestParam(required = false) Long offeringId,
                                               @RequestParam(defaultValue = "0") int page,
                                               @RequestParam(defaultValue = "10") int size,
                                               @RequestParam(defaultValue = "createdDate") String sortBy,
