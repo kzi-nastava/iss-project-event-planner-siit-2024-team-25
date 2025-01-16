@@ -1,12 +1,14 @@
 package com.team25.event.planner.event.dto;
 
 import com.team25.event.planner.event.model.PrivacyType;
+import lombok.Builder;
 import lombok.Data;
 
 import java.time.LocalDate;
 import java.time.LocalTime;
 
 @Data
+@Builder
 public class EventFilterDTO {
     private final String nameContains;
     private final String descriptionContains;

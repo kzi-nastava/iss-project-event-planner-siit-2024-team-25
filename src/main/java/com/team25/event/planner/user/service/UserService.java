@@ -9,10 +9,7 @@ import com.team25.event.planner.common.mapper.LocationMapper;
 import com.team25.event.planner.common.model.Location;
 import com.team25.event.planner.common.service.GeocodingService;
 import com.team25.event.planner.common.util.FileUtils;
-import com.team25.event.planner.user.dto.BlockRequestDTO;
-import com.team25.event.planner.user.dto.RegisterRequestDTO;
-import com.team25.event.planner.user.dto.UserRequestDTO;
-import com.team25.event.planner.user.dto.UserResponseDTO;
+import com.team25.event.planner.user.dto.*;
 import com.team25.event.planner.user.mapper.EventOrganizerMapper;
 import com.team25.event.planner.user.mapper.OwnerMapper;
 import com.team25.event.planner.user.mapper.UserMapper;
@@ -39,7 +36,6 @@ import java.nio.file.Paths;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.UUID;
-import java.util.stream.Collectors;
 
 @Service
 public class UserService {
@@ -115,17 +111,88 @@ public class UserService {
         } catch (Exception e) {
             // @Transactional rolls back all database changes if an exception occurs, but not the filesystem changes,
             // so this needs to be done manually
-            if (user instanceof Owner) {
-                FileUtils.deleteFiles(companyPicturesFileStorageLocation, ((Owner) user).getCompanyPictures());
+            FileUtils.deleteFiles(profilePictureFileStorageLocation, List.of(user.getProfilePictureUrl()));
+            if (user instanceof Owner owner) {
+                FileUtils.deleteFiles(companyPicturesFileStorageLocation, owner.getCompanyPictures());
             }
             throw e;
         }
     }
 
-    public UserResponseDTO updateUser(Long userId, @Valid UserRequestDTO userRequestDTO) {
-        User user = getDummyUser(userRequestDTO);
-        user.setId(userId);
-        return createUserResponseDTO(user);
+    public UserResponseDTO updateUser(Long userId, @Valid UserRequestDTO userDto) {
+        User user = userRepository.findById(userId).orElseThrow(() -> new NotFoundError("User not found"));
+
+        user.setFirstName(userDto.getFirstName());
+        user.setLastName(userDto.getLastName());
+
+        // Delay delete operations until all other operations are completed successfully
+        List<String> profilePicturesToDelete = new ArrayList<>();
+        List<String> companyPicturesToDelete = new ArrayList<>();
+        // Rollback filesystem changes in case of failure
+        List<String> profilePicturesSaved = new ArrayList<>();
+        List<String> companyPicturesSaved = new ArrayList<>();
+
+        try {
+            if(userDto.getProfilePicture() != null) {
+                final String oldProfilePictureUrl = user.getProfilePictureUrl();
+                final String filename = saveProfilePicture(userDto.getProfilePicture());
+                profilePicturesSaved.add(filename);
+                user.setProfilePictureUrl(filename);
+                if(oldProfilePictureUrl != null) {
+                    profilePicturesToDelete.add(oldProfilePictureUrl);
+                }
+            } else if(userDto.getRemoveProfilePicture() != null && userDto.getRemoveProfilePicture()) {
+                profilePicturesToDelete.add(user.getProfilePictureUrl());
+                user.setProfilePictureUrl(null);
+            }
+
+            if (user instanceof Owner owner) {
+                OwnerRequestDTO ownerDto = userDto.getOwnerFields();
+                assert ownerDto != null;
+                owner.setCompanyName(ownerDto.getCompanyName());
+                final Location companyAddress = locationMapper.toLocation(ownerDto.getCompanyAddress());
+                if(!owner.getCompanyAddress().sameLocationName(companyAddress)) {
+                    owner.setCompanyAddress(companyAddress);
+                    final LatLongDTO latLong = geocodingService.getLatLong(ownerDto.getCompanyAddress());
+                    owner.getCompanyAddress().setLatitude(latLong.getLatitude());
+                    owner.getCompanyAddress().setLongitude(latLong.getLongitude());
+                }
+                owner.setContactPhone(ownerDto.getContactPhone());
+                owner.setDescription(ownerDto.getDescription());
+                if(ownerDto.getCompanyPictures() != null && !ownerDto.getCompanyPictures().isEmpty()) {
+                    List<String> filenames = saveCompanyPictures(ownerDto.getCompanyPictures());
+                    companyPicturesSaved.addAll(filenames);
+                    owner.getCompanyPictures().addAll(filenames);
+                }
+                if(ownerDto.getPicturesToRemove() != null && !ownerDto.getPicturesToRemove().isEmpty()) {
+                    owner.getCompanyPictures().removeAll(ownerDto.getPicturesToRemove());
+                    companyPicturesToDelete.addAll(ownerDto.getPicturesToRemove());
+                }
+            } else if (user instanceof EventOrganizer organizer) {
+                EventOrganizerRequestDTO organizerDto = userDto.getEventOrganizerFields();
+                assert organizerDto != null;
+                final Location livingAddress = locationMapper.toLocation(organizerDto.getLivingAddress());
+                if(!organizer.getLivingAddress().sameLocationName(livingAddress)) {
+                    organizer.setLivingAddress(livingAddress);
+                    final LatLongDTO latLong = geocodingService.getLatLong(organizerDto.getLivingAddress());
+                    organizer.getLivingAddress().setLatitude(latLong.getLatitude());
+                    organizer.getLivingAddress().setLongitude(latLong.getLongitude());
+                }
+                organizer.setPhoneNumber(organizerDto.getPhoneNumber());
+            }
+
+            userRepository.save(user);
+
+            FileUtils.deleteFiles(profilePictureFileStorageLocation, profilePicturesToDelete);
+            FileUtils.deleteFiles(companyPicturesFileStorageLocation, companyPicturesToDelete);
+
+            return createUserResponseDTO(user);
+        } catch (Exception e) {
+            logger.info("Starting filesystem rollback on user update");
+            FileUtils.deleteFiles(profilePictureFileStorageLocation, profilePicturesSaved);
+            FileUtils.deleteFiles(companyPicturesFileStorageLocation, companyPicturesSaved);
+            throw e;
+        }
     }
 
     private UserResponseDTO createUserResponseDTO(User user) {
@@ -249,15 +316,6 @@ public class UserService {
         } catch (MalformedURLException e) {
             throw new NotFoundError("Picture not found");
         }
-    }
-
-    // TODO: replace with repository call
-    private User getDummyUser(UserRequestDTO userRequestDTO) {
-        return switch (userRequestDTO.getUserRole()) {
-            case EVENT_ORGANIZER -> eventOrganizerMapper.toEventOrganizer(userRequestDTO);
-            case OWNER -> ownerMapper.toOwner(userRequestDTO);
-            default -> userMapper.toUser(userRequestDTO);
-        };
     }
 
     // Dummy user generation based on ID

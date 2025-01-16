@@ -33,16 +33,16 @@ public class UserController {
     }
 
     @PutMapping("/{userId}")
-    @PreAuthorize("authentication.principal.userId = #userId")
+    @PreAuthorize("authentication.principal.userId == #userId")
     public ResponseEntity<UserResponseDTO> updateUser(
             @PathVariable Long userId,
-            @Valid @RequestBody UserRequestDTO userRequestDTO
+            @Valid @ModelAttribute UserRequestDTO userRequestDTO
     ) {
         return ResponseEntity.ok(userService.updateUser(userId, userRequestDTO));
     }
 
     @PostMapping("/{userId}/block")
-    @PreAuthorize("authentication.principal.userId = #userId")
+    @PreAuthorize("authentication.principal.userId == #userId")
     public ResponseEntity<Void> blockUser(
             @PathVariable Long userId,
             @Valid @RequestBody BlockRequestDTO blockRequestDTO
