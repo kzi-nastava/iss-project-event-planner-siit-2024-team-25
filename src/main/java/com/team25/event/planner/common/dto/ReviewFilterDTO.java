@@ -1,4 +1,4 @@
-package com.team25.event.planner.offering.common.dto;
+package com.team25.event.planner.common.dto;
 
 import com.team25.event.planner.common.model.ReviewStatus;
 import lombok.Data;
