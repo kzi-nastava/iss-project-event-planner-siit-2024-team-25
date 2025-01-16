@@ -86,6 +86,7 @@ public class ProductService {
         return productMapper.toDTO(product);
     }
 
+    /*
     public Page<OfferingPreviewResponseDTO> getAllProducts(OfferingFilterDTO filter, int page, int size, String sortBy, String sortDirection) {
         Specification<Product> spec = productSpecification.createSpecification(filter);
         Sort.Direction direction = Sort.Direction.fromString(sortDirection);
@@ -109,6 +110,8 @@ public class ProductService {
         List<OfferingPreviewResponseDTO> offeringsWithRatings = offeringRepository.findOfferingsWithAverageRating(offeringPage.getContent(), pageable);
         return new PageImpl<>(offeringsWithRatings, pageable, offeringPage.getTotalElements());
     }
+
+     */
 
     @Transactional
     public ProductResponseDTO createProduct(@Valid ProductRequestDTO productDto) {

@@ -82,7 +82,7 @@ public class ServiceService {
         Pageable pageable = PageRequest.of(page, size, Sort.by(direction, sortBy));
         return serviceRepository.findAll(specification, pageable).map(serviceMapper::toCardDTO);
     }
-
+/*
     public Page<OfferingPreviewResponseDTO> getAllServices(OfferingFilterDTO filter, int page, int size, String sortBy, String sortDirection) {
         Specification<com.team25.event.planner.offering.service.model.Service> spec = serviceSpecification.createSpecification(filter);
         Sort.Direction direction = Sort.Direction.fromString(sortDirection);
@@ -92,11 +92,14 @@ public class ServiceService {
         List<OfferingPreviewResponseDTO> offeringsWithRatings = offeringRepository.findOfferingsWithAverageRating(offeringPage.getContent(), pageable);
         return new PageImpl<>(offeringsWithRatings, pageable, offeringPage.getTotalElements());
     }
+    */
     public ServiceCreateResponseDTO getService(Long id){
         com.team25.event.planner.offering.service.model.Service service = serviceRepository.findById(id).orElseThrow(()->new NotFoundError("Service not found"));
 
         return serviceMapper.toDTO(service);
     }
+
+
 
     public ServiceUpdateResponseDTO updateService(Long id, ServiceUpdateRequestDTO requestDTO){
         com.team25.event.planner.offering.service.model.Service service = serviceRepository.findById(id).orElseThrow(()->new NotFoundError("Service not found"));

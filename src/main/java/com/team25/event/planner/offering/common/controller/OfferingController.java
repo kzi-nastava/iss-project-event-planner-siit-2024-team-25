@@ -31,7 +31,7 @@ public class OfferingController {
         return ResponseEntity.ok().build();
     }
 
-
+/*
     @GetMapping("/")
     public ResponseEntity<Page<OfferingPreviewResponseDTO>> getOfferings(
             @ModelAttribute OfferingFilterDTO filter,
@@ -49,4 +49,6 @@ public class OfferingController {
     ){
         return ResponseEntity.ok(offeringService.getTopOfferings());
     }
+
+ */
 }

@@ -30,7 +30,7 @@ public interface OfferingRepository extends JpaRepository<Offering, Long>, JpaSp
             "WHERE ot.status = 'PENDING'")
     List<OfferingSubmittedResponseDTO> getOfferingSubmittedResponseDTOs();
 
-    @Query("SELECT new com.team25.event.planner.offering.common.dto.OfferingPreviewResponseDTO(" +
+    /*@Query("SELECT new com.team25.event.planner.offering.common.dto.OfferingPreviewResponseDTO(" +
             "o.id, " +
             "o.name, " +
             "CONCAT(o.owner.firstName, ' ', o.owner.lastName), " +
@@ -48,9 +48,9 @@ public interface OfferingRepository extends JpaRepository<Offering, Long>, JpaSp
             "GROUP BY o.id, o.name, o.owner.firstName, o.owner.lastName, " +
             "o.description, o.owner.companyAddress.country, o.owner.companyAddress.city, o.price, s.id")
     List<OfferingPreviewResponseDTO> findOfferingsWithAverageRating(@Param("offerings") List<Offering> offerings, Pageable pageable);
+*/
 
-
-    @Query("SELECT new com.team25.event.planner.offering.common.dto.OfferingPreviewResponseDTO(" +
+   /* @Query("SELECT new com.team25.event.planner.offering.common.dto.OfferingPreviewResponseDTO(" +
             "o.id, " +
             "o.name, " +
             "o.owner.firstName || ' ' || o.owner.lastName, " +
@@ -70,7 +70,7 @@ public interface OfferingRepository extends JpaRepository<Offering, Long>, JpaSp
             "GROUP BY o.id, o.name, o.owner.firstName, o.owner.lastName, o.description, o.owner.companyAddress.country, o.owner.companyAddress.city, o.price, s.id " +
             "ORDER BY COALESCE(AVG(r.rating), 0) DESC")
     Page<OfferingPreviewResponseDTO> findTopOfferings(String country, String city, Pageable pageable);
-
+*/
     @Query("SELECT o FROM Owner o " +
             "LEFT JOIN Offering off ON off.owner.id = o.id " +
             "WHERE (off IS NOT NULL AND off.offeringCategory.id = :id)")

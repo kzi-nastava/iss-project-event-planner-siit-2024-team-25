@@ -2,12 +2,8 @@ package com.team25.event.planner.offering.common.service;
 
 import com.team25.event.planner.common.dto.LocationResponseDTO;
 import com.team25.event.planner.common.exception.NotFoundError;
-import com.team25.event.planner.common.model.ReviewStatus;
 import com.team25.event.planner.communication.model.NotificationCategory;
 import com.team25.event.planner.communication.service.NotificationService;
-import com.team25.event.planner.event.model.Event;
-import com.team25.event.planner.event.model.Money;
-import com.team25.event.planner.event.model.Purchase;
 import com.team25.event.planner.event.repository.EventRepository;
 import com.team25.event.planner.event.repository.PurchaseRepository;
 import com.team25.event.planner.offering.common.dto.OfferingFilterDTO;
@@ -16,11 +12,9 @@ import com.team25.event.planner.offering.common.dto.OfferingSubmittedResponseDTO
 import com.team25.event.planner.offering.common.mapper.OfferingMapper;
 import com.team25.event.planner.offering.common.model.Offering;
 import com.team25.event.planner.offering.common.model.OfferingCategory;
-import com.team25.event.planner.offering.common.model.OfferingReview;
 import com.team25.event.planner.offering.common.model.OfferingType;
 import com.team25.event.planner.offering.common.repository.OfferingCategoryRepository;
 import com.team25.event.planner.offering.common.repository.OfferingRepository;
-import com.team25.event.planner.offering.common.repository.OfferingReviewRepository;
 import com.team25.event.planner.offering.common.specification.OfferingSpecification;
 import com.team25.event.planner.offering.product.model.Product;
 import com.team25.event.planner.user.service.CurrentUserService;
@@ -28,13 +22,9 @@ import com.team25.event.planner.user.service.UserService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.*;
 import org.springframework.data.jpa.domain.Specification;
-import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
-import java.time.LocalDate;
-import java.time.LocalTime;
-import java.util.ArrayList;
 import java.util.List;
 
 
@@ -47,7 +37,7 @@ public class OfferingService {
     private final OfferingSpecification offeringSpecification;
     private final OfferingCategoryRepository offeringCategoryRepository;
     private final PurchaseRepository purchaseRepository;
-    private final OfferingReviewRepository offeringReviewRepository;
+    //private final OfferingReviewRepository offeringReviewRepository;
     private final EventRepository eventRepository;
     private final NotificationService notificationService;
     private final UserService userService;
@@ -79,7 +69,7 @@ public class OfferingService {
             offeringCategoryRepository.deleteById(categoryId);
         }
     }
-
+/*
     public Page<OfferingPreviewResponseDTO> getOfferings(OfferingFilterDTO filter, int page, int size, String sortBy, String sortDirection) {
         Specification<Offering> spec = offeringSpecification.createSpecification(filter);
         Sort.Direction direction = Sort.Direction.fromString(sortDirection);
@@ -89,6 +79,9 @@ public class OfferingService {
         List<OfferingPreviewResponseDTO> offeringsWithRatings = offeringRepository.findOfferingsWithAverageRating(offeringPage.getContent(), pageable);
         return new PageImpl<>(offeringsWithRatings, pageable, offeringPage.getTotalElements());
     }
+
+ */
+    /*
     public Page<OfferingPreviewResponseDTO> getTopOfferings() {
         String country = null;
         String city = null;
@@ -104,4 +97,6 @@ public class OfferingService {
         return offeringRepository
                 .findTopOfferings(country, city, pageable);
     }
+
+     */
 }

@@ -1,7 +1,6 @@
 package com.team25.event.planner.common.model;
 
 import com.team25.event.planner.event.model.Purchase;
-import com.team25.event.planner.offering.common.model.Offering;
 import jakarta.persistence.*;
 import jakarta.validation.constraints.Max;
 import jakarta.validation.constraints.Min;
@@ -10,14 +9,15 @@ import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
+import org.hibernate.annotations.CreationTimestamp;
 
+import java.time.Instant;
 
+@Entity
 @Getter
 @Setter
 @NoArgsConstructor
 @AllArgsConstructor
-@Inheritance(strategy = InheritanceType.JOINED)
-@Entity
 public class Review {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
@@ -34,9 +34,16 @@ public class Review {
     private int rating;
 
     @Enumerated(EnumType.STRING)
-    private ReviewStatus status;
+    private ReviewType reviewType;
+
+    @Enumerated(EnumType.STRING)
+    private ReviewStatus reviewStatus;
+
+    @CreationTimestamp
+    private Instant createdDate;
 
     @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "purchase_id", nullable = false)
     private Purchase purchase;
 
 }
