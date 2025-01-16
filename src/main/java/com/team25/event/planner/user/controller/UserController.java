@@ -42,7 +42,6 @@ public class UserController {
     }
 
     @PostMapping("/block")
-    @PreAuthorize("authentication.principal.userId = #userId")
     public ResponseEntity<Boolean> blockUser(
             @Valid @RequestBody BlockRequestDTO blockRequestDTO
     ) {
