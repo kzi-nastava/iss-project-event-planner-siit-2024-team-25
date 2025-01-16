@@ -23,7 +23,9 @@ import com.team25.event.planner.offering.product.model.Product;
 import com.team25.event.planner.offering.product.repository.ProductRepository;
 import com.team25.event.planner.offering.product.specification.ProductSpecification;
 import com.team25.event.planner.user.model.Owner;
+import com.team25.event.planner.user.model.User;
 import com.team25.event.planner.user.repository.OwnerRepository;
+import com.team25.event.planner.user.service.CurrentUserService;
 import jakarta.validation.Valid;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -57,6 +59,7 @@ public class ProductService {
     private final NotificationService notificationService;
 
     private final Path productImagesFileStorageLocation;
+    private final CurrentUserService currentUserService;
 
     public ProductService(
             OfferingRepository offeringRepository,
@@ -67,8 +70,8 @@ public class ProductService {
             OfferingCategoryRepository offeringCategoryRepository,
             EventTypeRepository eventTypeRepository,
             NotificationService notificationService,
-            @Value("${file-storage.images.product}") String productImagesSaveDirectory
-    ) {
+            @Value("${file-storage.images.product}") String productImagesSaveDirectory,
+            CurrentUserService currentUserService) {
         this.offeringRepository = offeringRepository;
         this.productSpecification = productSpecification;
         this.productRepository = productRepository;
@@ -78,11 +81,16 @@ public class ProductService {
         this.offeringCategoryRepository = offeringCategoryRepository;
         this.eventTypeRepository = eventTypeRepository;
         this.notificationService = notificationService;
+        this.currentUserService = currentUserService;
     }
 
     public ProductResponseDTO getProduct(Long productId) {
         final Product product = productRepository.findById(productId)
                 .orElseThrow(() -> new NotFoundError("Product not found"));
+        User currentUser = currentUserService.getCurrentUser();
+        if(product.getOwner().getBlockedUsers().contains(currentUser) || product.getOwner().getBlockedByUsers().contains(currentUser)) {
+            throw new UnauthorizedError("You can't see this product page.");
+        }
         return productMapper.toDTO(product);
     }
 

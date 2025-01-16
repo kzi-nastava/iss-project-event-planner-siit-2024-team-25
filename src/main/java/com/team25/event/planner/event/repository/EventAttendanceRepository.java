@@ -5,7 +5,9 @@ import com.team25.event.planner.event.model.EventAttendance;
 import com.team25.event.planner.event.model.EventAttendanceId;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.JpaSpecificationExecutor;
+import org.springframework.data.jpa.repository.Query;
 
+import java.time.LocalDate;
 import java.util.List;
 import java.util.Optional;
 
@@ -14,4 +16,9 @@ public interface EventAttendanceRepository extends JpaRepository<EventAttendance
     List<EventAttendance> findByEventId(Long entityId);
 
     Optional<EventAttendance> getEventAttendanceByAttendeeIdAndEventId(Long userId, Long eventId);
+
+    @Query("select e from EventAttendance ea join ea.event e " +
+            "where ea.attendee.id = :userId " +
+            "and e.startDate <= :startDate and e.endDate >= :endDate")
+    List<Event> findByAttendeeIdOverlappingDateRange(Long userId, LocalDate startDate, LocalDate endDate);
 }

@@ -15,6 +15,9 @@ public class UserDetailsImpl implements UserDetails {
     @Getter
     private final long userId;
 
+    @Getter
+    private final long accountId;
+
     private final String username;
 
     private final String password;
@@ -24,8 +27,9 @@ public class UserDetailsImpl implements UserDetails {
 
     private final boolean isEnabled;
 
-    public UserDetailsImpl(long userId, String username, UserRole userRole) {
+    public UserDetailsImpl(long userId, long accountId, String username, UserRole userRole) {
         this.userId = userId;
+        this.accountId = accountId;
         this.username = username;
         this.password = null;
         this.userRole = userRole;
@@ -34,6 +38,7 @@ public class UserDetailsImpl implements UserDetails {
 
     public UserDetailsImpl(Account account) {
         userId = account.getUser().getId();
+        accountId = account.getId();
         username = account.getEmail();
         password = account.getPassword();
         userRole = account.getUser().getUserRole();

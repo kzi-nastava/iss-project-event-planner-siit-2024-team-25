@@ -33,22 +33,26 @@ public class UserController {
     }
 
     @PutMapping("/{userId}")
-    @PreAuthorize("authentication.principal.userId = #userId")
+    @PreAuthorize("authentication.principal.userId == #userId")
     public ResponseEntity<UserResponseDTO> updateUser(
             @PathVariable Long userId,
-            @Valid @RequestBody UserRequestDTO userRequestDTO
+            @Valid @ModelAttribute UserRequestDTO userRequestDTO
     ) {
         return ResponseEntity.ok(userService.updateUser(userId, userRequestDTO));
     }
 
-    @PostMapping("/{userId}/block")
-    @PreAuthorize("authentication.principal.userId = #userId")
-    public ResponseEntity<Void> blockUser(
-            @PathVariable Long userId,
+    @PostMapping("/block")
+    @PreAuthorize("authentication.principal.userId == #blockRequestDTO.blockerUserId")
+    public ResponseEntity<Boolean> blockUser(
             @Valid @RequestBody BlockRequestDTO blockRequestDTO
     ) {
-        userService.blockUser(userId, blockRequestDTO);
-        return new ResponseEntity<>(HttpStatus.NO_CONTENT);
+        return ResponseEntity.ok(userService.blockUser(blockRequestDTO));
+    }
+
+    @GetMapping("/block/{blockedUserId}")
+    public ResponseEntity<Boolean> isBlocked(@PathVariable Long blockedUserId
+    ) {
+        return ResponseEntity.ok(userService.isBlocked(blockedUserId));
     }
 
     @PostMapping("/{accountId}/suspend")

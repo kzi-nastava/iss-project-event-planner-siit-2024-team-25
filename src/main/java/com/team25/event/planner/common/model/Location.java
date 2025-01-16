@@ -6,6 +6,8 @@ import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
 
+import java.util.Objects;
+
 @Getter
 @Setter
 @NoArgsConstructor
@@ -17,4 +19,9 @@ public class Location {
     private String address;
     private Double latitude;
     private Double longitude;
+
+    public boolean sameLocationName(Location other) {
+        if(other == null) return false;
+        return Objects.equals(country, other.country) && Objects.equals(city, other.city) && Objects.equals(address, other.address);
+    }
 }

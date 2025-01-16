@@ -6,6 +6,7 @@ import com.team25.event.planner.common.util.VerificationCodeGenerator;
 import com.team25.event.planner.email.service.EmailService;
 import com.team25.event.planner.event.model.Event;
 import com.team25.event.planner.event.service.EventService;
+import com.team25.event.planner.event.service.PurchaseService;
 import com.team25.event.planner.security.jwt.JwtService;
 import com.team25.event.planner.security.user.UserDetailsImpl;
 import com.team25.event.planner.user.dto.*;
@@ -51,6 +52,7 @@ public class AuthService {
     private final EventService eventService;
     private final Duration activationTimeLimit;
     private final SuspensionRepository suspensionRepository;
+    private final PurchaseService purchaseService;
 
     public AuthService(
             UserService userService,
@@ -64,7 +66,7 @@ public class AuthService {
             UserMapper userMapper,
             EventService eventService,
             @Value("${activation.duration-minutes}") Long activationMinutesTimeLimit,
-            SuspensionRepository suspensionRepository
+            SuspensionRepository suspensionRepository, PurchaseService purchaseService
     ) {
         this.userService = userService;
         this.passwordEncoder = passwordEncoder;
@@ -78,6 +80,7 @@ public class AuthService {
         this.eventService = eventService;
         this.activationTimeLimit = Duration.ofMinutes(activationMinutesTimeLimit);
         this.suspensionRepository = suspensionRepository;
+        this.purchaseService = purchaseService;
     }
 
     @Transactional
@@ -108,22 +111,22 @@ public class AuthService {
     }
 
     @Transactional
-    public QuickRegisterResponseDTO quickRegister(@Valid QuickRegisterRequestDTO quickRegisterRequestDTO){
+    public QuickRegisterResponseDTO quickRegister(@Valid QuickRegisterRequestDTO quickRegisterRequestDTO) {
         if (accountRepository.existsByEmail(quickRegisterRequestDTO.getEmail())) {
             throw new InvalidRequestError("Email address is already taken");
         }
 
-        if(!eventService.checkInvitation(quickRegisterRequestDTO.getEmail(), quickRegisterRequestDTO.getInvitationCode())){
+        if (!eventService.checkInvitation(quickRegisterRequestDTO.getEmail(), quickRegisterRequestDTO.getInvitationCode())) {
             throw new InvalidRequestError("There is no invitations for this email");
         }
 
-        RegisterRequestDTO requestDTO  = userMapper.toRegisterRequestDto(quickRegisterRequestDTO);
+        RegisterRequestDTO requestDTO = userMapper.toRegisterRequestDto(quickRegisterRequestDTO);
         User user = userService.createUser(requestDTO);
 
         Account account = Account.builder()
                 .email(quickRegisterRequestDTO.getEmail())
                 .password(passwordEncoder.encode(quickRegisterRequestDTO
-                .getPassword())).status(AccountStatus.ACTIVE)
+                        .getPassword())).status(AccountStatus.ACTIVE)
                 .user(user).build();
         accountRepository.save(account);
         user.setAccount(account);
@@ -194,15 +197,14 @@ public class AuthService {
                     .orElseThrow(() -> new UnauthenticatedError("Invalid credentials"));
 
             Suspension suspension = user.getAccount().getSuspension();
-            if(suspension != null){
+            if (suspension != null) {
                 Instant expirationTime = suspension.getExpirationTime();
                 Instant now = Instant.now();
 
                 if (expirationTime.isBefore(now)) {
                     user.getAccount().setSuspension(null);
                     suspensionRepository.deleteById(suspension.getId());
-                }
-                else{
+                } else {
                     return new LoginResponseDTO(userDetails.getUserId(),
                             userDetails.getUsername(),
                             user.getFullName(),
@@ -231,5 +233,45 @@ public class AuthService {
         } catch (AuthenticationException e) {
             throw new UnauthenticatedError(e.getMessage());
         }
+    }
+
+    public void resetPassword(long accountId, @Valid PasswordResetRequestDTO passwordResetRequest) {
+        Account account = accountRepository.findById(accountId)
+                .orElseThrow(() -> new NotFoundError("Account not found"));
+
+        if (!passwordEncoder.matches(passwordResetRequest.getOldPassword(), account.getPassword())) {
+            throw new InvalidRequestError("Incorrect old password");
+        }
+
+        account.setPassword(passwordEncoder.encode(passwordResetRequest.getNewPassword()));
+        accountRepository.save(account);
+    }
+
+    public void deactivateAccount(Long accountId) {
+        if (!canDeactivateAccount(accountId).getCanDeactivate()) {
+            throw new InvalidRequestError("There are future purchases");
+        }
+
+        Account account = accountRepository.findById(accountId)
+                .orElseThrow(() -> new NotFoundError("Account not found"));
+
+        account.setStatus(AccountStatus.DEACTIVATED);
+        accountRepository.save(account);
+    }
+
+    public CanDeactivateResponseDTO canDeactivateAccount(Long accountId) {
+        final User user = accountRepository.findById(accountId)
+                .orElseThrow(() -> new NotFoundError("Account not found"))
+                .getUser();
+        if (user instanceof EventOrganizer organizer) {
+            return new CanDeactivateResponseDTO(
+                    !purchaseService.eventOrganizerHasFuturePurchases(organizer.getId())
+            );
+        } else if (user instanceof Owner owner) {
+            return new CanDeactivateResponseDTO(
+                    !purchaseService.ownerHasFuturePurchases(owner.getId())
+            );
+        }
+        return new CanDeactivateResponseDTO(true);
     }
 }

@@ -1,9 +1,6 @@
 package com.team25.event.planner.event.mapper;
 
-import com.team25.event.planner.event.dto.PurchaseProductRequestDTO;
-import com.team25.event.planner.event.dto.PurchaseServiceRequestDTO;
-import com.team25.event.planner.event.dto.PurchaseServiceResponseDTO;
-import com.team25.event.planner.event.dto.PurchasedProductResponseDTO;
+import com.team25.event.planner.event.dto.*;
 import com.team25.event.planner.event.model.Event;
 import com.team25.event.planner.event.model.Purchase;
 import com.team25.event.planner.offering.product.model.Product;
@@ -44,4 +41,8 @@ public interface PurchaseMapper {
     @Mapping(target = "eventId", source = "event.id")
     @Mapping(target = "productId", source = "offering.id")
     PurchasedProductResponseDTO toProductResponseDTO(Purchase purchase);
+
+    @Mapping(target = "eventName", source = "event.name")
+    @Mapping(target = "serviceName", source = "offering.name")
+    PurchaseServicePreviewResponseDTO toPurchaseServicePreviewResponseDTO(Purchase purchase);
 }

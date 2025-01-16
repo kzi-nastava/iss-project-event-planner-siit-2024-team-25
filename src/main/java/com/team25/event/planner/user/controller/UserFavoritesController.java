@@ -59,13 +59,13 @@ public class UserFavoritesController {
     }
 
     @GetMapping(value = "/{id}/favorite-events", produces = MediaType.APPLICATION_JSON_VALUE)
-    @PreAuthorize("hasRole('ROLE_USER') and authentication.principal.userId = #userId")
+    @PreAuthorize("hasRole('ROLE_USER') and authentication.principal.userId == #userId")
     public ResponseEntity<Collection<EventPreviewResponseDTO>> getFavoriteEvents(@PathVariable("id") Long userId) {
         return ResponseEntity.ok(userFavoritesService.getFavoriteEvents(userId));
     }
 
     @PostMapping(value = "/{id}/favorite-events", consumes = MediaType.APPLICATION_JSON_VALUE, produces = MediaType.APPLICATION_JSON_VALUE)
-    @PreAuthorize("hasRole('ROLE_USER') and authentication.principal.userId = #userId")
+    @PreAuthorize("hasRole('ROLE_USER') and authentication.principal.userId == #userId")
     public ResponseEntity<EventPreviewResponseDTO> addFavoriteEvent(
             @PathVariable("id") Long userId,
             @RequestBody FavoriteEventRequestDTO requestDTO) {
@@ -73,7 +73,7 @@ public class UserFavoritesController {
     }
 
     @DeleteMapping("/{userId}/favorite-events/{favId}")
-    @PreAuthorize("hasRole('ROLE_USER') and authentication.principal.userId = #userId")
+    @PreAuthorize("hasRole('ROLE_USER') and authentication.principal.userId == #userId")
     public ResponseEntity<Void> removeEventFromFavorites(
             @PathVariable Long userId,
             @PathVariable Long favId) {
