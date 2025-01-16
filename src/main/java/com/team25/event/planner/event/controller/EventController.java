@@ -142,4 +142,18 @@ public class EventController {
                 )
                 .body(resourceResponse.getResource());
     }
+
+    @GetMapping("/{eventId}/attending/{userId}")
+    @PreAuthorize("authentication.principal.userId == #userId")
+    public ResponseEntity<Boolean> isAttending(@PathVariable Long eventId, @PathVariable Long userId) {
+        return ResponseEntity.ok(eventService.isAttending(eventId, userId));
+    }
+
+    @PostMapping("/{eventId}/join")
+    public ResponseEntity<EventPreviewResponseDTO> joinEvent(
+            @PathVariable Long eventId,
+            @Valid @RequestBody JoinEventRequestDTO joinRequest
+    ) {
+        return ResponseEntity.ok(eventService.joinEvent(eventId, joinRequest.getUserId()));
+    }
 }

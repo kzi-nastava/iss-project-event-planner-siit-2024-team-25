@@ -26,6 +26,7 @@ import com.team25.event.planner.user.service.UserService;
 import jakarta.persistence.criteria.JoinType;
 import jakarta.persistence.criteria.Predicate;
 import jakarta.validation.Valid;
+import jakarta.validation.constraints.NotNull;
 import lombok.RequiredArgsConstructor;
 import org.springframework.core.io.Resource;
 import org.springframework.data.domain.Page;
@@ -348,5 +349,32 @@ public class EventService {
         } catch (ReportGenerationFailedException e) {
             throw new ServerError("Failed to generate report", 500);
         }
+    }
+
+    public Boolean isAttending(Long eventId, Long userId) {
+        return eventAttendanceRepository.existsById(new EventAttendanceId(userId, eventId));
+    }
+
+    public EventPreviewResponseDTO joinEvent(@NotNull Long eventId, @NotNull Long userId) {
+        if(isAttending(eventId, userId)) {
+            throw new InvalidRequestError("Already attending the event!");
+        }
+
+        final User user = userRepository.findById(userId).orElseThrow(() -> new NotFoundError("User not found"));
+        final Event event = eventRepository.findById(eventId).orElseThrow(() -> new NotFoundError("Event not found"));
+
+        if(event.getPrivacyType().equals(PrivacyType.PRIVATE)) {
+            throw new UnauthorizedError("You must be invited to a private event");
+        }
+
+        EventAttendance eventAttendance = new EventAttendance(
+                new EventAttendanceId(userId, eventId),
+                user,
+                event
+        );
+
+        eventAttendanceRepository.save(eventAttendance);
+
+        return eventMapper.toEventPreviewResponseDTO(event);
     }
 }
