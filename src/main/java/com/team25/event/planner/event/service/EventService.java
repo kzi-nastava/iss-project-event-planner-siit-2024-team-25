@@ -38,6 +38,7 @@ import org.springframework.http.MediaType;
 import org.springframework.stereotype.Service;
 
 import java.time.LocalDate;
+import java.time.LocalTime;
 import java.util.List;
 import java.util.Objects;
 import java.util.Optional;
@@ -65,21 +66,22 @@ public class EventService {
     private final UserRepository userRepository;
     private final GeocodingService geocodingService;
     private final NotificationService notificationService;
-    private final UserService userService;
     private final EventReportService eventReportService;
 
     public EventResponseDTO getEventById(Long id, String invitationCode) {
         Event event = eventRepository.findById(id).orElseThrow(() -> new NotFoundError("Event not found"));
-
+        User currentUser = currentUserService.getCurrentUser();
+        if(event.getOrganizer().getBlockedUsers().contains(currentUser) || event.getOrganizer().getBlockedByUsers().contains(currentUser)) {
+            throw new UnauthorizedError("You must be event organizer or invited user to visit this event page");
+        }
         if (event.getPrivacyType() == PrivacyType.PRIVATE) {
-            if (Objects.equals(event.getOrganizer().getId(), currentUserService.getCurrentUserId())) {
+            if (Objects.equals(event.getOrganizer().getId(), currentUser.getId())) {
                 return eventMapper.toDTO(event);
             }
-            User user = userRepository.findById(currentUserService.getCurrentUserId()).orElseThrow(() -> new NotFoundError("User not found"));
-            if (this.checkInvitation(user.getAccount().getEmail(), invitationCode)) {
+            if (this.checkInvitation(currentUser.getAccount().getEmail(), invitationCode)) {
                 return eventMapper.toDTO(event);
             }
-            if (this.checkAttendance(user.getId(), event)) {
+            if (this.checkAttendance(currentUser.getId(), event)) {
                 return eventMapper.toDTO(event);
             }
         } else {
@@ -182,7 +184,8 @@ public class EventService {
     }
 
     public Page<EventPreviewResponseDTO> getAllEvents(EventFilterDTO filter, int page, int size, String sortBy, String sortDirection) {
-        Specification<Event> spec = eventSpecification.createSpecification(filter);
+        User currentUser = currentUserService.getCurrentUser();
+        Specification<Event> spec = eventSpecification.createSpecification(filter,currentUser);
         spec.and(getVisibilityCriteria());
 
         Sort.Direction direction = Sort.Direction.fromString(sortDirection);
@@ -191,20 +194,14 @@ public class EventService {
     }
 
 
-    public Page<EventPreviewResponseDTO> getTopEvents() {
-        String country = null;
-        String city = null;
-        if(currentUserService.getCurrentUserId() != null){
-            LocationResponseDTO location = userService.getUserAddress(currentUserService.getCurrentUserId());
-            if(location != null) {
-                country = location.getCountry();
-                city = location.getCity();
-            }
-        }
-        PageRequest pageable = PageRequest.of(0, 5);
-        return eventRepository
-                .findTopEvents(country, city, pageable)
-                .map(eventMapper::toEventPreviewResponseDTO);
+    public Page<EventPreviewResponseDTO> getTopEvents(LocationResponseDTO location) {
+        String sortDirection = "desc";
+        String sortBy = "createdDate";
+        User user = currentUserService.getCurrentUser();
+        Sort.Direction direction = Sort.Direction.fromString(sortDirection);
+        PageRequest pageable = PageRequest.of(0, 5,Sort.by(direction, sortBy));
+        Specification<Event> specification = eventSpecification.createTopEventsSpecification(location, user);
+        return eventRepository.findAll(specification, pageable).map(eventMapper::toEventPreviewResponseDTO);
     }
 
     public void sendInvitations(Long eventId, List<EventInvitationRequestDTO> requestDTO) {
@@ -351,6 +348,16 @@ public class EventService {
         }
     }
 
+    public void blockByEventOrganizer(User organizer, User blockedUser) {
+        LocalDate today = LocalDate.now();
+        LocalTime time = LocalTime.now();
+        eventInvitationRepository.findEventInvitationsForFutureEvents(organizer.getId(), blockedUser.getAccount().getEmail(), today, time).stream().forEach(eventInvitation -> {
+            if (eventInvitation.getStatus() == EventInvitationStatus.PENDING) {
+                eventInvitation.setStatus(EventInvitationStatus.DENIED);
+            }
+            eventInvitationRepository.save(eventInvitation);
+        });
+    }
     public Boolean isAttending(Long eventId, Long userId) {
         return eventAttendanceRepository.existsById(new EventAttendanceId(userId, eventId));
     }

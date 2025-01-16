@@ -2,6 +2,7 @@ package com.team25.event.planner.offering.service.service;
 
 import com.team25.event.planner.common.exception.InvalidRequestError;
 import com.team25.event.planner.common.exception.NotFoundError;
+import com.team25.event.planner.common.exception.UnauthorizedError;
 import com.team25.event.planner.common.model.Location;
 import com.team25.event.planner.communication.service.NotificationService;
 import com.team25.event.planner.event.model.EventType;
@@ -84,7 +85,8 @@ public class ServiceService {
     }
 
     public Page<OfferingPreviewResponseDTO> getAllServices(OfferingFilterDTO filter, int page, int size, String sortBy, String sortDirection) {
-        Specification<com.team25.event.planner.offering.service.model.Service> spec = serviceSpecification.createSpecification(filter);
+        User currentUser = currentUserService.getCurrentUser();
+        Specification<com.team25.event.planner.offering.service.model.Service> spec = serviceSpecification.createSpecification(filter,currentUser);
         Sort.Direction direction = Sort.Direction.fromString(sortDirection);
         Pageable pageable = PageRequest.of(page, size, Sort.by(direction, sortBy));
         Page<Offering> offeringPage = serviceRepository.findAll(spec, pageable).map(service -> (Offering)service);
@@ -94,7 +96,10 @@ public class ServiceService {
     }
     public ServiceCreateResponseDTO getService(Long id){
         com.team25.event.planner.offering.service.model.Service service = serviceRepository.findById(id).orElseThrow(()->new NotFoundError("Service not found"));
-
+        User currentUser = currentUserService.getCurrentUser();
+        if(service.getOwner().getBlockedUsers().contains(currentUser) || service.getOwner().getBlockedByUsers().contains(currentUser)) {
+            throw new UnauthorizedError("You can't see this product page.");
+        }
         return serviceMapper.toDTO(service);
     }
 
