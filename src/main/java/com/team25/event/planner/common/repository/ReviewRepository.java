@@ -12,13 +12,13 @@ public interface ReviewRepository extends JpaRepository<Review, Long>, JpaSpecif
     @Query("""
             select r from Review r
             left outer join Purchase p on r.id = p.id left outer join Event e on p.id = e.id
-            where e.id = :eventId and r.reviewStatus = 'APPROVE'""")
+            where e.id = :eventId and r.reviewStatus = 'APPROVED'""")
     Page<Review> findAllByEvent(@Param("eventId") Long eventId, Pageable pageable);
 
     @Query("""
             select r from Review r
             left outer join Purchase p on r.id = p.id left outer join Offering o on p.id = o.id
-            where o.id = :offeringId and r.reviewStatus = 'APPROVE'""")
+            where o.id = :offeringId and r.reviewStatus = 'APPROVED'""")
     Page<Review> findAllByOffering(@Param("offeringId") Long offeringId, Pageable pageable);
 
 }
