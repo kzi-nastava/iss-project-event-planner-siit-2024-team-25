@@ -30,27 +30,28 @@ public interface OfferingRepository extends JpaRepository<Offering, Long>, JpaSp
             "WHERE ot.status = 'PENDING'")
     List<OfferingSubmittedResponseDTO> getOfferingSubmittedResponseDTOs();
 
-    /*@Query("SELECT new com.team25.event.planner.offering.common.dto.OfferingPreviewResponseDTO(" +
+    @Query("SELECT new com.team25.event.planner.offering.common.dto.OfferingPreviewResponseDTO(" +
             "o.id, " +
             "o.name, " +
             "CONCAT(o.owner.firstName, ' ', o.owner.lastName), " +
             "o.description, " +
             "o.owner.companyAddress.country, " +
             "o.owner.companyAddress.city, " +
-            "COALESCE(AVG(r.rating), 0), " +
+            "COALESCE(AVG(CASE WHEN r.reviewType = com.team25.event.planner.common.model.ReviewType.OFFERING_REVIEW THEN r.rating ELSE null END), 0), " +
             "o.price, " +
             "(CASE WHEN (s.id is null) THEN false ELSE true END)) " +
             "FROM Offering o " +
             "LEFT JOIN Service s ON s.id = o.id " +
             "LEFT JOIN Purchase p ON p.offering.id = o.id " +
-            "LEFT JOIN OfferingReview r ON r.purchase.id = p.id " +
+            "LEFT JOIN Review r ON r.purchase.id = p.id " +
             "WHERE o IN :offerings " +
             "GROUP BY o.id, o.name, o.owner.firstName, o.owner.lastName, " +
             "o.description, o.owner.companyAddress.country, o.owner.companyAddress.city, o.price, s.id")
     List<OfferingPreviewResponseDTO> findOfferingsWithAverageRating(@Param("offerings") List<Offering> offerings, Pageable pageable);
-*/
 
-   /* @Query("SELECT new com.team25.event.planner.offering.common.dto.OfferingPreviewResponseDTO(" +
+
+
+    @Query("SELECT new com.team25.event.planner.offering.common.dto.OfferingPreviewResponseDTO(" +
             "o.id, " +
             "o.name, " +
             "o.owner.firstName || ' ' || o.owner.lastName, " +
@@ -63,8 +64,8 @@ public interface OfferingRepository extends JpaRepository<Offering, Long>, JpaSp
             "FROM Offering o " +
             "LEFT JOIN Service s ON s.id = o.id " +
             "LEFT JOIN Purchase p ON p.offering.id = o.id " +
-            "LEFT JOIN OfferingReview r ON r.purchase.id = p.id " +
-            "WHERE " +
+            "LEFT JOIN Review r ON r.purchase.id = p.id " +
+            "WHERE r.reviewType = com.team25.event.planner.common.model.ReviewType.OFFERING_REVIEW AND " +
             "(:country IS NULL OR :country = '' OR o.owner.companyAddress.country = :country) AND " +
             "(:city IS NULL OR :city = '' OR o.owner.companyAddress.city = :city) AND " +
             "(:currentUserId IS NULL OR " +
@@ -76,7 +77,7 @@ public interface OfferingRepository extends JpaRepository<Offering, Long>, JpaSp
             "ORDER BY COALESCE(AVG(r.rating), 0) DESC")
 
     Page<OfferingPreviewResponseDTO> findTopOfferings(String country, String city, Long currentUserId, Pageable pageable);
-*/
+
 
 
 

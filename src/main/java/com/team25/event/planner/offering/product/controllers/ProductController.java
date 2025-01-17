@@ -33,7 +33,7 @@ public class ProductController {
         return ResponseEntity.ok(productService.getProduct(id));
     }
 
-    /*
+
     @GetMapping("/all")
     public ResponseEntity<Page<OfferingPreviewResponseDTO>> getAllProducts(
             @ModelAttribute OfferingFilterDTO filter,
@@ -57,7 +57,7 @@ public class ProductController {
         return ResponseEntity.ok(productService.getOwnerProducts(ownerId, filter, page, size, sortBy, sortDirection));
     }
 
-     */
+
 
     @PostMapping
     @Secured("ROLE_OWNER")
