@@ -132,6 +132,10 @@ public class UserService {
     public UserResponseDTO updateUser(Long userId, @Valid UserRequestDTO userDto) {
         User user = userRepository.findById(userId).orElseThrow(() -> new NotFoundError("User not found"));
 
+        if(!user.getUserRole().equals(userDto.getUserRole())) {
+            throw new InvalidRequestError("Incorrect user role");
+        }
+
         user.setFirstName(userDto.getFirstName());
         user.setLastName(userDto.getLastName());
 
@@ -328,57 +332,6 @@ public class UserService {
         }
     }
 
-    // Dummy user generation based on ID
-    private User getDummyUser(Long userId) {
-        return switch (userId.intValue() % 3) { // Rotate roles based on user ID
-            case 0 -> new EventOrganizer(
-                    userId,
-                    "OrganizerFirst" + userId,
-                    "OrganizerLast" + userId,
-                    "/profile/organizer" + userId + ".jpg",
-                    UserRole.EVENT_ORGANIZER,
-                    null,
-                    null,
-                    null,
-                    null,
-                    null,
-                    new Location("USA", "New York", "123 Organizer Street", 0.0, 0.0),
-                    new PhoneNumber("+1234567890")
-            );
-            case 1 -> new Owner(
-                    1L,
-                    "Alice",
-                    "Johnson",
-                    "/profile/alice.jpg",
-                    UserRole.OWNER,
-                    new Account(),
-                    new ArrayList<>(),
-                    new ArrayList<>(),
-                    new ArrayList<>(),
-                    new ArrayList<>(),
-                    "Alice's Bakery",
-                    new Location("Canada", "Toronto", "123 Maple Street", 0.0, 0.0),
-                    new PhoneNumber("+123456789"),
-                    "Specializing in artisan baked goods",
-                    List.of("/images/pic1.jpg", "/images/pic2.jpg")
-            );
-            default -> new User(
-                    userId,
-                    "UserFirst" + userId,
-                    "UserLast" + userId,
-                    null,
-                    UserRole.REGULAR,
-                    null,
-                    null,
-                    null,
-                    null,
-                    null,
-                    null,
-                    null
-            );
-        };
-    }
-
     public boolean blockUser(BlockRequestDTO blockRequestDTO) {
         User user = userRepository.findById(blockRequestDTO.getBlockerUserId()).orElseThrow(()->new NotFoundError("User not found"));
         User blockedUser = userRepository.findById(blockRequestDTO.getBlockedUserId()).orElseThrow(()->new NotFoundError("User not found"));
@@ -414,9 +367,6 @@ public class UserService {
     public Boolean isBlocked(Long userId) {
         User currentUser = currentUserService.getCurrentUser();
         User user = userRepository.findById(userId).orElseThrow(() -> new NotFoundError("User not found"));
-        if(currentUser.getBlockedUsers().contains(user)){
-            return true;
-        }
-        return false;
+        return currentUser.getBlockedUsers().contains(user);
     }
 }
