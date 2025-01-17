@@ -132,6 +132,10 @@ public class UserService {
     public UserResponseDTO updateUser(Long userId, @Valid UserRequestDTO userDto) {
         User user = userRepository.findById(userId).orElseThrow(() -> new NotFoundError("User not found"));
 
+        if(!user.getUserRole().equals(userDto.getUserRole())) {
+            throw new InvalidRequestError("Incorrect user role");
+        }
+
         user.setFirstName(userDto.getFirstName());
         user.setLastName(userDto.getLastName());
 
