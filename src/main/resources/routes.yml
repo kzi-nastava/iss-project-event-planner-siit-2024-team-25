@@ -36,4 +36,9 @@ security:
     - path: /api/messages/**
       methods:
         - GET
+    - path: /api/reviews/**
+      methods:
+        - GET
+        - PUT
+        - POST
 

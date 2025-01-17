@@ -1,13 +1,14 @@
 package com.team25.event.planner.common.dto;
 
 import com.team25.event.planner.common.model.ReviewStatus;
+import com.team25.event.planner.common.model.ReviewType;
 import jakarta.validation.constraints.NotNull;
 import lombok.Data;
 
 @Data
 public class ReviewRequestDTO {
-    @NotNull
-    private Long reviewId;
-    @NotNull
-    private ReviewStatus status;
+    private String comment;
+    private int rating;
+    private ReviewType reviewType;
+    private Long purchaseId;
 }

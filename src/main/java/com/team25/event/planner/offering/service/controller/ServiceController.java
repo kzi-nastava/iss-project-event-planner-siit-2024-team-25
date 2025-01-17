@@ -27,6 +27,7 @@ public class ServiceController {
 
     private final ServiceService serviceService;
 
+    /*
     @GetMapping("/all")
     public ResponseEntity<Page<OfferingPreviewResponseDTO>> getAllServices(
             @ModelAttribute OfferingFilterDTO filter,
@@ -37,6 +38,8 @@ public class ServiceController {
     ){
         return ResponseEntity.ok(serviceService.getAllServices(filter, page, size, sortBy, sortDirection));
     }
+
+     */
 
     @GetMapping
     @Secured("ROLE_OWNER")

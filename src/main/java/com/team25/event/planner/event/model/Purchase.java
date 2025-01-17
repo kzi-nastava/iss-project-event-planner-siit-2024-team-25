@@ -1,14 +1,14 @@
 package com.team25.event.planner.event.model;
 
+import com.team25.event.planner.common.model.Review;
 import com.team25.event.planner.offering.common.model.Offering;
-import com.team25.event.planner.offering.product.model.Product;
-import com.team25.event.planner.offering.service.model.Service;
 import jakarta.persistence.*;
 import jakarta.validation.constraints.NotNull;
 import lombok.*;
 
 import java.time.LocalDate;
 import java.time.LocalTime;
+import java.util.List;
 
 @Entity
 @Getter
@@ -47,4 +47,7 @@ public class Purchase {
 
     @ManyToOne
     private Offering offering;
+
+    @OneToMany(mappedBy = "purchase")
+    private List<Review> reviews;
 }
