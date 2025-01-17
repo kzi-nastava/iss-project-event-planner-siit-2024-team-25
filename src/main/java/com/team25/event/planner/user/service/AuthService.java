@@ -89,12 +89,18 @@ public class AuthService {
     @Transactional
     public RegisterResponseDTO upgradeProfile(RegisterRequestDTO registerRequestDTO) {
         User oldUser = currentUserService.getCurrentUser();
+
+        if (!passwordEncoder.matches(registerRequestDTO.getPassword(), oldUser.getAccount().getPassword())) {
+            throw new InvalidRequestError("Incorrect password");
+        }
+
         User newUser = userService.upgradeProfile(registerRequestDTO);
         if(newUser == null){
             throw new InvalidRequestError("Invalid upgrade request");
         }
 
-            if(registerRequestDTO.getUserRole().equals(UserRole.EVENT_ORGANIZER)){
+
+        if(registerRequestDTO.getUserRole().equals(UserRole.EVENT_ORGANIZER)){
             oldUser.setUserRole(registerRequestDTO.getUserRole());
             userRepository.save(oldUser);
             this.userService.insertIntoEventOrganizer(oldUser.getId(), ((EventOrganizer)newUser).getLivingAddress(), ((EventOrganizer)newUser).getPhoneNumber() );
