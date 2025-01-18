@@ -38,7 +38,6 @@ public class OfferingService {
     private final OfferingSpecification offeringSpecification;
     private final OfferingCategoryRepository offeringCategoryRepository;
     private final PurchaseRepository purchaseRepository;
-    //private final OfferingReviewRepository offeringReviewRepository;
     private final EventRepository eventRepository;
     private final NotificationService notificationService;
     private final UserService userService;
@@ -70,7 +69,7 @@ public class OfferingService {
             offeringCategoryRepository.deleteById(categoryId);
         }
     }
-/*
+
     public Page<OfferingPreviewResponseDTO> getOfferings(OfferingFilterDTO filter, int page, int size, String sortBy, String sortDirection) {
         User currentUser = currentUserService.getCurrentUser();
         Specification<Offering> spec = offeringSpecification.createSpecification(filter, currentUser);
@@ -82,8 +81,8 @@ public class OfferingService {
         return new PageImpl<>(offeringsWithRatings, pageable, offeringPage.getTotalElements());
     }
 
- */
-    /*
+
+
     public Page<OfferingPreviewResponseDTO> getTopOfferings() {
         String country = null;
         String city = null;
@@ -101,5 +100,5 @@ public class OfferingService {
                 .findTopOfferings(country, city,userId, pageable);
     }
 
-     */
+
 }
