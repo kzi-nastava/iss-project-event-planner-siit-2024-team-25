@@ -179,4 +179,8 @@ public class PurchaseService {
     public boolean ownerHasFuturePurchases(Long ownerId) {
         return purchaseRepository.existsByOfferingOwnerIdAndStartDateGreaterThanEqual(ownerId, LocalDate.now());
     }
+    public List<PurchasePreviewResponseDTO> getEventsPurchase(Long eventId){
+        Event e = eventRepository.findById(eventId).orElse(null);
+        return purchaseRepository.findAllByEvent(e).stream().map(purchaseMapper::toPurchasePreviewResponseDTO).toList();
+    }
 }

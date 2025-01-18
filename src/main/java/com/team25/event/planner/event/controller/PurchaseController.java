@@ -19,6 +19,11 @@ public class PurchaseController {
 
     private final PurchaseService purchaseService;
 
+    @GetMapping(value = "{eventId}")
+    public ResponseEntity<List<PurchasePreviewResponseDTO>> getPurchaseByEvent(@PathVariable("eventId")Long eventId) {
+        return new ResponseEntity<>(purchaseService.getEventsPurchase(eventId), HttpStatus.OK);
+    }
+
     @PostMapping(value = "events/{eventId}/products")
     @Secured("ROLE_EVENT_ORGANIZER")
     public ResponseEntity<PurchasedProductResponseDTO> purchaseProduct(@PathVariable("eventId") Long eventId,
