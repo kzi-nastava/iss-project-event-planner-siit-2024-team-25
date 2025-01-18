@@ -2,6 +2,7 @@ package com.team25.event.planner.user.service;
 
 import com.team25.event.planner.common.exception.InvalidRequestError;
 import com.team25.event.planner.common.exception.NotFoundError;
+import com.team25.event.planner.common.exception.UnauthorizedError;
 import com.team25.event.planner.common.util.VerificationCodeGenerator;
 import com.team25.event.planner.email.service.EmailService;
 import com.team25.event.planner.event.model.Event;
@@ -13,10 +14,7 @@ import com.team25.event.planner.user.dto.*;
 import com.team25.event.planner.user.exception.UnauthenticatedError;
 import com.team25.event.planner.user.mapper.UserMapper;
 import com.team25.event.planner.user.model.*;
-import com.team25.event.planner.user.repository.AccountRepository;
-import com.team25.event.planner.user.repository.RegistrationRequestRepository;
-import com.team25.event.planner.user.repository.SuspensionRepository;
-import com.team25.event.planner.user.repository.UserRepository;
+import com.team25.event.planner.user.repository.*;
 import jakarta.validation.Valid;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.scheduling.annotation.Scheduled;
@@ -34,6 +32,7 @@ import org.springframework.transaction.annotation.Transactional;
 import java.time.Duration;
 import java.time.Instant;
 import java.util.Collection;
+import java.util.Optional;
 
 @Service
 public class AuthService {
@@ -53,6 +52,8 @@ public class AuthService {
     private final Duration activationTimeLimit;
     private final SuspensionRepository suspensionRepository;
     private final PurchaseService purchaseService;
+    private final CurrentUserService currentUserService;
+    private final EventOrganizerRepository eventOrganizerRepository;
 
     public AuthService(
             UserService userService,
@@ -66,8 +67,8 @@ public class AuthService {
             UserMapper userMapper,
             EventService eventService,
             @Value("${activation.duration-minutes}") Long activationMinutesTimeLimit,
-            SuspensionRepository suspensionRepository, PurchaseService purchaseService
-    ) {
+            SuspensionRepository suspensionRepository, PurchaseService purchaseService,
+            CurrentUserService currentUserService, EventOrganizerRepository eventOrganizerRepository) {
         this.userService = userService;
         this.passwordEncoder = passwordEncoder;
         this.accountRepository = accountRepository;
@@ -81,7 +82,42 @@ public class AuthService {
         this.activationTimeLimit = Duration.ofMinutes(activationMinutesTimeLimit);
         this.suspensionRepository = suspensionRepository;
         this.purchaseService = purchaseService;
+        this.currentUserService = currentUserService;
+        this.eventOrganizerRepository = eventOrganizerRepository;
     }
+
+    @Transactional
+    public RegisterResponseDTO upgradeProfile(RegisterRequestDTO registerRequestDTO) {
+        User oldUser = currentUserService.getCurrentUser();
+
+        if (!passwordEncoder.matches(registerRequestDTO.getPassword(), oldUser.getAccount().getPassword())) {
+            throw new InvalidRequestError("Incorrect password");
+        }
+
+        User newUser = userService.upgradeProfile(registerRequestDTO);
+        if(newUser == null){
+            throw new InvalidRequestError("Invalid upgrade request");
+        }
+
+
+        if(registerRequestDTO.getUserRole().equals(UserRole.EVENT_ORGANIZER)){
+            oldUser.setUserRole(registerRequestDTO.getUserRole());
+            userRepository.save(oldUser);
+            this.userService.insertIntoEventOrganizer(oldUser.getId(), ((EventOrganizer)newUser).getLivingAddress(), ((EventOrganizer)newUser).getPhoneNumber() );
+        }else{
+            oldUser.setUserRole(registerRequestDTO.getUserRole());
+            userRepository.save(oldUser);
+            this.userService.insertIntoOwner(oldUser.getId(), ((Owner)newUser).getCompanyName(), ((Owner)newUser).getCompanyAddress(), ((Owner)newUser).getContactPhone(), ((Owner)newUser).getDescription());
+        }
+
+        return new RegisterResponseDTO(
+                registerRequestDTO.getEmail(),
+                oldUser.getFullName(),
+                oldUser.getUserRole()
+        );
+    }
+
+
 
     @Transactional
     public RegisterResponseDTO register(@Valid RegisterRequestDTO registerRequestDTO) {

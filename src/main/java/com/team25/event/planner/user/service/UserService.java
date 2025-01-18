@@ -9,6 +9,9 @@ import com.team25.event.planner.common.mapper.LocationMapper;
 import com.team25.event.planner.common.model.Location;
 import com.team25.event.planner.common.service.GeocodingService;
 import com.team25.event.planner.common.util.FileUtils;
+import com.team25.event.planner.communication.service.ChatMessageService;
+import com.team25.event.planner.communication.service.ChatRoomService;
+import com.team25.event.planner.communication.service.NotificationService;
 import com.team25.event.planner.event.service.EventService;
 import com.team25.event.planner.user.dto.BlockRequestDTO;
 import com.team25.event.planner.user.dto.RegisterRequestDTO;
@@ -19,10 +22,10 @@ import com.team25.event.planner.user.mapper.EventOrganizerMapper;
 import com.team25.event.planner.user.mapper.OwnerMapper;
 import com.team25.event.planner.user.mapper.UserMapper;
 import com.team25.event.planner.user.model.*;
-import com.team25.event.planner.user.repository.AccountRepository;
-import com.team25.event.planner.user.repository.OwnerRepository;
-import com.team25.event.planner.user.repository.SuspensionRepository;
-import com.team25.event.planner.user.repository.UserRepository;
+import com.team25.event.planner.user.repository.*;
+import jakarta.persistence.EntityManager;
+import jakarta.persistence.PersistenceContext;
+import jakarta.persistence.Query;
 import jakarta.validation.Valid;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -61,6 +64,11 @@ public class UserService {
     private final String profilePictureFilenameTemplate;
     private final Path companyPicturesFileStorageLocation;
     private final CurrentUserService currentUserService;
+    private final ChatMessageService chatMessageService;
+    private final ChatRoomService chatRoomService;
+    private final UserFavoritesService userFavoritesService;
+    private final NotificationService notificationService;
+    private final EventOrganizerRepository eventOrganizerRepository;
 
 
     public UserService(
@@ -69,7 +77,7 @@ public class UserService {
             @Value("${file-storage.images.profile}") String profilePictureSaveDirectory,
             @Value("${filename.template.profile-pic}") String profilePictureFilenameTemplate,
             @Value("${file-storage.images.company}") String companyPicturesSaveDirectory,
-            OwnerRepository ownerRepository, LocationMapper locationMapper, GeocodingService geocodingService, EventService eventService, CurrentUserService currentUserService) {
+            OwnerRepository ownerRepository, LocationMapper locationMapper, GeocodingService geocodingService, EventService eventService, CurrentUserService currentUserService, EventOrganizerRepository eventOrganizerRepository, ChatMessageService chatMessageService, ChatRoomService chatRoomService, UserFavoritesService userFavoritesService, NotificationService notificationService) {
         this.userMapper = userMapper;
         this.eventOrganizerMapper = eventOrganizerMapper;
         this.ownerMapper = ownerMapper;
@@ -84,6 +92,11 @@ public class UserService {
         this.geocodingService = geocodingService;
         this.eventService = eventService;
         this.currentUserService = currentUserService;
+        this.chatMessageService = chatMessageService;
+        this.chatRoomService = chatRoomService;
+        this.userFavoritesService = userFavoritesService;
+        this.notificationService = notificationService;
+        this.eventOrganizerRepository = eventOrganizerRepository;
     }
 
     public UserResponseDTO getUser(Long userId) {
@@ -369,4 +382,75 @@ public class UserService {
         User user = userRepository.findById(userId).orElseThrow(() -> new NotFoundError("User not found"));
         return currentUser.getBlockedUsers().contains(user);
     }
+
+    public User upgradeProfile(@Valid RegisterRequestDTO registerRequestDTO) {
+        User user = switch (registerRequestDTO.getUserRole()) {
+            case EVENT_ORGANIZER -> eventOrganizerMapper.toEventOrganizer(registerRequestDTO);
+            case OWNER -> ownerMapper.toOwner(registerRequestDTO);
+            default -> userMapper.toUser(registerRequestDTO);
+        };
+        if (user instanceof Owner owner) {
+            assert registerRequestDTO.getOwnerFields() != null;
+            final List<String> pictureFilenames = saveCompanyPictures(registerRequestDTO.getOwnerFields().getCompanyPictures());
+            owner.setCompanyPictures(pictureFilenames);
+
+            final LatLongDTO latLong = geocodingService.getLatLong(registerRequestDTO.getOwnerFields().getCompanyAddress());
+            owner.getCompanyAddress().setLatitude(latLong.getLatitude());
+            owner.getCompanyAddress().setLongitude(latLong.getLongitude());
+        } else if (user instanceof EventOrganizer organizer) {
+            assert registerRequestDTO.getEventOrganizerFields() != null;
+            final LatLongDTO latLong = geocodingService.getLatLong(registerRequestDTO.getEventOrganizerFields().getLivingAddress());
+            organizer.getLivingAddress().setLatitude(latLong.getLatitude());
+            organizer.getLivingAddress().setLongitude(latLong.getLongitude());
+        }
+        try {
+            final String filename = saveProfilePicture(registerRequestDTO.getProfilePicture());
+            user.setProfilePictureUrl(filename);
+            return user;
+        } catch (Exception e) {
+            FileUtils.deleteFiles(profilePictureFileStorageLocation, List.of(user.getProfilePictureUrl()));
+            if (user instanceof Owner owner) {
+                FileUtils.deleteFiles(companyPicturesFileStorageLocation, owner.getCompanyPictures());
+            }
+            throw e;
+        }
+    }
+
+    @PersistenceContext
+    private EntityManager entityManager;
+
+    @Transactional
+    public void insertIntoEventOrganizer(Long userId, Location livingAddress, PhoneNumber phoneNumber) {
+        String sql = "INSERT INTO event_organizers (id, address, phone_number,city, country,latitude,longitude) VALUES (?, ?, ?, ?,?,?,?)";
+        Query query = entityManager.createNativeQuery(sql);
+        query.setParameter(1, userId);
+        query.setParameter(2, livingAddress.getAddress());
+        query.setParameter(3, phoneNumber.getPhoneNumber());
+        query.setParameter(4, livingAddress.getCity());
+        query.setParameter(5, livingAddress.getCountry());
+        query.setParameter(6, livingAddress.getLatitude());
+        query.setParameter(7, livingAddress.getLongitude());
+        query.executeUpdate();
+    }
+
+    @Transactional
+    public void insertIntoOwner(Long userId, String companyName, Location companyAddress, PhoneNumber contactPhone, String description) {
+        String sql = "INSERT INTO owners (id, address, contact_phone,city, country,latitude,longitude, description, company_name) " +
+                "VALUES (?, ?, ?, ?, ?, ?, ?,?,?)";
+
+        Query query = entityManager.createNativeQuery(sql);
+        query.setParameter(1, userId);
+        query.setParameter(2, companyAddress.getAddress());
+        query.setParameter(3, contactPhone.getPhoneNumber());
+        query.setParameter(4, companyAddress.getCity());
+        query.setParameter(5, companyAddress.getCountry());
+        query.setParameter(6, companyAddress.getLatitude());
+        query.setParameter(7, companyAddress.getLongitude());
+        query.setParameter(8, description);
+        query.setParameter(9, companyName);
+
+        query.executeUpdate();
+    }
+
+
 }
