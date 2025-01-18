@@ -126,11 +126,11 @@ public class NotificationService {
     }
 
     public void sendOfferingReviewNotificationToOwner(Offering offering) {
-        String title = "New service comment";
+        String title = "New service review";
         String message ="The service '" + offering.getName() + "' has a new review. Take a look.";
         NotificationCategory notificationCategory = NotificationCategory.SERVICE;
         if(offering instanceof Product){
-            title = "New product comment";
+            title = "New product review";
             message = "The product '" + offering.getName() + "' has a new review. Take a look.";
             notificationCategory = NotificationCategory.PRODUCT;
         }
