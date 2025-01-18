@@ -15,7 +15,7 @@ import java.util.List;
 public interface EventRepository extends JpaRepository<Event, Long>, JpaSpecificationExecutor<Event> {
     @Query("""
                 SELECT CASE
-                           WHEN COUNT(e) = 0 THEN TRUE
+                           WHEN (SELECT COUNT(e1) FROM Event e1 WHERE e1.id = :eventId) = 0 THEN TRUE
                            WHEN e.organizer.id = :userId THEN TRUE
                            WHEN e.privacyType = 0 THEN TRUE
                            WHEN EXISTS (
