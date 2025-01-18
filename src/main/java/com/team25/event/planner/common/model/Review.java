@@ -1,6 +1,7 @@
 package com.team25.event.planner.common.model;
 
 import com.team25.event.planner.event.model.Purchase;
+import com.team25.event.planner.user.model.User;
 import jakarta.persistence.*;
 import jakarta.validation.constraints.Max;
 import jakarta.validation.constraints.Min;
@@ -45,5 +46,8 @@ public class Review {
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "purchase_id", nullable = false)
     private Purchase purchase;
+
+    @ManyToOne
+    private User user;
 
 }

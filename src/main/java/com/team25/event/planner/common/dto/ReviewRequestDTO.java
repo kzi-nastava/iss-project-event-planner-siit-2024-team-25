@@ -11,4 +11,5 @@ public class ReviewRequestDTO {
     private int rating;
     private ReviewType reviewType;
     private Long purchaseId;
+    private Long userId;
 }

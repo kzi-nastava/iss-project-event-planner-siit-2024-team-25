@@ -2,6 +2,7 @@ package com.team25.event.planner.common.dto;
 
 import com.team25.event.planner.common.model.ReviewStatus;
 import com.team25.event.planner.common.model.ReviewType;
+import com.team25.event.planner.user.dto.UserResponseDTO;
 import lombok.Data;
 
 import java.time.Instant;
@@ -16,4 +17,5 @@ public class ReviewResponseDTO {
     private ReviewStatus reviewStatus;
     private Date createdDate;
     private Long purchaseId;
+    private UserResponseDTO user;
 }
