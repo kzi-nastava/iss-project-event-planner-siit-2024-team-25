@@ -1,5 +1,6 @@
 package com.team25.event.planner.infrastructure;
 
+import com.team25.event.planner.common.dto.ReviewStatsResponseDTO;
 import com.team25.event.planner.common.exception.ReportGenerationFailedException;
 import com.team25.event.planner.event.dto.ActivityResponseDTO;
 import com.team25.event.planner.event.dto.EventResponseDTO;
@@ -21,6 +22,7 @@ import java.io.InputStream;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.TreeMap;
 
 @Service
 public class JasperReportPdfService implements EventReportService {
@@ -51,6 +53,40 @@ public class JasperReportPdfService implements EventReportService {
             throw new ReportGenerationFailedException("Failed to generate Jasper Report", e);
         } catch (IOException e) {
             logger.error("Failed to read Jasper Report template for event details.", e);
+            throw new ReportGenerationFailedException("Failed to read Jasper Report template", e);
+        }
+    }
+
+    @Override
+    public Resource generateEventStatsReport(EventResponseDTO event, ReviewStatsResponseDTO reviewStats, int numAttendees)
+            throws ReportGenerationFailedException {
+        try {
+            InputStream reportInputStream = new ClassPathResource("jasper-reports/event-stats.jrxml").getInputStream();
+            JasperDesign jasperDesign = JRXmlLoader.load(reportInputStream);
+            JasperReport report = JasperCompileManager.compileReport(jasperDesign);
+
+            Map<String, Object> parameters = new HashMap<>();
+            parameters.put("LOGO", new ClassPathResource("email-resources/logo.png").getInputStream());
+
+            Map<String, Object> reportData = new HashMap<>();
+            reportData.put("eventName", event.getName());
+            reportData.put("reviewCount", reviewStats.getReviewCount());
+            reportData.put("averageRating", reviewStats.getAverageRating());
+            reportData.put("numAttendees", numAttendees);
+            reportData.put("reviewCounts", new TreeMap<>(reviewStats.getReviewCounts()));
+
+            JRBeanArrayDataSource dataSource = new JRBeanArrayDataSource(new Map[]{reportData});
+
+            JasperPrint print = JasperFillManager.fillReport(report, parameters, dataSource);
+
+            byte[] pdfBytes = JasperExportManager.exportReportToPdf(print);
+
+            return new ByteArrayResource(pdfBytes);
+        } catch (JRException e) {
+            logger.error("Failed to generate Jasper Report for stats of event {}", event.getId(), e);
+            throw new ReportGenerationFailedException("Failed to generate Jasper Report", e);
+        } catch (IOException e) {
+            logger.error("Failed to read Jasper Report template for event stats.", e);
             throw new ReportGenerationFailedException("Failed to read Jasper Report template", e);
         }
     }

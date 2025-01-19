@@ -177,4 +177,17 @@ public class EventController {
     ) {
         return ResponseEntity.ok(eventService.getAttendeesOfEvent(eventId, page, size));
     }
+
+    @GetMapping("/{id}/stats/report")
+    @PreAuthorize("@eventPermissionEvaluator.canView(authentication, #id)")
+    public ResponseEntity<Resource> getEventStatsReport(@PathVariable Long id) {
+        ResourceResponseDTO resourceResponse = eventService.getEventStatsReport(id);
+        return ResponseEntity.ok()
+                .contentType(resourceResponse.getMimeType())
+                .header(HttpHeaders.CONTENT_DISPOSITION, ContentDisposition.attachment()
+                        .filename(resourceResponse.getFilename())
+                        .build().toString()
+                )
+                .body(resourceResponse.getResource());
+    }
 }
