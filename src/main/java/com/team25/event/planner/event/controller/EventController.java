@@ -108,7 +108,7 @@ public class EventController {
     }
 
     @PostMapping("/{eventId}/send-invitations")
-    @Secured("ROLE_EVENT_ORGANIZER")
+    @PreAuthorize("hasRole('ROLE_EVENT_ORGANIZER') and @eventPermissionEvaluator.canEdit(authentication, #eventId)")
     public ResponseEntity<Void> sendInvitations(
             @PathVariable("eventId") Long eventId,
             @RequestBody List<EventInvitationRequestDTO> requestDTO
@@ -166,5 +166,15 @@ public class EventController {
             @Valid @RequestBody JoinEventRequestDTO joinRequest
     ) {
         return ResponseEntity.ok(eventService.joinEvent(eventId, joinRequest.getUserId()));
+    }
+
+    @GetMapping("/{eventId}/attendees")
+    @PreAuthorize("hasRole('ROLE_ADMIN') or @eventPermissionEvaluator.canEdit(authentication, #eventId)")
+    public ResponseEntity<Page<AttendeeResponseDTO>> getEventAttendees(
+            @PathVariable Long eventId,
+            @RequestParam(defaultValue = "0") int page,
+            @RequestParam(defaultValue = "10") int size
+    ) {
+        return ResponseEntity.ok(eventService.getAttendeesOfEvent(eventId, page, size));
     }
 }

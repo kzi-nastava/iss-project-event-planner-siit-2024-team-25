@@ -22,7 +22,6 @@ import com.team25.event.planner.user.repository.AccountRepository;
 import com.team25.event.planner.user.repository.EventOrganizerRepository;
 import com.team25.event.planner.user.repository.UserRepository;
 import com.team25.event.planner.user.service.CurrentUserService;
-import com.team25.event.planner.user.service.UserService;
 import jakarta.persistence.criteria.JoinType;
 import jakarta.persistence.criteria.Predicate;
 import jakarta.validation.Valid;
@@ -383,5 +382,10 @@ public class EventService {
         eventAttendanceRepository.save(eventAttendance);
 
         return eventMapper.toEventPreviewResponseDTO(event);
+    }
+
+    public Page<AttendeeResponseDTO> getAttendeesOfEvent(Long eventId, int page, int size) {
+        return eventAttendanceRepository.findAttendeesByEventId(eventId, PageRequest.of(page, size))
+                .map(p -> new AttendeeResponseDTO(p.getUserId(), p.getFullName()));
     }
 }
