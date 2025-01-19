@@ -116,21 +116,23 @@ public class NotificationService {
         messagingTemplate.convertAndSend("/notifications/user/"+offering.getOwner().getId().toString(), notificationResponseDTO);
     }
 
-    public void sendEventCommentNotificationToEventOrganizer(Event event, NotificationCategory notificationCategory) {
-        String title = "New event comment";
-        String message ="The event '" + event.getName() + "' has new comment. Please, take a look.";
+    public void sendEventReviewNotificationToEventOrganizer(Event event) {
+        String title = "New event review";
+        String message ="The event '" + event.getName() + "' has a new review. Take a look.";
         Long entityId = event.getId();
-        Notification notification = this.createNotification(title, message, entityId,notificationCategory, event.getOrganizer());
+        Notification notification = this.createNotification(title, message, entityId,NotificationCategory.EVENT, event.getOrganizer());
         NotificationResponseDTO notificationResponseDTO = notificationMapper.toDTO(notification);
         messagingTemplate.convertAndSend("/notifications/user/"+event.getOrganizer().getId().toString(), notificationResponseDTO);
     }
 
-    public void sendOfferingCommentNotificationToOwner(Offering offering, NotificationCategory notificationCategory) {
-        String title = "New service comment";
-        String message ="The service '" + offering.getName() + "' has new comment. Please, take a look.";
+    public void sendOfferingReviewNotificationToOwner(Offering offering) {
+        String title = "New service review";
+        String message ="The service '" + offering.getName() + "' has a new review. Take a look.";
+        NotificationCategory notificationCategory = NotificationCategory.SERVICE;
         if(offering instanceof Product){
-            title = "New product comment";
-            message = "The product '" + offering.getName() + "' has new comment. Please, take a look.";
+            title = "New product review";
+            message = "The product '" + offering.getName() + "' has a new review. Take a look.";
+            notificationCategory = NotificationCategory.PRODUCT;
         }
         Long entityId = offering.getId();
         Notification notification = this.createNotification(title, message, entityId,notificationCategory, offering.getOwner());

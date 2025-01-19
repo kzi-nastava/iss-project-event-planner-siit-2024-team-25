@@ -6,7 +6,6 @@ import com.team25.event.planner.common.model.ReviewType;
 import com.team25.event.planner.user.dto.UserResponseDTO;
 import lombok.Data;
 
-import java.time.Instant;
 import java.util.Date;
 
 @Data

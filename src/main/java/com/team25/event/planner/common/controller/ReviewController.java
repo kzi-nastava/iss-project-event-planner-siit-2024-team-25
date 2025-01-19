@@ -1,9 +1,6 @@
 package com.team25.event.planner.common.controller;
 
-import com.team25.event.planner.common.dto.ReviewFilterDTO;
-import com.team25.event.planner.common.dto.ReviewRequestDTO;
-import com.team25.event.planner.common.dto.ReviewResponseDTO;
-import com.team25.event.planner.common.dto.ReviewUpdateRequestDTO;
+import com.team25.event.planner.common.dto.*;
 import com.team25.event.planner.common.model.ReviewStatus;
 import com.team25.event.planner.common.service.ReviewService;
 import lombok.RequiredArgsConstructor;
@@ -64,5 +61,8 @@ public class ReviewController {
         return reviewService.updateReview(reviewRequestDTO, id);
     }
 
-
+    @GetMapping("/event/{eventId}/stats")
+    public ResponseEntity<ReviewStatsResponseDTO> getEventReviewStats(@PathVariable Long eventId) {
+        return ResponseEntity.ok(reviewService.getEventReviewStats(eventId));
+    }
 }
