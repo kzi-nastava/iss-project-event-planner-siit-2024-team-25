@@ -14,7 +14,9 @@ import com.team25.event.planner.event.repository.BudgetItemRepository;
 import com.team25.event.planner.event.repository.EventRepository;
 import com.team25.event.planner.event.repository.PurchaseRepository;
 import com.team25.event.planner.event.specification.PurchaseSpecification;
+import com.team25.event.planner.offering.common.model.Offering;
 import com.team25.event.planner.offering.common.model.OfferingCategory;
+import com.team25.event.planner.offering.common.repository.OfferingRepository;
 import com.team25.event.planner.offering.product.model.Product;
 import com.team25.event.planner.offering.product.repository.ProductRepository;
 import com.team25.event.planner.offering.service.repository.ServiceRepository;
@@ -38,6 +40,7 @@ public class PurchaseService {
     private final ProductRepository productRepository;
     private final NotificationService notificationService;
     private final EmailService emailService;
+    private final OfferingRepository offeringRepository;
 
 
     // mapper
@@ -178,5 +181,13 @@ public class PurchaseService {
 
     public boolean ownerHasFuturePurchases(Long ownerId) {
         return purchaseRepository.existsByOfferingOwnerIdAndStartDateGreaterThanEqual(ownerId, LocalDate.now());
+    }
+    public List<PurchasePreviewResponseDTO> getEventsPurchase(Long eventId){
+        Event e = eventRepository.findById(eventId).orElse(null);
+        return purchaseRepository.findAllByEvent(e).stream().map(purchaseMapper::toPurchasePreviewResponseDTO).toList();
+    }
+    public List<PurchasePreviewResponseDTO> getOfferingsPurchase(Long offeringId){
+        Offering o = offeringRepository.findById(offeringId).orElseThrow(()->new NotFoundError("Offering not found"));
+        return purchaseRepository.findAllByOffering(o).stream().map(purchaseMapper::toPurchasePreviewResponseDTO).toList();
     }
 }

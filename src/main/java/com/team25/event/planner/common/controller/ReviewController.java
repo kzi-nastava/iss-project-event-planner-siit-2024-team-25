@@ -21,17 +21,17 @@ public class ReviewController {
 
     @GetMapping()
     public Page<ReviewResponseDTO> getReviews(@RequestParam(defaultValue = "APPROVED") String status,
-                                              @RequestParam(required = false) Long eventId,
-                                              @RequestParam(required = false) Long offeringId,
+                                              @RequestParam(required = false, defaultValue = "false") boolean eventsReviews,
+                                              @RequestParam(required = false, defaultValue = "false") boolean offeringsReviews,
                                               @RequestParam(defaultValue = "0") int page,
                                               @RequestParam(defaultValue = "10") int size,
                                               @RequestParam(defaultValue = "createdDate") String sortBy,
                                               @RequestParam(defaultValue = "desc") String sortDirection){
-        if(eventId != null && offeringId == null){
-            return reviewService.getReviewsByEvent(eventId,page,size,sortBy,sortDirection);
-        }else if (offeringId != null && eventId == null) {
-            return reviewService.getReviewsByOffering(offeringId,page,size,sortBy,sortDirection);
-        }else if(eventId == null) {
+        if(eventsReviews){
+            return reviewService.getEventReviewsByOrganizer(page,size,sortBy,sortDirection);
+        }else if (offeringsReviews) {
+            return reviewService.getOfferingReviewsByOwner(page,size,sortBy,sortDirection);
+        }else if(eventsReviews == false && offeringsReviews == false) {
             ReviewFilterDTO filterDTO = new ReviewFilterDTO();
             filterDTO.setStatus(getStatus(status));
             return reviewService.getReviews(filterDTO, page, size, sortBy, sortDirection);

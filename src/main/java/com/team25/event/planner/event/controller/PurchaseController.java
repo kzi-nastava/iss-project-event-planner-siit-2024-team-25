@@ -19,6 +19,15 @@ public class PurchaseController {
 
     private final PurchaseService purchaseService;
 
+    @GetMapping(value = "events/{eventId}")
+    public ResponseEntity<List<PurchasePreviewResponseDTO>> getPurchaseByEvent(@PathVariable("eventId")Long eventId) {
+        return new ResponseEntity<>(purchaseService.getEventsPurchase(eventId), HttpStatus.OK);
+    }
+    @GetMapping(value = "offerings/{offeringId}")
+    public ResponseEntity<List<PurchasePreviewResponseDTO>> getPurchaseByOffering(@PathVariable("offeringId")Long offeringId) {
+        return new ResponseEntity<>(purchaseService.getOfferingsPurchase(offeringId), HttpStatus.OK);
+    }
+
     @PostMapping(value = "events/{eventId}/products")
     @Secured("ROLE_EVENT_ORGANIZER")
     public ResponseEntity<PurchasedProductResponseDTO> purchaseProduct(@PathVariable("eventId") Long eventId,
