@@ -12,14 +12,19 @@ import org.springframework.data.repository.query.Param;
 public interface ReviewRepository extends JpaRepository<Review, Long>, JpaSpecificationExecutor<Review> {
     @Query("""
             select new com.team25.event.planner.common.dto.ReviewResponseDTO(r, e.name) from Review r
-            left outer join Purchase p on r.purchase.id = p.id left outer join Event e on p.id = e.id
-            where e.id = :eventId and r.reviewStatus = 'APPROVED'""")
-    Page<ReviewResponseDTO> findAllByEvent(@Param("eventId") Long eventId, Pageable pageable);
+            left outer join Purchase p on r.purchase.id = p.id
+	        left outer join Event e on p.event.id = e.id
+	        left outer join User u on u.id = e.organizer.id
+            where u.id = :userId and r.reviewStatus = 'APPROVED' and r.reviewType = 'EVENT_REVIEW'""")
+    Page<ReviewResponseDTO> findEventReviewsByOrganizer(@Param("userId") Long userId, Pageable pageable);
 
     @Query("""
+
             select new com.team25.event.planner.common.dto.ReviewResponseDTO(r, o.name) from Review r
-            left outer join Purchase p on r.purchase.id = p.id left outer join Offering o on p.id = o.id
-            where o.id = :offeringId and r.reviewStatus = 'APPROVED'""")
-    Page<ReviewResponseDTO> findAllByOffering(@Param("offeringId") Long offeringId, Pageable pageable);
+            left outer join Purchase p on r.purchase.id = p.id
+	        left outer join Offering o on p.offering.id = o.id
+	        left outer join User u on u.id = o.owner.id
+            where u.id = :userId and r.reviewStatus = 'APPROVED' and r.reviewType = 'OFFERING_REVIEW'""")
+    Page<ReviewResponseDTO> findOfferingReviewsByOwner(@Param("userId") Long userId, Pageable pageable);
 
 }

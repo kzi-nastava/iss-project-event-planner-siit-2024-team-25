@@ -10,6 +10,8 @@ import com.team25.event.planner.common.model.Review;
 import com.team25.event.planner.common.model.ReviewStatus;
 import com.team25.event.planner.common.repository.ReviewRepository;
 import com.team25.event.planner.common.specification.ReviewSpecification;
+import com.team25.event.planner.user.service.AuthService;
+import com.team25.event.planner.user.service.CurrentUserService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.*;
 import org.springframework.data.jpa.domain.Specification;
@@ -22,6 +24,7 @@ public class ReviewService {
     private final ReviewRepository reviewRepository;
     private final ReviewSpecification reviewSpecification;
     private final ReviewMapper reviewMapper;
+    private final CurrentUserService currentUserService;
 
     public ReviewResponseDTO createReview(ReviewRequestDTO reviewRequestDTO) {
         Review review = reviewMapper.reviewFromDTO(reviewRequestDTO);
@@ -40,14 +43,16 @@ public class ReviewService {
         Pageable pageable = PageRequest.of(page, size, Sort.by(direction, sortBy));
         return reviewRepository.findAll(specification, pageable).map(reviewMapper::toDTO);
     }
-    public Page<ReviewResponseDTO> getReviewsByEvent(Long eventId, int page, int size, String sortBy, String sortDirection) {
+    public Page<ReviewResponseDTO> getEventReviewsByOrganizer(int page, int size, String sortBy, String sortDirection) {
+        Long userId = currentUserService.getCurrentUserId();
         Sort.Direction direction = Sort.Direction.fromString(sortDirection);
         Pageable pageable = PageRequest.of(page, size, Sort.by(direction, sortBy));
-        return reviewRepository.findAllByEvent(eventId, pageable);
+        return reviewRepository.findEventReviewsByOrganizer(userId, pageable);
     }
-    public Page<ReviewResponseDTO> getReviewsByOffering(Long offeringId,int page, int size, String sortBy, String sortDirection) {
+    public Page<ReviewResponseDTO> getOfferingReviewsByOwner(int page, int size, String sortBy, String sortDirection) {
+        Long userId = currentUserService.getCurrentUserId();
         Sort.Direction direction = Sort.Direction.fromString(sortDirection);
         Pageable pageable = PageRequest.of(page, size, Sort.by(direction, sortBy));
-        return reviewRepository.findAllByOffering(offeringId, pageable);
+        return reviewRepository.findOfferingReviewsByOwner(userId, pageable);
     }
 }
