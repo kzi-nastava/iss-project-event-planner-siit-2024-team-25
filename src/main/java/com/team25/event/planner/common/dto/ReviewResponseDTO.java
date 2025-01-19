@@ -4,7 +4,6 @@ import com.team25.event.planner.common.model.ReviewStatus;
 import com.team25.event.planner.common.model.ReviewType;
 import lombok.Data;
 
-import java.time.Instant;
 import java.util.Date;
 
 @Data
