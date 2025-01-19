@@ -43,11 +43,11 @@ public class ReviewService {
     public Page<ReviewResponseDTO> getReviewsByEvent(Long eventId, int page, int size, String sortBy, String sortDirection) {
         Sort.Direction direction = Sort.Direction.fromString(sortDirection);
         Pageable pageable = PageRequest.of(page, size, Sort.by(direction, sortBy));
-        return reviewRepository.findAllByEvent(eventId, pageable).map(reviewMapper::toDTO);
+        return reviewRepository.findAllByEvent(eventId, pageable);
     }
     public Page<ReviewResponseDTO> getReviewsByOffering(Long offeringId,int page, int size, String sortBy, String sortDirection) {
         Sort.Direction direction = Sort.Direction.fromString(sortDirection);
         Pageable pageable = PageRequest.of(page, size, Sort.by(direction, sortBy));
-        return reviewRepository.findAllByOffering(offeringId, pageable).map(reviewMapper::toDTO);
+        return reviewRepository.findAllByOffering(offeringId, pageable);
     }
 }
