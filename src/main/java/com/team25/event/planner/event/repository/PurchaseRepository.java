@@ -3,6 +3,7 @@ package com.team25.event.planner.event.repository;
 import com.team25.event.planner.event.dto.PurchasePreviewResponseDTO;
 import com.team25.event.planner.event.model.Event;
 import com.team25.event.planner.event.model.Purchase;
+import com.team25.event.planner.offering.common.model.Offering;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.JpaSpecificationExecutor;
 import org.springframework.data.jpa.repository.Query;
@@ -25,4 +26,6 @@ public interface PurchaseRepository extends JpaRepository<Purchase, Long>, JpaSp
     List<Purchase> findByOfferingOwnerIdAndStartDateLessThanEqualAndEndDateGreaterThanEqual(Long ownerId, LocalDate startDate, LocalDate endDate);
 
     List<Purchase> findAllByEvent(Event e);
+
+    List<Purchase> findAllByOffering(Offering o);
 }
