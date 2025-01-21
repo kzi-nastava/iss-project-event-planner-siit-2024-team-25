@@ -40,6 +40,22 @@ public class ReviewController {
         }
 
     }
+    @GetMapping(value = "events/{id}")
+    public ResponseEntity<Page<ReviewResponseDTO>> getReviewsByEvent(@PathVariable Long id,
+                                                                     @RequestParam(defaultValue = "0") int page,
+                                                                     @RequestParam(defaultValue = "10") int size,
+                                                                     @RequestParam(defaultValue = "createdDate") String sortBy,
+                                                                     @RequestParam(defaultValue = "desc") String sortDirection) {
+        return ResponseEntity.ok(reviewService.getReviewsByEvent(id,page,size,sortBy,sortDirection));
+    }
+    @GetMapping(value = "offerings/{id}")
+    public ResponseEntity<Page<ReviewResponseDTO>> getReviewsByOffering(@PathVariable Long id,
+                                                                        @RequestParam(defaultValue = "0") int page,
+                                                                        @RequestParam(defaultValue = "10") int size,
+                                                                        @RequestParam(defaultValue = "createdDate") String sortBy,
+                                                                        @RequestParam(defaultValue = "desc") String sortDirection){
+        return ResponseEntity.ok(reviewService.getReviewsByOffering(id,page,size,sortBy,sortDirection));
+    }
 
     private ReviewStatus getStatus(String status){
         if(Objects.equals(status, "APPROVED")){
