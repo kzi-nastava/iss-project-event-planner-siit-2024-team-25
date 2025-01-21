@@ -30,4 +30,6 @@ public interface EventAttendanceRepository extends JpaRepository<EventAttendance
             "where ea.attendee.id = :userId " +
             "and e.startDate <= :startDate and e.endDate >= :endDate")
     List<Event> findByAttendeeIdOverlappingDateRange(Long userId, LocalDate startDate, LocalDate endDate);
+
+    int countByEventId(Long eventId);
 }

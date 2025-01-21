@@ -3,8 +3,10 @@ package com.team25.event.planner.event.service;
 import com.team25.event.planner.common.dto.LatLongDTO;
 import com.team25.event.planner.common.dto.LocationResponseDTO;
 import com.team25.event.planner.common.dto.ResourceResponseDTO;
+import com.team25.event.planner.common.dto.ReviewStatsResponseDTO;
 import com.team25.event.planner.common.exception.*;
 import com.team25.event.planner.common.service.GeocodingService;
+import com.team25.event.planner.common.service.ReviewService;
 import com.team25.event.planner.common.util.VerificationCodeGenerator;
 import com.team25.event.planner.communication.service.NotificationService;
 import com.team25.event.planner.email.service.EmailService;
@@ -48,6 +50,7 @@ public class EventService {
     private final static int VERIFICATION_CODE_LENGTH = 64;
 
     private final static String eventDetailsReportFilenameTemplate = "event_$ID_$TIME.pdf";
+    private final static String eventStatsReportFilenameTemplate = "event_stats_$ID_$TIME.pdf";
 
     private final EventRepository eventRepository;
     private final EventTypeRepository eventTypeRepository;
@@ -66,6 +69,7 @@ public class EventService {
     private final GeocodingService geocodingService;
     private final NotificationService notificationService;
     private final EventReportService eventReportService;
+    private final ReviewService reviewService;
 
     public EventResponseDTO getEventById(Long id, String invitationCode) {
         Event event = eventRepository.findById(id).orElseThrow(() -> new NotFoundError("Event not found"));
@@ -387,5 +391,24 @@ public class EventService {
     public Page<AttendeeResponseDTO> getAttendeesOfEvent(Long eventId, int page, int size) {
         return eventAttendanceRepository.findAttendeesByEventId(eventId, PageRequest.of(page, size))
                 .map(p -> new AttendeeResponseDTO(p.getUserId(), p.getFullName()));
+    }
+
+    public ResourceResponseDTO getEventStatsReport(Long eventId) {
+        EventResponseDTO event = getEventById(eventId, null);
+        ReviewStatsResponseDTO reviewStats = reviewService.getEventReviewStats(eventId);
+        int numAttendees = eventAttendanceRepository.countByEventId(event.getId());
+
+        try {
+            Resource resource = eventReportService.generateEventStatsReport(event, reviewStats, numAttendees);
+
+            String filename = eventStatsReportFilenameTemplate
+                    .replace("$ID", event.getId().toString())
+                    .replace("$TIME", Long.toString(System.currentTimeMillis()));
+
+            return new ResourceResponseDTO(resource, filename, MediaType.APPLICATION_PDF);
+
+        } catch (ReportGenerationFailedException e) {
+            throw new ServerError("Failed to generate report", 500);
+        }
     }
 }

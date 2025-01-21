@@ -1,0 +1,77 @@
+<!-- Created with Jaspersoft Studio version 7.0.1.final using JasperReports Library version 7.0.1-573496633c2b4074e32f433154b543003f7d2498  -->
+<jasperReport name="EventStatsReport" language="java" pageWidth="595" pageHeight="842" columnWidth="555" leftMargin="20" rightMargin="20" topMargin="20" bottomMargin="20" uuid="9d9de25b-379c-46ff-80dc-05fa2210ce53">
+    <parameter name="LOGO" class="java.io.InputStream"/>
+    <field name="eventName" class="java.lang.String"/>
+    <field name="reviewCount" class="java.lang.Integer"/>
+    <field name="averageRating" class="java.lang.Double"/>
+    <field name="numAttendees" class="java.lang.Integer"/>
+    <field name="reviewCounts" class="java.util.Map"/>
+    <title height="100">
+        <element kind="image" uuid="ae437aa3-450e-42f2-bd66-5f9e47881e84" x="0" y="0" width="100" height="50">
+            <expression><![CDATA[$P{LOGO}]]></expression>
+        </element>
+        <element kind="textField" uuid="2b30880c-bd48-4f27-a468-40b56c207036" x="120" y="10" width="435" height="30" fontSize="16.0" bold="true" hTextAlign="Left" vTextAlign="Middle">
+            <expression><![CDATA[$F{eventName} + " - Statistics Report"]]></expression>
+        </element>
+    </title>
+    <detail>
+        <band height="400">
+            <element kind="staticText" uuid="4200091c-af95-43f1-92cc-857aae0ab811" x="0" y="10" width="200" height="20" fontSize="12.0" bold="true">
+                <text><![CDATA[Event Statistics]]></text>
+            </element>
+            <element kind="staticText" uuid="d6af9744-de30-4007-b4bb-32ffa38680ad" x="20" y="40" width="150" height="20">
+                <text><![CDATA[Number of Attendees:]]></text>
+            </element>
+            <element kind="textField" uuid="24262aea-2cc9-464c-8f53-dd46ecc4f7b8" x="170" y="40" width="100" height="20">
+                <expression><![CDATA[$F{numAttendees}]]></expression>
+            </element>
+            <element kind="staticText" uuid="034bbab7-32aa-48ee-acf0-4dc398fc4748" x="20" y="70" width="150" height="20">
+                <text><![CDATA[Number of Reviews:]]></text>
+            </element>
+            <element kind="textField" uuid="3b85ef53-c224-4806-8f98-9be25a61e91f" x="170" y="70" width="100" height="20">
+                <expression><![CDATA[$F{reviewCount}]]></expression>
+            </element>
+            <element kind="staticText" uuid="6032068a-bd2a-43ef-8464-027aa3c59d69" x="20" y="100" width="150" height="20">
+                <text><![CDATA[Average Rating:]]></text>
+            </element>
+            <element kind="textField" uuid="f446aa07-1f89-4d02-9f5f-5c828ed01172" x="170" y="100" width="100" height="20" pattern="0.00">
+                <expression><![CDATA[$F{averageRating}]]></expression>
+            </element>
+            <element kind="staticText" uuid="93d7aa80-17cc-4396-989a-415428e95dc9" x="0" y="140" width="200" height="20" fontSize="12.0" bold="true">
+                <text><![CDATA[Review Distribution]]></text>
+            </element>
+            <element kind="chart" chartType="bar" uuid="7b65456f-d3ab-4b4f-b940-3f2c8dcb7a0c" x="20" y="170" width="500" height="200">
+                <dataset kind="category">
+                    <series>
+                        <seriesExpression><![CDATA["Reviews"]]></seriesExpression>
+                        <categoryExpression><![CDATA[1]]></categoryExpression>
+                        <valueExpression><![CDATA[$F{reviewCounts}.get(1)]]></valueExpression>
+                    </series>
+                    <series>
+                        <seriesExpression><![CDATA["Reviews"]]></seriesExpression>
+                        <categoryExpression><![CDATA[2]]></categoryExpression>
+                        <valueExpression><![CDATA[$F{reviewCounts}.get(2)]]></valueExpression>
+                    </series>
+                    <series>
+                        <seriesExpression><![CDATA["Reviews"]]></seriesExpression>
+                        <categoryExpression><![CDATA[3]]></categoryExpression>
+                        <valueExpression><![CDATA[$F{reviewCounts}.get(3)]]></valueExpression>
+                    </series>
+                    <series>
+                        <seriesExpression><![CDATA["Reviews"]]></seriesExpression>
+                        <categoryExpression><![CDATA[4]]></categoryExpression>
+                        <valueExpression><![CDATA[$F{reviewCounts}.get(4)]]></valueExpression>
+                    </series>
+                    <series>
+                        <seriesExpression><![CDATA["Reviews"]]></seriesExpression>
+                        <categoryExpression><![CDATA[5]]></categoryExpression>
+                        <valueExpression><![CDATA[$F{reviewCounts}.get(5)]]></valueExpression>
+                    </series>
+                </dataset>
+                <plot>
+                    <itemLabel/>
+                </plot>
+            </element>
+        </band>
+    </detail>
+</jasperReport>
