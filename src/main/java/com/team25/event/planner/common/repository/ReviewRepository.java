@@ -32,6 +32,23 @@ public interface ReviewRepository extends JpaRepository<Review, Long>, JpaSpecif
             where u.id = :userId and r.reviewStatus = 'APPROVED' and r.reviewType = 'OFFERING_REVIEW'""")
     Page<ReviewResponseDTO> findOfferingReviewsByOwner(@Param("userId") Long userId, Pageable pageable);
 
+    @Query("""
+            select r from Review r
+            left outer join Purchase p on r.purchase.id = p.id
+	        left outer join Offering o on p.offering.id = o.id
+            where o.id = :offeringId and r.reviewStatus = 'APPROVED' and r.reviewType = 'OFFERING_REVIEW'
+        """)
+    Page<Review> getReviewsByOffering(@Param("offeringId") Long offeringId, Pageable pageable);
+
+    @Query("""
+            select r from Review r
+            left outer join Purchase p on r.purchase.id = p.id
+	        left outer join Event e on p.event.id = e.id
+            where e.id = :eventId and r.reviewStatus = 'APPROVED' and r.reviewType = 'EVENT_REVIEW'
+        """)
+    Page<Review> getReviewByEvent(@Param("eventId") Long eventId, Pageable pageable);
+
+
     @Query("select r.rating as rating, COUNT(r) as count from Review r " +
             "where r.purchase.event.id = :eventId " +
             "and r.reviewStatus = com.team25.event.planner.common.model.ReviewStatus.APPROVED " +

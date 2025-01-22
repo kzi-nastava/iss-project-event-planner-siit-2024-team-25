@@ -9,6 +9,10 @@ import com.team25.event.planner.common.model.ReviewType;
 import com.team25.event.planner.common.repository.ReviewRepository;
 import com.team25.event.planner.common.specification.ReviewSpecification;
 
+import com.team25.event.planner.event.model.Event;
+import com.team25.event.planner.event.repository.EventRepository;
+import com.team25.event.planner.offering.common.model.Offering;
+import com.team25.event.planner.offering.common.repository.OfferingRepository;
 import com.team25.event.planner.user.service.CurrentUserService;
 
 import com.team25.event.planner.communication.model.NotificationCategory;
@@ -39,6 +43,8 @@ public class ReviewService {
     private final CurrentUserService currentUserService;
 
     private final NotificationService notificationService;
+    private final EventRepository eventRepository;
+    private final OfferingRepository offeringRepository;
 
 
     public ReviewResponseDTO createReview(ReviewRequestDTO reviewRequestDTO) {
@@ -76,6 +82,19 @@ public class ReviewService {
         Sort.Direction direction = Sort.Direction.fromString(sortDirection);
         Pageable pageable = PageRequest.of(page, size, Sort.by(direction, sortBy));
         return reviewRepository.findOfferingReviewsByOwner(userId, pageable);
+    }
+
+    public Page<ReviewResponseDTO> getReviewsByEvent(Long eventId, int page, int size, String sortBy, String sortDirection) {
+        Event e = eventRepository.findById(eventId).orElseThrow(()->new NotFoundError("Event not found"));
+        Sort.Direction direction = Sort.Direction.fromString(sortDirection);
+        Pageable pageable = PageRequest.of(page, size, Sort.by(direction, sortBy));
+        return reviewRepository.getReviewByEvent(eventId,pageable).map(reviewMapper::toDTO);
+    }
+    public Page<ReviewResponseDTO> getReviewsByOffering(Long offeringId, int page, int size, String sortBy, String sortDirection) {
+        Offering o = offeringRepository.findById(offeringId).orElseThrow(()->new NotFoundError("Offering not found"));
+        Sort.Direction direction = Sort.Direction.fromString(sortDirection);
+        Pageable pageable = PageRequest.of(page, size, Sort.by(direction, sortBy));
+        return reviewRepository.getReviewsByOffering(offeringId,pageable).map(reviewMapper::toDTO);
     }
 
     public ReviewStatsResponseDTO getEventReviewStats(Long eventId) {
