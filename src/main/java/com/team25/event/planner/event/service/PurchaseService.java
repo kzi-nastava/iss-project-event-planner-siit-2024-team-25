@@ -183,7 +183,7 @@ public class PurchaseService {
         return purchaseRepository.existsByOfferingOwnerIdAndStartDateGreaterThanEqual(ownerId, LocalDate.now());
     }
     public List<PurchasePreviewResponseDTO> getEventsPurchase(Long eventId){
-        Event e = eventRepository.findById(eventId).orElse(null);
+        Event e = eventRepository.findById(eventId).orElseThrow(()->new NotFoundError("Event not found"));
         return purchaseRepository.findAllByEvent(e).stream().map(purchaseMapper::toPurchasePreviewResponseDTO).toList();
     }
     public List<PurchasePreviewResponseDTO> getOfferingsPurchase(Long offeringId){

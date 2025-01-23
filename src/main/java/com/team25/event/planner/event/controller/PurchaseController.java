@@ -21,7 +21,7 @@ public class PurchaseController {
 
     @GetMapping(value = "events/{eventId}")
     public ResponseEntity<List<PurchasePreviewResponseDTO>> getPurchaseByEvent(@PathVariable("eventId")Long eventId) {
-        return new ResponseEntity<>(purchaseService.getEventsPurchase(eventId), HttpStatus.OK);
+        return ResponseEntity.status(HttpStatus.OK).body(purchaseService.getEventsPurchase(eventId));
     }
     @GetMapping(value = "offerings/{offeringId}")
     public ResponseEntity<List<PurchasePreviewResponseDTO>> getPurchaseByOffering(@PathVariable("offeringId")Long offeringId) {

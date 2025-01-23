@@ -9,5 +9,5 @@ public class PurchasePreviewResponseDTO {
     private Long id;
     private OfferingCategoryPreviewResponseDTO offering;
     private Money price;
-    private EventPreviewResponseDTO event;
+    private EventNameResponseDTO event;
 }

@@ -46,9 +46,6 @@ public interface PurchaseMapper {
     @Mapping(target = "serviceName", source = "offering.name")
     PurchaseServicePreviewResponseDTO toPurchaseServicePreviewResponseDTO(Purchase purchase);
 
-    @Mapping(target = "offering.id", source = "offering.id")
-    @Mapping(target = "offering.name", source = "offering.name")
-    @Mapping(target = "event.id", source = "event.id")
-    @Mapping(target = "event.name", source = "event.name")
+
     PurchasePreviewResponseDTO toPurchasePreviewResponseDTO(Purchase purchase);
 }
