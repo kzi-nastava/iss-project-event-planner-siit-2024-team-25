@@ -107,7 +107,7 @@ public class ProductService {
 
     public Page<OfferingPreviewResponseDTO> getOwnerProducts(Long ownerId, OfferingFilterDTO filter, int page, int size, String sortBy, String sortDirection) {
         Specification<Product> spec = productSpecification.createSpecification(filter);
-        spec.and((root, query, cb) -> cb.equal(root.get("owner").get("id"), ownerId));
+        spec = spec.and((root, query, cb) -> cb.equal(root.get("owner").get("id"), ownerId));
 
         Sort.Direction direction = Sort.Direction.fromString(sortDirection);
         Pageable pageable = PageRequest.of(page, size, Sort.by(direction, sortBy));
