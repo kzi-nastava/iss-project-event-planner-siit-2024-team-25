@@ -1,5 +1,0 @@
-ALTER TABLE review
-    ADD user_id BIGINT;
-
-ALTER TABLE review
-    ADD CONSTRAINT FK_REVIEW_ON_USER FOREIGN KEY (user_id) REFERENCES users (id);
