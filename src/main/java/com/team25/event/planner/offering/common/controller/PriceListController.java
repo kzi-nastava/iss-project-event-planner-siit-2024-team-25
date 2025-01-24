@@ -1,9 +1,13 @@
 package com.team25.event.planner.offering.common.controller;
 
+import com.team25.event.planner.common.dto.ResourceResponseDTO;
 import com.team25.event.planner.offering.common.dto.PriceListItemResponseDTO;
 import com.team25.event.planner.offering.common.dto.PriceListItemUpdateRequestDTO;
 import com.team25.event.planner.offering.common.service.PriceListService;
 import lombok.AllArgsConstructor;
+import org.springframework.core.io.Resource;
+import org.springframework.http.ContentDisposition;
+import org.springframework.http.HttpHeaders;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
@@ -24,6 +28,18 @@ public class PriceListController {
     @GetMapping(value = "{ownerId}/services", produces = MediaType.APPLICATION_JSON_VALUE)
     public ResponseEntity<Collection<PriceListItemResponseDTO>> getServices(@PathVariable("ownerId")Long ownerId){
         return ResponseEntity.ok(priceListService.getServicesPriceList(ownerId));
+    }
+
+    @GetMapping(value = "/{ownerId}/price-list-report")
+    public ResponseEntity<Resource> getPriceListReport(@PathVariable("ownerId")Long ownerId){
+        ResourceResponseDTO resourceResponse = priceListService.getPriceListReport(ownerId);
+        return ResponseEntity.ok()
+                .contentType(resourceResponse.getMimeType())
+                .header(HttpHeaders.CONTENT_DISPOSITION, ContentDisposition.attachment()
+                        .filename(resourceResponse.getFilename())
+                        .build().toString()
+                )
+                .body(resourceResponse.getResource());
     }
 
     @PutMapping(value = "{offeringId}")
