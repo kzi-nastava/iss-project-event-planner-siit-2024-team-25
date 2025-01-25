@@ -18,7 +18,7 @@ public class BudgetItemController {
     private final BudgetItemService budgetItemService;
 
     @GetMapping(produces = MediaType.APPLICATION_JSON_VALUE)
-    @Secured("EVENT_ORGANIZER")
+    @Secured("ROLE_EVENT_ORGANIZER")
     public ResponseEntity<List<BudgetItemResponseDTO>> getBudgetItemsByEvent(@RequestParam(value = "eventId", required = false) Long eventId){
         if(eventId == null){
             return ResponseEntity.ok(budgetItemService.getAllBudgetItems());
@@ -27,31 +27,31 @@ public class BudgetItemController {
     }
 
     @GetMapping(value = "{id}", produces = MediaType.APPLICATION_JSON_VALUE)
-    @Secured("EVENT_ORGANIZER")
+    @Secured("ROLE_EVENT_ORGANIZER")
     public ResponseEntity<BudgetItemResponseDTO> getBudgetItemById(@PathVariable Long id) {
         return ResponseEntity.ok(budgetItemService.getBudgetItemById(id));
     }
     @GetMapping(value = "/{id}/is-suitable")
-    @Secured("EVENT_ORGANIZER")
+    @Secured("ROLE_EVENT_ORGANIZER")
     public ResponseEntity<Boolean> isOfferingCategorySuitable(@PathVariable Long id,
                                                               @RequestParam("eventId") Long eventId){
         return ResponseEntity.ok(budgetItemService.isSuitableByOfferIdAndNotEventId(id, eventId));
     }
 
     @PostMapping(consumes = MediaType.APPLICATION_JSON_VALUE, produces = MediaType.APPLICATION_JSON_VALUE)
-    @Secured("EVENT_ORGANIZER")
+    @Secured("ROLE_EVENT_ORGANIZER")
     public ResponseEntity<BudgetItemResponseDTO> createBudgetItem(@RequestBody BudgetItemRequestDTO budgetItemRequestDTO) {
         return ResponseEntity.ok(budgetItemService.createBudgetItem(budgetItemRequestDTO));
     }
 
     @PutMapping(value = "{id}", consumes = MediaType.APPLICATION_JSON_VALUE, produces = MediaType.APPLICATION_JSON_VALUE)
-    @Secured("EVENT_ORGANIZER")
+    @Secured("ROLE_EVENT_ORGANIZER")
     public ResponseEntity<BudgetItemResponseDTO> updateBudgetItem(@PathVariable Long id, @RequestBody BudgetItemRequestDTO budgetItemRequestDTO) {
         return ResponseEntity.ok(budgetItemService.updateBudgetItem(id, budgetItemRequestDTO));
     }
 
     @DeleteMapping(value = "{id}")
-    @Secured("EVENT_ORGANIZER")
+    @Secured("ROLE_EVENT_ORGANIZER")
     public ResponseEntity<?> deleteBudgetItem(@PathVariable Long id) {
         return ResponseEntity.ok(budgetItemService.deleteBudgetItem(id));
     }

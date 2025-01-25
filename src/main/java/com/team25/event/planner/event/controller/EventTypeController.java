@@ -36,7 +36,7 @@ public class EventTypeController {
     }
 
     @GetMapping(value = "/{id}/offering-categories")
-    @Secured("EVENT_ORGANIZER")
+    @Secured("ROLE_EVENT_ORGANIZER")
     public ResponseEntity<List<OfferingCategoryPreviewDTO>> getOfferingCategoriesByEventType(@PathVariable Long id) {
 
         return ResponseEntity.ok(eventTypeService.getOfferingCategoryByEventType(id));
