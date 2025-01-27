@@ -100,14 +100,10 @@ public class JasperReportPdfService implements EventReportService, PriceListRepo
             JasperDesign jasperDesign = JRXmlLoader.load(reportInputStream);
             JasperReport report = JasperCompileManager.compileReport(jasperDesign);
 
+            JRBeanCollectionDataSource dataSource = new JRBeanCollectionDataSource(priceListItems);
             Map<String, Object> parameters = new HashMap<>();
-            parameters.put("ReportTitle", "Price list");
 
-            JRBeanCollectionDataSource reportData = new JRBeanCollectionDataSource(priceListItems);
-
-            //JRBeanArrayDataSource dataSource = new JRBeanArrayDataSource(new Map[]{reportData});
-
-            JasperPrint print = JasperFillManager.fillReport(report, parameters, reportData);
+            JasperPrint print = JasperFillManager.fillReport(report, parameters, dataSource);
 
             byte[] pdfBytes = JasperExportManager.exportReportToPdf(print);
 
