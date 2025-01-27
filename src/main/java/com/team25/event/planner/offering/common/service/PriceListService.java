@@ -45,10 +45,11 @@ public class PriceListService {
     }
 
     public ResourceResponseDTO getPriceListReport(Long ownerId){
+        Owner owner = ownerRepository.findById(ownerId).orElseThrow(()->new NotFoundError("Owner is not found"));
         List<PriceListItemResponseDTO> priceListItemResponse = new ArrayList<>(getProductsPriceList(ownerId));
         priceListItemResponse.addAll(getServicesPriceList(ownerId));
         try {
-            Resource resource = priceListReportService.generatePriceListReport(priceListItemResponse);
+            Resource resource = priceListReportService.generatePriceListReport(priceListItemResponse, owner.getFirstName() + " " + owner.getLastName());
 
             String filename = priceListReportFilenameTemplate
                     .replace("$ID", ownerId.toString())

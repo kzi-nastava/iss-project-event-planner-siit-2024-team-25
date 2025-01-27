@@ -1,7 +1,7 @@
 <!-- Created with Jaspersoft Studio version 7.0.1.final using JasperReports Library version 7.0.1-573496633c2b4074e32f433154b543003f7d2498  -->
 <jasperReport name="Price-list-A4" language="java" pageWidth="595" pageHeight="842" columnWidth="555" leftMargin="20" rightMargin="20" topMargin="20" bottomMargin="20" uuid="a7474c59-795a-4693-986c-ce7287879f9b">
+    <parameter name="ownerName" class="java.lang.String"/>
     <query language="sql"><![CDATA[]]></query>
-    <field name="offeringId" class="java.lang.Long"/>
     <field name="name" class="java.lang.String"/>
     <field name="price" class="java.lang.Double"/>
     <field name="discount" class="java.lang.Double"/>
@@ -11,8 +11,11 @@
         <element kind="rectangle" uuid="2fcd98bc-9f8f-41cb-bac0-5e37ff0f6100" x="0" y="0" width="555" height="83" backcolor="#233878">
             <pen lineWidth="0.0"/>
         </element>
-        <element kind="staticText" uuid="71f5dda4-9560-44e5-9d5d-956a8523d2b2" x="122" y="19" width="310" height="44" forecolor="#FFFFFF" fontSize="33.0" bold="true" hTextAlign="Center" vTextAlign="Middle">
+        <element kind="staticText" uuid="71f5dda4-9560-44e5-9d5d-956a8523d2b2" x="149" y="19" width="267" height="44" forecolor="#FFFFFF" fontSize="33.0" bold="true" hTextAlign="Center" vTextAlign="Middle">
             <text><![CDATA[Price list]]></text>
+        </element>
+        <element kind="textField" uuid="b9a36074-93a8-4046-aaeb-8a1188aee811" x="424" y="50" width="120" height="30" forecolor="#FFFFFF" bold="true" hTextAlign="Center" vTextAlign="Middle">
+            <expression><![CDATA[$P{ownerName}]]></expression>
         </element>
     </title>
     <pageHeader height="9" splitType="Stretch"/>

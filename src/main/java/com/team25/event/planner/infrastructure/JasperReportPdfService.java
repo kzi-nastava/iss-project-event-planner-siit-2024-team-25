@@ -94,7 +94,7 @@ public class JasperReportPdfService implements EventReportService, PriceListRepo
     }
 
     @Override
-    public Resource generatePriceListReport(List<PriceListItemResponseDTO> priceListItems) throws ReportGenerationFailedException{
+    public Resource generatePriceListReport(List<PriceListItemResponseDTO> priceListItems, String ownerName) throws ReportGenerationFailedException{
         try {
             InputStream reportInputStream = new ClassPathResource("jasper-reports/price-list.jrxml").getInputStream();
             JasperDesign jasperDesign = JRXmlLoader.load(reportInputStream);
@@ -102,7 +102,7 @@ public class JasperReportPdfService implements EventReportService, PriceListRepo
 
             JRBeanCollectionDataSource dataSource = new JRBeanCollectionDataSource(priceListItems);
             Map<String, Object> parameters = new HashMap<>();
-
+            parameters.put("ownerName", ownerName);
             JasperPrint print = JasperFillManager.fillReport(report, parameters, dataSource);
 
             byte[] pdfBytes = JasperExportManager.exportReportToPdf(print);
