@@ -7,5 +7,5 @@ import org.springframework.core.io.Resource;
 import java.util.List;
 
 public interface PriceListReportService {
-    Resource generatePriceListReport(List<PriceListItemResponseDTO> priceListItemResponseDTOS, String ownerName) throws ReportGenerationFailedException;
+    Resource generatePriceListReport(List<PriceListItemResponseDTO> priceListItemResponseDTOS, String ownerName, String isProductList) throws ReportGenerationFailedException;
 }

@@ -44,12 +44,20 @@ public class PriceListService {
         return serviceRepository.findAllByOwner(owner).stream().map(priceListMapper::toPriceListItem).collect(Collectors.toList());
     }
 
-    public ResourceResponseDTO getPriceListReport(Long ownerId){
+    public ResourceResponseDTO getPriceListReport(Long ownerId, boolean isProductList){
         Owner owner = ownerRepository.findById(ownerId).orElseThrow(()->new NotFoundError("Owner is not found"));
-        List<PriceListItemResponseDTO> priceListItemResponse = new ArrayList<>(getProductsPriceList(ownerId));
-        priceListItemResponse.addAll(getServicesPriceList(ownerId));
+        List<PriceListItemResponseDTO> priceListItemResponse;
+        String offeringList;
+        if(isProductList){
+            priceListItemResponse = getProductsPriceList(ownerId);
+            offeringList = "Products";
+        }else{
+            priceListItemResponse = getServicesPriceList(ownerId);
+            offeringList = "Services";
+        }
+
         try {
-            Resource resource = priceListReportService.generatePriceListReport(priceListItemResponse, owner.getFirstName() + " " + owner.getLastName());
+            Resource resource = priceListReportService.generatePriceListReport(priceListItemResponse, owner.getFirstName() + " " + owner.getLastName(), offeringList);
 
             String filename = priceListReportFilenameTemplate
                     .replace("$ID", ownerId.toString())

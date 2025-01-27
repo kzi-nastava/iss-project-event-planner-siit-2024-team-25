@@ -6,6 +6,7 @@ import com.team25.event.planner.offering.common.dto.PriceListItemUpdateRequestDT
 import com.team25.event.planner.offering.common.service.PriceListService;
 import lombok.AllArgsConstructor;
 import org.springframework.core.io.Resource;
+import org.springframework.data.jpa.repository.Query;
 import org.springframework.http.ContentDisposition;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.MediaType;
@@ -31,8 +32,9 @@ public class PriceListController {
     }
 
     @GetMapping(value = "/{ownerId}/price-list-report")
-    public ResponseEntity<Resource> getPriceListReport(@PathVariable("ownerId")Long ownerId){
-        ResourceResponseDTO resourceResponse = priceListService.getPriceListReport(ownerId);
+    public ResponseEntity<Resource> getPriceListReport(@PathVariable("ownerId")Long ownerId,
+    @RequestParam(value = "isProductList", defaultValue = "true") boolean isProductList){
+        ResourceResponseDTO resourceResponse = priceListService.getPriceListReport(ownerId, isProductList);
         return ResponseEntity.ok()
                 .contentType(resourceResponse.getMimeType())
                 .header(HttpHeaders.CONTENT_DISPOSITION, ContentDisposition.attachment()

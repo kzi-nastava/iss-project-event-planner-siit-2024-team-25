@@ -21,10 +21,7 @@ import org.springframework.stereotype.Service;
 
 import java.io.IOException;
 import java.io.InputStream;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
-import java.util.TreeMap;
+import java.util.*;
 
 @Service
 public class JasperReportPdfService implements EventReportService, PriceListReportService {
@@ -94,15 +91,22 @@ public class JasperReportPdfService implements EventReportService, PriceListRepo
     }
 
     @Override
-    public Resource generatePriceListReport(List<PriceListItemResponseDTO> priceListItems, String ownerName) throws ReportGenerationFailedException{
+    public Resource generatePriceListReport(List<PriceListItemResponseDTO> priceListItems, String ownerName, String isProductList) throws ReportGenerationFailedException{
         try {
             InputStream reportInputStream = new ClassPathResource("jasper-reports/price-list.jrxml").getInputStream();
             JasperDesign jasperDesign = JRXmlLoader.load(reportInputStream);
             JasperReport report = JasperCompileManager.compileReport(jasperDesign);
 
-            JRBeanCollectionDataSource dataSource = new JRBeanCollectionDataSource(priceListItems);
+            JRBeanCollectionDataSource dataSource;
+            if(priceListItems.isEmpty()){
+                dataSource = new JRBeanCollectionDataSource(Collections.emptyList());
+            }else{
+                 dataSource = new JRBeanCollectionDataSource(priceListItems);
+            }
             Map<String, Object> parameters = new HashMap<>();
             parameters.put("ownerName", ownerName);
+            parameters.put("isProducts", isProductList);
+
             JasperPrint print = JasperFillManager.fillReport(report, parameters, dataSource);
 
             byte[] pdfBytes = JasperExportManager.exportReportToPdf(print);
