@@ -52,7 +52,7 @@ public class BudgetItemService {
 
     public BudgetItemResponseDTO createBudgetItem(BudgetItemRequestDTO budgetItemRequestDTO) {
         BudgetItem budgetItem = budgetItemMapper.toBudgetItem(budgetItemRequestDTO);
-        budgetItem.setMoney(new Money(budgetItemRequestDTO.getBudget(), "EUR"));
+        budgetItem.setMoney(new Money(budgetItemRequestDTO.getBudget()));
         return budgetItemMapper.toResponseDTO(budgetItemRepository.save(budgetItem));
     }
 

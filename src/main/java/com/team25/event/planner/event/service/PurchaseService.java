@@ -48,7 +48,6 @@ public class PurchaseService {
         Event event = eventRepository.findById(eventId).orElseThrow(() -> new NotFoundError("Event not found"));
         Product product = productRepository.findById(dto.getProductId()).orElseThrow(() -> new NotFoundError("Product not found"));
         Purchase purchase = purchaseMapper.toPurchase(event,product);
-        purchase.getPrice().setCurrency("EUR");
         if(!product.isAvailable()){
             throw new InvalidRequestError("Product is not available");
         }
@@ -83,7 +82,6 @@ public class PurchaseService {
         com.team25.event.planner.offering.service.model.Service service = serviceRepository.findById(serviceId).orElseThrow(() -> new NotFoundError("Service not found"));
         Event event = eventRepository.findById(eventId).orElseThrow(() -> new NotFoundError("Event not found"));
         Purchase purchase = purchaseMapper.toPurchase(requestDTO, event, service);
-        purchase.getPrice().setCurrency("$");
         boolean isPurchaseRequestValid = this.isPurchaseRequestValid(purchase, event, service);
 
         if(!service.isAvailable()) {

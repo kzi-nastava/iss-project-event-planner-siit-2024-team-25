@@ -15,6 +15,9 @@ public class Money {
     private double amount;
 
     @NotNull(message = "Currency is required field")
-    private String currency;
+    private String currency = "$";
 
+    public Money(double amount) {
+        this.amount = amount;
+    }
 }
