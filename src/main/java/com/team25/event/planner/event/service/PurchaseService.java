@@ -105,8 +105,6 @@ public class PurchaseService {
             purchaseRepository.save(purchase);
             emailService.sendServicePurchaseConfirmation(purchase);
             return purchaseMapper.toServiceResponseDTO(purchase);
-        } else if (!isServiceAvailable) {
-            throw new InvalidRequestError("Service is not available in the specified period.");
         }
         double servicePrice = service.getPrice() * (100-service.getDiscount()) / 100;
         if(servicePrice <= leftMoney){
