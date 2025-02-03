@@ -60,7 +60,7 @@ public class PurchaseService {
             BudgetItem budgetItem = new BudgetItem();
             budgetItem.setOfferingCategory(product.getOfferingCategory());
             budgetItem.setEvent(event);
-            budgetItem.setMoney(new Money(purchase.getPrice().getAmount(), "EUR"));
+            budgetItem.setMoney(new Money(purchase.getPrice().getAmount()));
             budgetItemRepository.save(budgetItem);
             return purchaseMapper.toProductResponseDTO(purchaseRepository.save(purchase));
         }
@@ -85,14 +85,14 @@ public class PurchaseService {
         boolean isPurchaseRequestValid = this.isPurchaseRequestValid(purchase, event, service);
 
         if(!service.isAvailable()) {
-            throw new InvalidRequestError("Service is not available");
+            throw new InvalidRequestError("Service is not available.");
         }else if(!isServiceAvailable){
-            throw new InvalidRequestError("Service is not available in this period");
+            throw new InvalidRequestError("Service is not available in this period.");
         }
         else if(!isProductCategorySuitableForEvent(event,service.getOfferingCategory().getId())){
-            throw new InvalidRequestError("Product category is not suitable for event");
+            throw new InvalidRequestError("Product category is not suitable for event.");
         } else if (!isPurchaseRequestValid) {
-            throw new InvalidRequestError("Purchase request has invalid date and time");
+            throw new InvalidRequestError("Purchase request has invalid data.");
         }
 
         Double leftMoney = getLeftMoneyFromBudgetItem(eventId, service.getOfferingCategory().getId());
@@ -100,13 +100,11 @@ public class PurchaseService {
             BudgetItem budgetItem = new BudgetItem();
             budgetItem.setOfferingCategory(service.getOfferingCategory());
             budgetItem.setEvent(event);
-            budgetItem.setMoney(new Money(purchase.getPrice().getAmount(), "EUR"));
+            budgetItem.setMoney(new Money(purchase.getPrice().getAmount()));
             budgetItemRepository.save(budgetItem);
             purchaseRepository.save(purchase);
             emailService.sendServicePurchaseConfirmation(purchase);
             return purchaseMapper.toServiceResponseDTO(purchase);
-        } else if (!isServiceAvailable) {
-            throw new InvalidRequestError("Service is not available in the specified period.");
         }
         double servicePrice = service.getPrice() * (100-service.getDiscount()) / 100;
         if(servicePrice <= leftMoney){
@@ -144,8 +142,11 @@ public class PurchaseService {
             isDurationValid= durationInMinutes == service.getDuration()*60;
         }else isDurationValid = durationInMinutes <= service.getMaximumArrangement()*60 && durationInMinutes >= service.getMinimumArrangement()*60;
 
+        double servicePrice = service.getPrice() * (100-service.getDiscount()) / 100;
+        boolean isPriceValid = purchase.getPrice().getAmount() == servicePrice;
 
-        return isTimeValid && isDurationValid && idDeadlineEnd;
+
+        return isTimeValid && isDurationValid && idDeadlineEnd && isPriceValid;
     }
 
 
