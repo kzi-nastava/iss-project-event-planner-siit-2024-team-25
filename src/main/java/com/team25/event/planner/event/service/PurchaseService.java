@@ -60,7 +60,7 @@ public class PurchaseService {
             BudgetItem budgetItem = new BudgetItem();
             budgetItem.setOfferingCategory(product.getOfferingCategory());
             budgetItem.setEvent(event);
-            budgetItem.setMoney(new Money(purchase.getPrice().getAmount(), "EUR"));
+            budgetItem.setMoney(new Money(purchase.getPrice().getAmount()));
             budgetItemRepository.save(budgetItem);
             return purchaseMapper.toProductResponseDTO(purchaseRepository.save(purchase));
         }
@@ -100,7 +100,7 @@ public class PurchaseService {
             BudgetItem budgetItem = new BudgetItem();
             budgetItem.setOfferingCategory(service.getOfferingCategory());
             budgetItem.setEvent(event);
-            budgetItem.setMoney(new Money(purchase.getPrice().getAmount(), "EUR"));
+            budgetItem.setMoney(new Money(purchase.getPrice().getAmount()));
             budgetItemRepository.save(budgetItem);
             purchaseRepository.save(purchase);
             emailService.sendServicePurchaseConfirmation(purchase);
