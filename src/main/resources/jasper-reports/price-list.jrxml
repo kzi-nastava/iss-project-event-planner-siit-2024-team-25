@@ -1,0 +1,75 @@
+<!-- Created with Jaspersoft Studio version 7.0.1.final using JasperReports Library version 7.0.1-573496633c2b4074e32f433154b543003f7d2498  -->
+<jasperReport name="Price-list-A4" language="java" pageWidth="595" pageHeight="842" columnWidth="555" leftMargin="20" rightMargin="20" topMargin="20" bottomMargin="20" uuid="a7474c59-795a-4693-986c-ce7287879f9b">
+    <parameter name="ownerName" class="java.lang.String"/>
+    <parameter name="isProducts" class="java.lang.String"/>
+    <query language="sql"><![CDATA[]]></query>
+    <field name="name" class="java.lang.String"/>
+    <field name="price" class="java.lang.Double"/>
+    <field name="discount" class="java.lang.Double"/>
+    <field name="priceWithDiscount" class="java.lang.Double"/>
+    <background splitType="Stretch"/>
+    <title height="100" splitType="Stretch">
+        <element kind="rectangle" uuid="2fcd98bc-9f8f-41cb-bac0-5e37ff0f6100" x="0" y="0" width="555" height="91" backcolor="#233878">
+            <pen lineWidth="0.0"/>
+        </element>
+        <element kind="staticText" uuid="71f5dda4-9560-44e5-9d5d-956a8523d2b2" x="99" y="16" width="267" height="44" forecolor="#FFFFFF" fontSize="33.0" bold="true" hTextAlign="Center" vTextAlign="Middle">
+            <text><![CDATA[Price list]]></text>
+        </element>
+        <element kind="textField" uuid="b9a36074-93a8-4046-aaeb-8a1188aee811" x="400" y="48" width="120" height="30" forecolor="#FFFFFF" bold="true" hTextAlign="Center" vTextAlign="Middle">
+            <expression><![CDATA[$P{ownerName}]]></expression>
+        </element>
+        <element kind="textField" uuid="7c4793db-9717-4f9c-afb5-7c1792585226" x="183" y="61" width="100" height="20" forecolor="#FFFFFF" fontSize="12.0" italic="true" hTextAlign="Center" vTextAlign="Middle">
+            <expression><![CDATA[$P{isProducts}]]></expression>
+        </element>
+    </title>
+    <pageHeader height="9" splitType="Stretch"/>
+    <columnHeader height="51" splitType="Stretch">
+        <element kind="staticText" uuid="bc3eb0b6-1b21-4e22-8639-988ebecabf3c" mode="Opaque" x="27" y="10" width="73" height="30" forecolor="#FFFFFF" backcolor="#233878" fontSize="13.0" bold="true" hTextAlign="Center" vTextAlign="Middle">
+            <text><![CDATA[No.]]></text>
+        </element>
+        <element kind="staticText" uuid="4d1b1012-f84c-4062-8a70-42be0523cc36" mode="Opaque" x="110" y="10" width="117" height="30" forecolor="#FFFFFF" backcolor="#233878" fontSize="13.0" bold="true" hTextAlign="Center" vTextAlign="Middle">
+            <text><![CDATA[Name]]></text>
+        </element>
+        <element kind="staticText" uuid="0074ea85-6161-4469-81c2-09d76a260198" mode="Opaque" x="237" y="10" width="90" height="30" forecolor="#FFFFFF" backcolor="#233878" fontSize="13.0" bold="true" hTextAlign="Center" vTextAlign="Middle">
+            <text><![CDATA[Price $]]></text>
+        </element>
+        <element kind="staticText" uuid="fb9dfb65-f16b-436b-b335-1f06dcccc973" mode="Opaque" x="337" y="10" width="90" height="30" forecolor="#FFFFFF" backcolor="#233878" fontSize="13.0" bold="true" hTextAlign="Center" vTextAlign="Middle">
+            <text><![CDATA[Discount %]]></text>
+        </element>
+        <element kind="staticText" uuid="c6bfda41-43a6-4854-93b7-c45f8d6333f0" mode="Opaque" x="437" y="10" width="90" height="30" forecolor="#FFFFFF" backcolor="#233878" fontSize="13.0" bold="true" hTextAlign="Center" vTextAlign="Middle">
+            <text><![CDATA[Final price $]]></text>
+        </element>
+    </columnHeader>
+    <detail>
+        <band height="159" splitType="Stretch">
+            <element kind="textField" uuid="9283433b-882d-4eba-b872-41dad2d1626a" mode="Opaque" x="27" y="0" width="72" height="30" forecolor="#FFFFFF" backcolor="#4A92C2" hTextAlign="Center" vTextAlign="Middle">
+                <expression><![CDATA[$V{REPORT_COUNT}]]></expression>
+            </element>
+            <element kind="textField" uuid="45e2ec66-7cb1-4b8e-ade4-5cbc3f3510fb" mode="Opaque" x="110" y="0" width="116" height="30" forecolor="#FFFFFF" backcolor="#4A92C2" hTextAlign="Center" vTextAlign="Middle">
+                <expression><![CDATA[$F{name}]]></expression>
+            </element>
+            <element kind="textField" uuid="4a016611-8d9b-4c10-9e25-9169dd626749" mode="Opaque" x="237" y="0" width="90" height="30" forecolor="#FFFFFF" backcolor="#4A92C2" hTextAlign="Center" vTextAlign="Middle">
+                <expression><![CDATA[$F{price}]]></expression>
+            </element>
+            <element kind="textField" uuid="43e10830-1b70-4ac1-a7c5-b391e0c4aaa5" mode="Opaque" x="337" y="0" width="90" height="30" forecolor="#FFFFFF" backcolor="#4A92C2" hTextAlign="Center" vTextAlign="Middle">
+                <expression><![CDATA[$F{discount}]]></expression>
+            </element>
+            <element kind="textField" uuid="e6b2f67b-db63-4009-9c59-c3e30f7591eb" mode="Opaque" x="437" y="0" width="90" height="30" forecolor="#FFFFFF" backcolor="#4A92C2" hTextAlign="Center" vTextAlign="Middle">
+                <expression><![CDATA[$F{priceWithDiscount}]]></expression>
+            </element>
+        </band>
+    </detail>
+    <columnFooter height="23" splitType="Stretch"/>
+    <summary height="53" splitType="Stretch">
+        <element kind="textField" uuid="45ba7d2f-fd13-4505-b8c4-f6bf7cd08d46" x="471" y="0" width="48" height="30">
+            <expression><![CDATA[ "Page " + $V{PAGE_NUMBER} + " of "]]></expression>
+        </element>
+        <element kind="textField" uuid="ef7444df-7428-41a7-acf2-36023060fab8" x="520" y="0" width="35" height="30" evaluationTime="Report">
+            <expression><![CDATA[ $V{PAGE_NUMBER}]]></expression>
+        </element>
+        <element kind="textField" uuid="2e2b1f61-bc39-4833-bbcf-c595561af0cf" x="13" y="0" width="100" height="30" pattern="MMMMM dd, yyyy">
+            <expression><![CDATA[new java.util.Date()]]></expression>
+        </element>
+    </summary>
+
+</jasperReport>

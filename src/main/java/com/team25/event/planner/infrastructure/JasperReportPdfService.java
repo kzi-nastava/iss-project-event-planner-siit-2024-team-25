@@ -5,6 +5,8 @@ import com.team25.event.planner.common.exception.ReportGenerationFailedException
 import com.team25.event.planner.event.dto.ActivityResponseDTO;
 import com.team25.event.planner.event.dto.EventResponseDTO;
 import com.team25.event.planner.event.service.EventReportService;
+import com.team25.event.planner.offering.common.dto.PriceListItemResponseDTO;
+import com.team25.event.planner.offering.common.service.PriceListReportService;
 import net.sf.jasperreports.engine.*;
 import net.sf.jasperreports.engine.data.JRBeanArrayDataSource;
 import net.sf.jasperreports.engine.data.JRBeanCollectionDataSource;
@@ -19,13 +21,10 @@ import org.springframework.stereotype.Service;
 
 import java.io.IOException;
 import java.io.InputStream;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
-import java.util.TreeMap;
+import java.util.*;
 
 @Service
-public class JasperReportPdfService implements EventReportService {
+public class JasperReportPdfService implements EventReportService, PriceListReportService {
     private static final Logger logger = LoggerFactory.getLogger(JasperReportPdfService.class);
 
     @Override
@@ -87,6 +86,37 @@ public class JasperReportPdfService implements EventReportService {
             throw new ReportGenerationFailedException("Failed to generate Jasper Report", e);
         } catch (IOException e) {
             logger.error("Failed to read Jasper Report template for event stats.", e);
+            throw new ReportGenerationFailedException("Failed to read Jasper Report template", e);
+        }
+    }
+
+    @Override
+    public Resource generatePriceListReport(List<PriceListItemResponseDTO> priceListItems, String ownerName, String isProductList) throws ReportGenerationFailedException{
+        try {
+            InputStream reportInputStream = new ClassPathResource("jasper-reports/price-list.jrxml").getInputStream();
+            JasperDesign jasperDesign = JRXmlLoader.load(reportInputStream);
+            JasperReport report = JasperCompileManager.compileReport(jasperDesign);
+
+            JRBeanCollectionDataSource dataSource;
+            if(priceListItems.isEmpty()){
+                dataSource = new JRBeanCollectionDataSource(Collections.emptyList());
+            }else{
+                 dataSource = new JRBeanCollectionDataSource(priceListItems);
+            }
+            Map<String, Object> parameters = new HashMap<>();
+            parameters.put("ownerName", ownerName);
+            parameters.put("isProducts", isProductList);
+
+            JasperPrint print = JasperFillManager.fillReport(report, parameters, dataSource);
+
+            byte[] pdfBytes = JasperExportManager.exportReportToPdf(print);
+
+            return new ByteArrayResource(pdfBytes);
+        } catch (JRException e) {
+            logger.error("Failed to generate Jasper Report for price list {}", e);
+            throw new ReportGenerationFailedException("Failed to generate Jasper Report", e);
+        } catch (IOException e) {
+            logger.error("Failed to read Jasper Report template for price list.", e);
             throw new ReportGenerationFailedException("Failed to read Jasper Report template", e);
         }
     }
