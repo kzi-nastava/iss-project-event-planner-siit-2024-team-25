@@ -2,8 +2,10 @@ package com.team25.event.planner.offering.service.service;
 
 import com.team25.event.planner.common.exception.InvalidRequestError;
 import com.team25.event.planner.common.exception.NotFoundError;
+import com.team25.event.planner.common.exception.ServerError;
 import com.team25.event.planner.common.exception.UnauthorizedError;
 import com.team25.event.planner.common.model.Location;
+import com.team25.event.planner.common.util.FileUtils;
 import com.team25.event.planner.communication.service.NotificationService;
 import com.team25.event.planner.event.model.EventType;
 import com.team25.event.planner.event.repository.EventTypeRepository;
@@ -17,6 +19,7 @@ import com.team25.event.planner.offering.common.model.OfferingType;
 import com.team25.event.planner.offering.common.repository.OfferingCategoryRepository;
 import com.team25.event.planner.offering.common.repository.OfferingRepository;
 import com.team25.event.planner.offering.product.model.Product;
+import com.team25.event.planner.offering.product.service.ProductService;
 import com.team25.event.planner.offering.service.dto.*;
 import com.team25.event.planner.offering.service.mapper.ServiceMapper;
 import com.team25.event.planner.offering.service.repository.ServiceRepository;
@@ -30,21 +33,30 @@ import lombok.RequiredArgsConstructor;
 import org.mapstruct.AfterMapping;
 import org.mapstruct.MappingTarget;
 import org.mapstruct.control.MappingControl;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+import org.springframework.beans.factory.annotation.Value;
+import org.springframework.core.io.Resource;
+import org.springframework.core.io.UrlResource;
 import org.springframework.data.domain.*;
 import org.springframework.data.jpa.domain.Specification;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
+import org.springframework.web.multipart.MultipartFile;
 
-import java.util.ArrayList;
-import java.util.Collection;
-import java.util.List;
-import java.util.Optional;
+import java.io.IOException;
+import java.net.MalformedURLException;
+import java.nio.file.Files;
+import java.nio.file.Path;
+import java.nio.file.Paths;
+import java.util.*;
 
 @Service
-@RequiredArgsConstructor
 public class ServiceService {
 
+    private final Logger logger = LoggerFactory.getLogger(ServiceService.class);
+    private final Path serviceImageFileStorageLocation;
     private final OfferingMapper offeringMapper;
     private final ServiceRepository serviceRepository;
     private final OfferingCategoryRepository offeringCategoryRepository;
@@ -55,6 +67,37 @@ public class ServiceService {
     private final UserRepository userRepository;
     private final CurrentUserService currentUserService;
     private final NotificationService notificationService;
+
+    public ServiceService(@Value("${file-storage.images.service}") String serviceImageSaveDirectory,
+                          OfferingMapper offeringMapper,
+                          ServiceRepository serviceRepository,
+                          OfferingCategoryRepository offeringCategoryRepository,
+                          EventTypeRepository eventTypeRepository,
+                          ServiceMapper serviceMapper,
+                          ServiceSpecification serviceSpecification,
+                          OfferingRepository offeringRepository,
+                          UserRepository userRepository,
+                          CurrentUserService currentUserService,
+                          NotificationService notificationService) {
+        this.serviceImageFileStorageLocation = Paths.get(serviceImageSaveDirectory).toAbsolutePath().normalize();
+        this.offeringMapper = offeringMapper;
+        this.serviceRepository = serviceRepository;
+        this.offeringCategoryRepository = offeringCategoryRepository;
+        this.eventTypeRepository = eventTypeRepository;
+        this.serviceMapper = serviceMapper;
+        this.serviceSpecification = serviceSpecification;
+        this.offeringRepository = offeringRepository;
+        this.userRepository = userRepository;
+        this.currentUserService = currentUserService;
+        this.notificationService = notificationService;
+        try {
+            Files.createDirectories(serviceImageFileStorageLocation);
+        } catch (IOException e) {
+            logger.error("Service images directory creation failed: {}", serviceImageFileStorageLocation);
+            throw new ServerError("Failed to store image", 500);
+        }
+    }
+
 
     @Transactional
     public ServiceCreateResponseDTO createService(ServiceCreateRequestDTO requestDTO){
@@ -73,6 +116,58 @@ public class ServiceService {
         service = serviceRepository.save(service);
         return serviceMapper.toDTO(service);
 
+    }
+
+    private List<String> saveServiceImages(List<MultipartFile> images){
+        if(images == null){
+            return new ArrayList<>();
+        }
+        List<String> filenames = new ArrayList<>();
+        RuntimeException failException = null;
+        for(MultipartFile file : images){
+            if(!FileUtils.isImage(file)){
+                failException = new InvalidRequestError("One or more service images are not valid");
+                break;
+            }
+            final String extension = FileUtils.getExtensionOrDefault(file, "png");
+            final String filename = UUID.randomUUID() + "." + extension;
+            Path filepath = serviceImageFileStorageLocation.resolve(filename);
+
+            try {
+                file.transferTo(filepath.toFile());
+            } catch (IOException e) {
+                logger.error("Failed to store a service image");
+                failException = new ServerError("Failed to store image", 500);
+            }
+
+            filenames.add(filename);
+        }
+
+        if (failException != null) {
+            FileUtils.deleteFiles(serviceImageFileStorageLocation, filenames);
+            throw failException;
+        }
+
+        return filenames;
+    }
+
+    private Resource getServiceImage(Long serviceId, String imageFileName){
+        final com.team25.event.planner.offering.service.model.Service service = serviceRepository.findById(serviceId)
+                .orElseThrow(() -> new NotFoundError("Service not found"));
+
+        if (!service.getImages().contains(imageFileName)) {
+            throw new NotFoundError("Image not found");
+        }
+        Path filePath = serviceImageFileStorageLocation.resolve(imageFileName);
+        try {
+            Resource resource = new UrlResource(filePath.toUri());
+            if (!resource.exists()) {
+                throw new NotFoundError("Image not found");
+            }
+            return resource;
+        } catch (MalformedURLException e) {
+            throw new NotFoundError("Image not found");
+        }
     }
 
     public Page<ServiceCardResponseDTO> getServices(ServiceFilterDTO filter, int page, int size, String sortBy, String sortDirection){
