@@ -122,7 +122,7 @@ public class ProductService {
 
 
     @Transactional
-    public ProductResponseDTO createProduct(@Valid ProductRequestDTO productDto) {
+        public ProductResponseDTO createProduct(@Valid ProductRequestDTO productDto) {
         final Owner owner = ownerRepository.findById(productDto.getOwnerId())
                 .orElseThrow(() -> new UnauthorizedError("You must be owner to create a product"));
 

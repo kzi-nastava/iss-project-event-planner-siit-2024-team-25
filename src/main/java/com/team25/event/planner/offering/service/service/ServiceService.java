@@ -45,6 +45,7 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;
 
+import java.io.File;
 import java.io.IOException;
 import java.net.MalformedURLException;
 import java.nio.file.Files;
@@ -112,8 +113,17 @@ public class ServiceService {
         }else{
             service.setStatus(OfferingType.ACCEPTED);
         }
+        final List<String> imageFiles = saveServiceImages(requestDTO.getImages());
+        service.setImages(imageFiles);
+        try{
+            service = serviceRepository.save(service);
+        }catch (Exception e){
+            logger.warn("Starting service image cleanup due to failed database write.", e);
+            FileUtils.deleteFiles(serviceImageFileStorageLocation, imageFiles);
+            throw e;
+        }
 
-        service = serviceRepository.save(service);
+
         return serviceMapper.toDTO(service);
 
     }
@@ -151,7 +161,7 @@ public class ServiceService {
         return filenames;
     }
 
-    private Resource getServiceImage(Long serviceId, String imageFileName){
+    public Resource getServiceImage(Long serviceId, String imageFileName){
         final com.team25.event.planner.offering.service.model.Service service = serviceRepository.findById(serviceId)
                 .orElseThrow(() -> new NotFoundError("Service not found"));
 
@@ -209,7 +219,24 @@ public class ServiceService {
         service.setDescription(requestDTO.getDescription());
         service.setPrice(requestDTO.getPrice());
         service.setDiscount(requestDTO.getDiscount());
-        service.setImages(requestDTO.getImages());
+
+        if(requestDTO.getImagesToDelete()!=null){
+            service.getImages().removeAll(requestDTO.getImagesToDelete());
+            for (String image : requestDTO.getImagesToDelete()) {
+                Path imagePath = serviceImageFileStorageLocation.resolve(image);
+                System.out.println("Deleting file: " + imagePath);
+                if (!Files.exists(imagePath)) {
+                    System.out.println("File does not exist: " + imagePath);
+                }
+            }
+            FileUtils.deleteFiles(serviceImageFileStorageLocation, requestDTO.getImagesToDelete());
+
+        }
+        if(requestDTO.getImages() != null){
+            final List<String> fileNames = saveServiceImages(requestDTO.getImages());
+            service.getImages().addAll(fileNames);
+        }
+
         service.setVisible(requestDTO.isVisible());
         service.setAvailable(requestDTO.isAvailable());
         service.setSpecifics(requestDTO.getSpecifics());
