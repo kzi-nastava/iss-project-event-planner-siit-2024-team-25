@@ -14,7 +14,7 @@ import java.time.LocalDate;
 
 @DataJpaTest
 @TestInstance(TestInstance.Lifecycle.PER_CLASS)
-@Sql(scripts = "classpath:test-data.sql", executionPhase = Sql.ExecutionPhase.BEFORE_TEST_CLASS)
+@Sql(scripts = "classpath:purchase-service-test-data.sql", executionPhase = Sql.ExecutionPhase.BEFORE_TEST_CLASS)
 public class PurchaseRepositoryTest {
 
     @Autowired
@@ -92,6 +92,48 @@ public class PurchaseRepositoryTest {
 
         double totalSpent = purchaseRepository.findTotalSpentByEventIdAndOfferingCategoryId(event.getId(), service.getOfferingCategory().getId());
         Assertions.assertEquals(0, totalSpent);
+    }
+
+    @Test
+    @DisplayName("Invalid find total spent by event id and offering category id when there is purchases for event and not for offering category")
+    public void testFindTotalSpentByEventIdAndOfferingCategoryIdInvalidOfferingCategoryId(){
+        Event event = eventRepository.findById(1L).orElse(null);
+
+        Service service = serviceRepository.findById(1L).orElse(null);
+        Service service2 = serviceRepository.findById(2L).orElse(null);
+
+        Purchase purchase1 = new Purchase(null, new Money(service.getPrice()), event.getStartDate(), event.getStartTime(), event.getEndDate(), event.getStartTime(), event, service, null);
+        Purchase purchase2 = new Purchase(null, new Money(service2.getPrice()), event.getStartDate(), event.getStartTime(), event.getEndDate(), event.getStartTime(), event, service, null);
+
+        purchaseRepository.save(purchase1);
+        purchaseRepository.save(purchase2);
+
+        double expectedSpent = 0;
+
+        double totalSpent = purchaseRepository.findTotalSpentByEventIdAndOfferingCategoryId(event.getId(), service2.getOfferingCategory().getId());
+        Assertions.assertEquals(expectedSpent, totalSpent);
+    }
+
+
+    @Test
+    @DisplayName("Invalid find total spent by event id and offering category id when there is purchases for offering category and not for event")
+    public void testFindTotalSpentByEventIdAndOfferingCategoryIdInvalidEventId(){
+        Event event = eventRepository.findById(1L).orElse(null);
+        Event event2 = eventRepository.findById(2L).orElse(null);
+
+        Service service = serviceRepository.findById(1L).orElse(null);
+        Service service2 = serviceRepository.findById(2L).orElse(null);
+
+        Purchase purchase1 = new Purchase(null, new Money(service.getPrice()), event.getStartDate(), event.getStartTime(), event.getEndDate(), event.getStartTime(), event, service, null);
+        Purchase purchase2 = new Purchase(null, new Money(service2.getPrice()), event.getStartDate(), event.getStartTime(), event.getEndDate(), event.getStartTime(), event, service, null);
+
+        purchaseRepository.save(purchase1);
+        purchaseRepository.save(purchase2);
+
+        double expectedSpent = 0;
+
+        double totalSpent = purchaseRepository.findTotalSpentByEventIdAndOfferingCategoryId(event2.getId(), service.getOfferingCategory().getId());
+        Assertions.assertEquals(expectedSpent, totalSpent);
     }
 
 }
