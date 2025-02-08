@@ -38,6 +38,7 @@ public interface ServiceMapper {
     @Mapping(source = "available", target = "available")
     @Mapping(source = "visible", target = "visible")
     @Mapping(target = "status", ignore = true)
+    @Mapping(target = "images", ignore = true)
     Service toEntity(ServiceCreateRequestDTO dto);
 
     default OfferingCategoryPreviewResponseDTO mapOfferingCategoryToDTO(OfferingCategory off){
