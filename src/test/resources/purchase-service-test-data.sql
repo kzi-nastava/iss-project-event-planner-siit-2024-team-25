@@ -4,6 +4,8 @@ INSERT INTO users ( first_name, last_name, profile_picture_url, user_role, accou
 VALUES
     ( 'John', 'Doe', 'https://example.com/johndoe.jpg', 1, 1);
 
+UPDATE accounts SET user_id = 1 WHERE email = 'account1@example.com';
+
 INSERT INTO event_organizers (id, country, city, address, latitude, longitude, phone_number)
 VALUES
     (1, 'Serbia', 'Beograd', 'Bulevar kralja Aleksandra 73', 44, 20, '+381601234567');
@@ -13,6 +15,7 @@ INSERT INTO event_types (description, name, is_active)
 VALUES
     ('Corporate Event', 'Conference', true),
     ('Music and Entertainment Event', 'Concert', true);
+
 
 -- Insert events
 INSERT INTO events ( event_type_id, name, description, max_participants, privacy_type, start_date, end_date, start_time, end_time, country, city, address, latitude, longitude, organizer_id, created_date) VALUES
@@ -51,12 +54,33 @@ INSERT INTO offerings ( name,deleted, description, price, discount, is_visible, 
 VALUES
     ( 'Corporate Event Planning',FALSE, 'End-to-end planning for corporate events including venue selection, scheduling, and coordination.', 5000.0, 10.0, true, true, 0, 1, 2),
     ( 'Wedding Catering',FALSE, 'Full-service catering for weddings including appetizers, main courses, and desserts.', 3000.0, 15.0, true, true, 0, 2, 2),
-    ( 'Live Band Performance',FALSE, 'Live music performance for weddings and concerts.', 2000.0, 5.0, true, true, 0, 2, 2);
+    ( 'Live Band Performance',FALSE, 'Live music performance for weddings and concerts.', 2000.0, 5.0, true, true, 0, 2, 2),
+    ( 'Corporate Event Planning 2',FALSE, 'End-to-end planning for corporate events including venue selection, scheduling, and coordination.', 5000.0, 10.0, true, false, 0, 1, 2),
+    ( 'Corporate Event Planning 3',FALSE, 'End-to-end planning for corporate events including venue selection, scheduling, and coordination.', 5000.0, 10.0, true, false, 0, 1, 2);
 
 -- Insert into services table
 INSERT INTO service (id, specifics, duration, reservation_deadline, cancellation_deadline, reservation_type,minimum_arrangement,maximum_arrangement)
 VALUES
     (1, 'Full event planning with vendor coordination', 2, 48, 24, 'AUTOMATIC',0,0),
     (2, 'Catering services for 100 guests', 2, 72, 48, 'AUTOMATIC',0,0),
-    (3, 'Live band performance for 3 hours', 2, 24, 12, 'AUTOMATIC',0,0);
+    (3, 'Live band performance for 3 hours', 2, 24, 12, 'AUTOMATIC',0,0),
+    (4, 'Full event planning with vendor coordination 2', 2, 48, 24, 'AUTOMATIC',0,0),
+    (5, 'Full event planning with vendor coordination 3', 2, 48, 24, 'AUTOMATIC',0,0);
 
+
+INSERT INTO event_types_offering_categories (event_type_id, offering_categories_id)
+VALUES (
+           1,1
+       );
+
+INSERT INTO accounts ( email, password, status)
+VALUES
+    ('marko@example.com', '$2a$12$yto6FS5Fzul7kr1zPMxUZuzlzYazUy.VyAArUqZx8WasxhW3sn5km', 'ACTIVE'),
+    ('ana@example.com', '$2a$12$yto6FS5Fzul7kr1zPMxUZuzlzYazUy.VyAArUqZx8WasxhW3sn5km', 'ACTIVE');
+
+
+-- Insert Users
+INSERT INTO users ( first_name, last_name, profile_picture_url, user_role, account_id)
+VALUES
+    ('Marko', 'Petrović', 'https://example.com/marko.jpg', 3, 4),
+    ('Ana', 'Jovanović', 'https://example.com/ana.jpg', 0, 5);
