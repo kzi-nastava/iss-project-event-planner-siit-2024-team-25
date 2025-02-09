@@ -43,12 +43,6 @@
     public class PurchaseServiceTest {
 
         @Mock
-        private ServiceMapper serviceMapper;
-
-        @Mock
-        private PurchaseSpecification purchaseSpecification;
-
-        @Mock
         private ServiceRepository serviceRepository;
 
         @Mock
@@ -823,7 +817,7 @@
             InvalidRequestError exception = assertThrowsExactly(InvalidRequestError.class, () ->
                     purchaseService.purchaseService(requestDTO, event.getId(), service.getId()));
 
-            assertEquals(exception.getMessage(),"Not enough budget plan money for the product");
+            assertEquals(exception.getMessage(),"Not enough budget plan money for the service");
 
             verify(purchaseRepository, times(0)).save(purchaseCaptor.capture());
             verify(emailService, times(0)).sendServicePurchaseConfirmation(purchaseCaptor.capture());
