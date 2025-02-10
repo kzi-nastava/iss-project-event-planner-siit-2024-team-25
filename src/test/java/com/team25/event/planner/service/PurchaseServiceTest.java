@@ -1,6 +1,7 @@
     package com.team25.event.planner.service;
 
     import com.team25.event.planner.common.exception.InvalidRequestError;
+    import com.team25.event.planner.common.exception.NotFoundError;
     import com.team25.event.planner.common.model.Location;
     import com.team25.event.planner.email.service.EmailService;
     import com.team25.event.planner.event.dto.PurchaseServiceRequestDTO;
@@ -20,9 +21,7 @@
     import com.team25.event.planner.offering.service.repository.ServiceRepository;
     import com.team25.event.planner.user.model.*;
     import org.assertj.core.api.Assertions;
-    import org.junit.jupiter.api.BeforeEach;
-    import org.junit.jupiter.api.DisplayName;
-    import org.junit.jupiter.api.Test;
+    import org.junit.jupiter.api.*;
     import org.junit.jupiter.api.extension.ExtendWith;
     import org.mockito.*;
     import org.mockito.junit.jupiter.MockitoExtension;
@@ -40,6 +39,7 @@
     import static org.junit.jupiter.api.Assertions.*;
 
     @ExtendWith(MockitoExtension.class)
+    @TestMethodOrder(MethodOrderer.OrderAnnotation.class)
     public class PurchaseServiceTest {
 
         @Mock
@@ -879,6 +879,41 @@
             verify(budgetItemRepository, times(0)).save(budgetItemCaptor.capture());
 
             verify(purchaseMapper, times(1)).toServiceResponseDTO(purchaseCaptor.capture());
+        }
+
+        @Test
+        @DisplayName("Invalid purchase request when service does not exist")
+        public void testPurchaseServiceWhenServiceDoesNotExist(){
+            Mockito.when(serviceRepository.findById(service.getId())).thenReturn(Optional.empty());
+            Mockito.doReturn(true).when(purchaseService).isServiceAvailable(any(), any());
+
+            NotFoundError exception = assertThrowsExactly(NotFoundError.class, () ->
+                    purchaseService.purchaseService(requestDTO, event.getId(), service.getId()));
+
+            assertEquals(exception.getMessage(),"Service not found");
+
+            verify(purchaseRepository, times(0)).save(purchaseCaptor.capture());
+            verify(emailService, times(0)).sendServicePurchaseConfirmation(purchaseCaptor.capture());
+            verify(budgetItemRepository, times(0)).save(budgetItemCaptor.capture());
+            verify(purchaseMapper, times(0)).toServiceResponseDTO(purchaseCaptor.capture());
+        }
+
+        @Test
+        @DisplayName("Invalid purchase request when event does not exist")
+        public void testPurchaseServiceWhenEventDoesNotExist(){
+            Mockito.when(serviceRepository.findById(service.getId())).thenReturn(Optional.of(service));
+            Mockito.when(eventRepository.findById(event.getId())).thenReturn(Optional.empty());
+            Mockito.doReturn(true).when(purchaseService).isServiceAvailable(any(), any());
+
+            NotFoundError exception = assertThrowsExactly(NotFoundError.class, () ->
+                    purchaseService.purchaseService(requestDTO, event.getId(), service.getId()));
+
+            assertEquals(exception.getMessage(),"Event not found");
+
+            verify(purchaseRepository, times(0)).save(purchaseCaptor.capture());
+            verify(emailService, times(0)).sendServicePurchaseConfirmation(purchaseCaptor.capture());
+            verify(budgetItemRepository, times(0)).save(budgetItemCaptor.capture());
+            verify(purchaseMapper, times(0)).toServiceResponseDTO(purchaseCaptor.capture());
         }
 
     }

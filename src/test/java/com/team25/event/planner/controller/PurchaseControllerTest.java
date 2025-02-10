@@ -365,4 +365,63 @@ public class PurchaseControllerTest {
         assertThat(response.getBody().getEndTime()).isNull();
         assertThat(response.getBody().getId()).isNull();
     }
+
+    @Test
+    @Order(11)
+    @DisplayName("Invalid test purchase service POST request to endpoint when event does not exist - /api/purchase/event/25/service/1")
+    public void testPostPurchaseServiceWhenEventDoesNotExist() {
+        login("account1@example.com", "password1");
+
+        HttpHeaders headers = this.getJsonHeaders();
+        headers.setContentType(MediaType.APPLICATION_JSON);
+        HttpEntity<PurchaseServiceRequestDTO> requestEntity = new HttpEntity<>(purchaseServiceRequestDTO, headers);
+
+        ResponseEntity<PurchaseServiceResponseDTO> response = restTemplate.exchange(
+                "/api/purchase/event/25/service/1",
+                HttpMethod.POST,
+                requestEntity,
+                PurchaseServiceResponseDTO.class
+        );
+
+        assertThat(response.getStatusCode()).isEqualTo(HttpStatus.NOT_FOUND);
+        assertThat(response.getBody()).isNotNull();
+        assertThat(response.getBody().getEventId()).isNull();
+        assertThat(response.getBody().getServiceId()).isNull();
+        assertThat(response.getBody().getStartDate()).isNull();
+        assertThat(response.getBody().getEndDate()).isNull();
+        assertThat(response.getBody().getPrice()).isNull();
+        assertThat(response.getBody().getStartTime()).isNull();
+        assertThat(response.getBody().getEndTime()).isNull();
+        assertThat(response.getBody().getId()).isNull();
+    }
+
+    //test when service does not exist
+    @Test
+    @Order(12)
+    @DisplayName("Invalid test purchase service POST request to endpoint when service does not exist - /api/purchase/event/1/service/25")
+    public void testPostPurchaseServiceWhenServiceDoesNotExist() {
+        login("account1@example.com", "password1");
+
+        HttpHeaders headers = this.getJsonHeaders();
+        headers.setContentType(MediaType.APPLICATION_JSON);
+        HttpEntity<PurchaseServiceRequestDTO> requestEntity = new HttpEntity<>(purchaseServiceRequestDTO, headers);
+
+        ResponseEntity<PurchaseServiceResponseDTO> response = restTemplate.exchange(
+                "/api/purchase/event/1/service/25",
+                HttpMethod.POST,
+                requestEntity,
+                PurchaseServiceResponseDTO.class
+        );
+
+        assertThat(response.getStatusCode()).isEqualTo(HttpStatus.NOT_FOUND);
+        assertThat(response.getBody()).isNotNull();
+        assertThat(response.getBody().getEventId()).isNull();
+        assertThat(response.getBody().getServiceId()).isNull();
+        assertThat(response.getBody().getStartDate()).isNull();
+        assertThat(response.getBody().getEndDate()).isNull();
+        assertThat(response.getBody().getPrice()).isNull();
+        assertThat(response.getBody().getStartTime()).isNull();
+        assertThat(response.getBody().getEndTime()).isNull();
+        assertThat(response.getBody().getId()).isNull();
+    }
 }
