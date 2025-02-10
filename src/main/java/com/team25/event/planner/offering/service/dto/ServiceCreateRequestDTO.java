@@ -6,6 +6,7 @@ import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
+import org.springframework.web.multipart.MultipartFile;
 
 import java.util.List;
 
@@ -18,7 +19,7 @@ public class ServiceCreateRequestDTO {
         private String description;
         private double price;
         private double discount;
-        private List<String> images;
+        private List<MultipartFile> images;
         private boolean visible;
         private boolean available;
         private String specifics;
