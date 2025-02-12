@@ -111,7 +111,7 @@ public class PurchaseService {
             emailService.sendServicePurchaseConfirmation(purchase);
             return purchaseMapper.toServiceResponseDTO(purchaseRepository.save(purchase));
         }else{
-            throw new InvalidRequestError("Not enough budget plan money for the product");
+            throw new InvalidRequestError("Not enough budget plan money for the service");
         }
     }
 

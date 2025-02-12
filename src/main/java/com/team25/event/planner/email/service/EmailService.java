@@ -67,6 +67,9 @@ public class EmailService {
     }
 
     public void sendServicePurchaseConfirmation(Purchase purchase) {
+        if(purchase == null){
+            throw new IllegalArgumentException("Purchase is null");
+        }
         EmailDTO email1 = emailGeneratorService.getServicePurchaseConfirmationEmail(purchase.getEvent().getOrganizer().getAccount().getEmail(),purchase);
         EmailDTO email2 = emailGeneratorService.getServicePurchaseConfirmationEmail(purchase.getOffering().getOwner().getAccount().getEmail(),purchase);
         try {
