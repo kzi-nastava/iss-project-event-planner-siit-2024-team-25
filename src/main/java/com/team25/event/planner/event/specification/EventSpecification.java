@@ -40,19 +40,19 @@ public class EventSpecification {
             }
 
             if (filter.getStartDate() != null) {
-                predicates.add(cb.greaterThanOrEqualTo(root.get("startDate"), filter.getStartDate()));
+                predicates.add(cb.equal(root.get("startDate"), filter.getStartDate()));
             }
 
             if (filter.getEndDate() != null) {
-                predicates.add(cb.lessThanOrEqualTo(root.get("endDate"), filter.getEndDate()));
+                predicates.add(cb.equal(root.get("endDate"), filter.getEndDate()));
             }
 
             if (filter.getStartTime() != null) {
-                predicates.add(cb.greaterThanOrEqualTo(root.get("startTime"), filter.getStartTime()));
+                predicates.add(cb.equal(root.get("startTime"), filter.getStartTime()));
             }
 
             if (filter.getEndTime() != null) {
-                predicates.add(cb.lessThanOrEqualTo(root.get("startTime"), filter.getEndTime()));
+                predicates.add(cb.equal(root.get("endTime"), filter.getEndTime()));
             }
 
             if (filter.getMaxParticipants() != null) {
