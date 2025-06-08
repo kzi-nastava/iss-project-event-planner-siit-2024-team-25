@@ -36,7 +36,7 @@ public class ServiceSpecification {
                 predicates.add(cb.equal(root.get("offeringCategory").get("id"), serviceFilterDTO.getOfferingCategoryId()));
             }
             if(serviceFilterDTO.getPrice() != null){
-                predicates.add(cb.greaterThanOrEqualTo(root.get("price"), serviceFilterDTO.getPrice()));
+                predicates.add(cb.lessThanOrEqualTo(root.get("price"), serviceFilterDTO.getPrice()));
             }
             if(serviceFilterDTO.getAvailable()!= null){
                 predicates.add(cb.equal(root.get("isAvailable"), serviceFilterDTO.getAvailable()));
