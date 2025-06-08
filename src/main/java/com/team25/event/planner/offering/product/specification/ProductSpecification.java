@@ -64,7 +64,7 @@ public class ProductSpecification {
                 predicates.add(notBlockedByCurrentUser);
             }
 
-            predicates.add(cb.equal(root.get("isAvailable"), true));
+            //predicates.add(cb.equal(root.get("isAvailable"), true));
             predicates.add(cb.equal(root.get("deleted"), false));
             predicates.add(getVisiblePredicate(root, cb));
             predicates.add(cb.equal(root.get("status"), OfferingType.ACCEPTED));

@@ -61,7 +61,7 @@ public class OfferingSpecification {
             }
 
             predicates.add(cb.equal(root.get("deleted"), false));
-            predicates.add(cb.equal(root.get("isAvailable"), true));
+            //predicates.add(cb.equal(root.get("isAvailable"), true));
             predicates.add(cb.equal(root.get("isVisible"), true));
             predicates.add(cb.equal(root.get("status"), OfferingType.ACCEPTED));
 
