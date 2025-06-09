@@ -45,6 +45,7 @@ public class EventTypeService {
         return eventTypeMapper.toDTO(eventType);
   }
     public List<OfferingCategoryPreviewDTO> getOfferingCategoryByEventType(Long eventTypeId) {
+
         EventType eventType = eventTypeRepository.findById(eventTypeId).orElseThrow(() -> new NotFoundError("Event type not found"));
         return eventType.getOfferingCategories().stream().map(offeringCategoryMapper::toDTO).toList();
 

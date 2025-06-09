@@ -1,19 +1,21 @@
 package com.team25.event.planner.event.service;
 
+import com.team25.event.planner.common.exception.InvalidRequestError;
 import com.team25.event.planner.common.exception.NotFoundError;
 import com.team25.event.planner.event.dto.BudgetItemRequestDTO;
 import com.team25.event.planner.event.dto.BudgetItemResponseDTO;
 import com.team25.event.planner.event.mapper.BudgetItemMapper;
-import com.team25.event.planner.event.model.BudgetItem;
-import com.team25.event.planner.event.model.Event;
-import com.team25.event.planner.event.model.Money;
+import com.team25.event.planner.event.model.*;
 import com.team25.event.planner.event.repository.BudgetItemRepository;
 import com.team25.event.planner.event.repository.EventRepository;
+import com.team25.event.planner.event.repository.EventTypeRepository;
+import com.team25.event.planner.event.repository.PurchaseRepository;
 import com.team25.event.planner.offering.common.model.OfferingCategory;
 import com.team25.event.planner.offering.common.repository.OfferingCategoryRepository;
 import lombok.AllArgsConstructor;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
+import org.springframework.web.ErrorResponse;
 
 import java.util.List;
 import java.util.stream.Collectors;
@@ -25,6 +27,7 @@ public class BudgetItemService {
     private final EventRepository eventRepository;
     private final BudgetItemMapper budgetItemMapper;
     private final OfferingCategoryRepository offeringCategoryRepository;
+    private final PurchaseRepository purchaseRepository;
 
     public List<BudgetItemResponseDTO> getAllBudgetItems() {
         return budgetItemRepository.findAll().stream().map(budgetItemMapper::toResponseDTO).collect(Collectors.toList());
@@ -58,13 +61,30 @@ public class BudgetItemService {
 
     public BudgetItemResponseDTO updateBudgetItem(Long id, BudgetItemRequestDTO budgetItemRequestDTO) {
         BudgetItem budgetItem = budgetItemRepository.findById(id).orElseThrow(()-> new NotFoundError("Budget item not found"));
+
+        List<Purchase> purchases = purchaseRepository.findAllByEvent(budgetItem.getEvent());
+        double suma = 0.0;
+        for(Purchase purchase : purchases){
+            if(purchase.getOffering().getOfferingCategory() == budgetItem.getOfferingCategory()){
+                suma += purchase.getOffering().getPrice();
+                System.out.println(suma);
+                if(suma > budgetItemRequestDTO.getBudget()){
+                    throw new InvalidRequestError("Your budget is not enough for purchased offering");
+                }
+            }
+        }
         budgetItem.setMoney(new Money(budgetItemRequestDTO.getBudget(), "EUR"));
         return budgetItemMapper.toResponseDTO(budgetItemRepository.save(budgetItem));
     }
     public ResponseEntity<?> deleteBudgetItem(Long id) {
-        if(!budgetItemRepository.existsById(id)) {
-            return ResponseEntity.notFound().build();
+        BudgetItem budgetItem = budgetItemRepository.findById(id).orElseThrow(()-> new NotFoundError("Budget item not found"));
+        List<Purchase> purchases = purchaseRepository.findAllByEvent(budgetItem.getEvent());
+        for(Purchase purchase : purchases){
+            if(purchase.getOffering().getOfferingCategory() == budgetItem.getOfferingCategory()){
+                throw new InvalidRequestError("Offering category belongs to purchased offering");
+            }
         }
+
         budgetItemRepository.deleteById(id);
         return ResponseEntity.ok().build();
     }
