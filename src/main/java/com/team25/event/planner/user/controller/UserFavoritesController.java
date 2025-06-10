@@ -1,6 +1,8 @@
 package com.team25.event.planner.user.controller;
 
 import com.team25.event.planner.event.dto.EventPreviewResponseDTO;
+import com.team25.event.planner.offering.product.dto.ProductResponseDTO;
+import com.team25.event.planner.offering.service.dto.ServiceCardResponseDTO;
 import com.team25.event.planner.user.dto.*;
 import com.team25.event.planner.user.service.UserFavoritesService;
 import lombok.RequiredArgsConstructor;
@@ -21,41 +23,37 @@ import java.util.Objects;
 public class UserFavoritesController {
     private final UserFavoritesService userFavoritesService;
 
-    @GetMapping(value = "/{id}/favourite-offerings", produces = MediaType.APPLICATION_JSON_VALUE)
-    @Secured("ROLE_USER")
-    public ResponseEntity<Collection<FavouriteOfferingResponseDTO>> getFavouriteOfferings(@PathVariable("id") Long id) {
-        Collection<FavouriteOfferingResponseDTO> responseDTOS = new ArrayList<>();
-
-        FavouriteOfferingResponseDTO object1 = new FavouriteOfferingResponseDTO();
-        object1.setId(1L);
-        object1.setName("Basic Photography Package");
-        object1.setDescription("A simple package including essential photography services.");
-        object1.setPrice(300.00);
-
-        FavouriteOfferingResponseDTO object2 = new FavouriteOfferingResponseDTO();
-        object2.setId(2L);
-        object2.setName("Premium Photography Package");
-        object2.setDescription("An advanced package with additional features like drone photography.");
-        object2.setPrice(800.00);
-
-        responseDTOS.add(object1);
-        responseDTOS.add(object2);
-
-        return new ResponseEntity<Collection<FavouriteOfferingResponseDTO>>(responseDTOS, HttpStatus.OK);
+    @GetMapping(value = "/{id}/favourite-services", produces = MediaType.APPLICATION_JSON_VALUE)
+    public ResponseEntity<Collection<ServiceCardResponseDTO>> getFavouriteServices(@PathVariable("id") Long id) {
+        return ResponseEntity.ok(userFavoritesService.getFavoriteServices(id));
+    }
+    @GetMapping(value = "/{id}/favourite-products", produces = MediaType.APPLICATION_JSON_VALUE)
+    public ResponseEntity<Collection<ProductResponseDTO>> getFavouriteProducts(@PathVariable("id") Long id) {
+        return ResponseEntity.ok(userFavoritesService.getFavoriteProducts(id));
     }
 
-    @PostMapping(value = "/{id}/favourite-offerings", consumes = MediaType.APPLICATION_JSON_VALUE, produces = MediaType.APPLICATION_JSON_VALUE)
-    public ResponseEntity<UserOfferingFavResponseDTO> addFavouriteOffering(@PathVariable("id") Long id, @RequestBody UserOfferingFavRequestDTO requestDTO) {
-        UserOfferingFavResponseDTO responseDTO = new UserOfferingFavResponseDTO();
-        responseDTO.setId(id);
-        if (!Objects.equals(id, requestDTO.getUserId())) {
-            return new ResponseEntity<UserOfferingFavResponseDTO>(responseDTO, HttpStatus.FORBIDDEN);
-        }
+    @PostMapping(value = "/{id}/favourite-services", consumes = MediaType.APPLICATION_JSON_VALUE, produces = MediaType.APPLICATION_JSON_VALUE)
+    public ResponseEntity<ServiceCardResponseDTO> addFavouriteService(@PathVariable("id") Long id, @RequestBody FavouriteOfferingDTO requestDTO) {
+        return ResponseEntity.status(HttpStatus.CREATED).body(userFavoritesService.addFavoriteService(id, requestDTO));
+    }
 
-        responseDTO.setUserId(id);
-        responseDTO.setOfferingId(requestDTO.getOfferingId());
-
-        return new ResponseEntity<UserOfferingFavResponseDTO>(responseDTO, HttpStatus.CREATED);
+    @PostMapping(value = "/{id}/favourite-products", consumes = MediaType.APPLICATION_JSON_VALUE, produces = MediaType.APPLICATION_JSON_VALUE)
+    public ResponseEntity<ProductResponseDTO> addFavouriteProduct(@PathVariable("id") Long id, @RequestBody FavouriteOfferingDTO requestDTO) {
+        return ResponseEntity.status(HttpStatus.CREATED).body(userFavoritesService.addFavoriteProduct(id, requestDTO));
+    }
+    @DeleteMapping("/{userId}/favorite-service/{favId}")
+    public ResponseEntity<?> removeServiceFromFavorites(
+            @PathVariable Long userId,
+            @PathVariable Long favId) {
+        userFavoritesService.removeServiceFromFavorites(userId, favId);
+        return new ResponseEntity<>(HttpStatus.NO_CONTENT);
+    }
+    @DeleteMapping("/{userId}/favorite-product/{favId}")
+    public ResponseEntity<?> removeProductFromFavorites(
+            @PathVariable Long userId,
+            @PathVariable Long favId) {
+        userFavoritesService.removeProductFromFavorites(userId, favId);
+        return new ResponseEntity<>(HttpStatus.NO_CONTENT);
     }
 
     @GetMapping(value = "/{id}/favorite-events", produces = MediaType.APPLICATION_JSON_VALUE)

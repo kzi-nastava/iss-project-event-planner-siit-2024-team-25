@@ -5,10 +5,20 @@ import com.team25.event.planner.event.dto.EventPreviewResponseDTO;
 import com.team25.event.planner.event.mapper.EventMapper;
 import com.team25.event.planner.event.model.Event;
 import com.team25.event.planner.event.repository.EventRepository;
+import com.team25.event.planner.offering.product.dto.ProductRequestDTO;
+import com.team25.event.planner.offering.product.dto.ProductResponseDTO;
+import com.team25.event.planner.offering.product.mapper.ProductMapper;
+import com.team25.event.planner.offering.product.model.Product;
+import com.team25.event.planner.offering.product.repository.ProductRepository;
+import com.team25.event.planner.offering.service.dto.ServiceCardResponseDTO;
+import com.team25.event.planner.offering.service.mapper.ServiceMapper;
+import com.team25.event.planner.offering.service.repository.ServiceRepository;
 import com.team25.event.planner.user.dto.FavoriteEventRequestDTO;
+import com.team25.event.planner.user.dto.FavouriteOfferingDTO;
 import com.team25.event.planner.user.model.User;
 import com.team25.event.planner.user.repository.UserRepository;
 import lombok.RequiredArgsConstructor;
+import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
@@ -18,7 +28,11 @@ import java.util.List;
 public class UserFavoritesService {
     private final UserRepository userRepository;
     private final EventRepository eventRepository;
+    private final ProductRepository productRepository;
+    private final ServiceRepository serviceRepository;
     private final EventMapper eventMapper;
+    private final ServiceMapper serviceMapper;
+    private final ProductMapper productMapper;
 
     public List<EventPreviewResponseDTO> getFavoriteEvents(Long userId) {
         User user = userRepository.findById(userId).orElseThrow(() -> new NotFoundError("User not found"));
@@ -41,5 +55,45 @@ public class UserFavoritesService {
         User user = userRepository.findById(userId).orElseThrow(() -> new NotFoundError("User not found"));
         user.getFavoriteEvents().removeIf(event -> event.getId().equals(eventId));
         userRepository.save(user);
+    }
+    public List<ServiceCardResponseDTO> getFavoriteServices(Long userId) {
+        User user = userRepository.findById(userId).orElseThrow(() -> new NotFoundError("User not found"));
+
+        return user.getFavoriteServices().stream().map(serviceMapper::toCardDTO).toList();
+    }
+    public List<ProductResponseDTO> getFavoriteProducts(Long userId) {
+        User user = userRepository.findById(userId).orElseThrow(() -> new NotFoundError("User not found"));
+        return user.getFavoriteProducts().stream().map(productMapper::toDTO).toList();
+    }
+
+    public ServiceCardResponseDTO addFavoriteService(Long userId, FavouriteOfferingDTO requestDTO) {
+        User user = userRepository.findById(userId).orElseThrow(() -> new NotFoundError("User not found"));
+
+        com.team25.event.planner.offering.service.model.Service service = serviceRepository.findById(requestDTO.getOfferingId())
+                .orElseThrow(() -> new NotFoundError("Service not found"));
+
+        user.getFavoriteServices().add(service);
+        userRepository.save(user);
+        return serviceMapper.toCardDTO(service);
+    }
+    public ProductResponseDTO addFavoriteProduct(Long userId, FavouriteOfferingDTO requestDTO) {
+        User user = userRepository.findById(userId).orElseThrow(() -> new NotFoundError("User not found"));
+        Product product = productRepository.findById(requestDTO.getOfferingId()).orElseThrow(() -> new NotFoundError("Product not found"));
+        user.getFavoriteProducts().add(product);
+        userRepository.save(user);
+        return productMapper.toDTO(product);
+    }
+
+    public ResponseEntity<?> removeServiceFromFavorites(Long userId, Long serviceFavId) {
+        User user = userRepository.findById(userId).orElseThrow(() -> new NotFoundError("User not found"));
+        user.getFavoriteServices().removeIf(service -> service.getId().equals(serviceFavId));
+        userRepository.save(user);
+        return ResponseEntity.ok().build();
+    }
+    public ResponseEntity<?> removeProductFromFavorites(Long userId, Long productFavId) {
+        User user = userRepository.findById(userId).orElseThrow(() -> new NotFoundError("User not found"));
+        user.getFavoriteProducts().removeIf(product -> product.getId().equals(productFavId));
+        userRepository.save(user);
+        return ResponseEntity.ok().build();
     }
 }
