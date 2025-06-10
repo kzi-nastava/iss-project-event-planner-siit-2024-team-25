@@ -74,6 +74,7 @@ public class PurchaseService {
     }
 
     private boolean isProductCategorySuitableForEvent(Event event, Long offeringCategoryId){
+        if(event.getEventType()==null) return true;
         return event.getEventType().getOfferingCategories().stream().map(OfferingCategory::getId).anyMatch(offeringCategoryId::equals);
     }
 

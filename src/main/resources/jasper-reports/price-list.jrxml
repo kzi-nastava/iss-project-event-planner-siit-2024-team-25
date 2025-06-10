@@ -41,7 +41,7 @@
         </element>
     </columnHeader>
     <detail>
-        <band height="159" splitType="Stretch">
+        <band height="40" splitType="Stretch">
             <element kind="textField" uuid="9283433b-882d-4eba-b872-41dad2d1626a" mode="Opaque" x="27" y="0" width="72" height="30" forecolor="#FFFFFF" backcolor="#4A92C2" hTextAlign="Center" vTextAlign="Middle">
                 <expression><![CDATA[$V{REPORT_COUNT}]]></expression>
             </element>

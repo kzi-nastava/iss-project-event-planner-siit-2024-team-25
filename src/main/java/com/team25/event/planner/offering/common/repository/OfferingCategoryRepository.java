@@ -21,7 +21,7 @@ public interface OfferingCategoryRepository extends JpaRepository<OfferingCatego
             "SELECT 1 FROM public.offering_type ot " +
             "LEFT OUTER JOIN public.offerings o " +
             "ON ot.id = o.offering_category_id " +
-            "WHERE ot.id = :id AND o.id IS NULL) " +
+            "WHERE ot.id = :id AND o.id IS NULL AND o.deleted is not false) " +
             "THEN TRUE ELSE FALSE END",
             nativeQuery = true)
     boolean existsInUnlinkedOfferingType(@Param("id") Long id);

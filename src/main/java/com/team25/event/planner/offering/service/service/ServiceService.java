@@ -248,6 +248,7 @@ public class ServiceService {
         service.setMinimumArrangement(requestDTO.getMinimumArrangement());
         service.setMaximumArrangement(requestDTO.getMaximumArrangement());
         service.setEventTypes(eventTypeRepository.findAllById(requestDTO.getEventTypesIDs()));
+        service.setStatus(OfferingType.ACCEPTED);
 
         serviceRepository.save(service);
         return serviceMapper.toUpdateDTO(service);
@@ -258,7 +259,8 @@ public class ServiceService {
         if(service.isDeleted()){
             throw new NotFoundError("Service is deleted");
         }
-        serviceRepository.delete(service);
+        service.setDeleted(true);
+        serviceRepository.save(service);
         return new ResponseEntity<>(HttpStatus.OK);
     }
 
