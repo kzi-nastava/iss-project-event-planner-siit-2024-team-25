@@ -11,11 +11,9 @@
     import com.team25.event.planner.event.repository.EventRepository;
     import com.team25.event.planner.event.repository.PurchaseRepository;
     import com.team25.event.planner.event.service.PurchaseService;
-    import com.team25.event.planner.event.specification.PurchaseSpecification;
     import com.team25.event.planner.offering.common.model.OfferingCategory;
     import com.team25.event.planner.offering.common.model.OfferingCategoryType;
     import com.team25.event.planner.offering.common.model.OfferingType;
-    import com.team25.event.planner.offering.service.mapper.ServiceMapper;
     import com.team25.event.planner.offering.service.model.ReservationType;
     import com.team25.event.planner.offering.service.model.Service;
     import com.team25.event.planner.offering.service.repository.ServiceRepository;
@@ -24,7 +22,12 @@
     import org.junit.jupiter.api.*;
     import org.junit.jupiter.api.extension.ExtendWith;
     import org.mockito.*;
-    import org.mockito.junit.jupiter.MockitoExtension;
+    import org.springframework.beans.factory.annotation.Autowired;
+    import org.springframework.boot.test.context.SpringBootTest;
+    import org.springframework.data.jpa.domain.Specification;
+    import org.springframework.test.context.ActiveProfiles;
+    import org.springframework.test.context.bean.override.mockito.MockitoBean;
+    import org.springframework.test.context.junit.jupiter.SpringExtension;
 
     import java.time.Instant;
     import java.time.LocalDate;
@@ -38,26 +41,28 @@
 
     import static org.junit.jupiter.api.Assertions.*;
 
-    @ExtendWith(MockitoExtension.class)
+    @SpringBootTest
+    @ExtendWith(SpringExtension.class)
+    @ActiveProfiles("test")
     @TestMethodOrder(MethodOrderer.OrderAnnotation.class)
     public class PurchaseServiceTest {
 
-        @Mock
+        @MockitoBean
         private ServiceRepository serviceRepository;
 
-        @Mock
+        @MockitoBean
         private EventRepository eventRepository;
 
-        @Mock
+        @MockitoBean
         private PurchaseRepository purchaseRepository;
 
-        @Mock
+        @MockitoBean
         private PurchaseMapper purchaseMapper;
 
-        @Mock
+        @MockitoBean
         private BudgetItemRepository budgetItemRepository;
 
-        @Mock
+        @MockitoBean
         private EmailService emailService;
 
         @Captor
@@ -66,10 +71,8 @@
         @Captor
         private ArgumentCaptor<BudgetItem> budgetItemCaptor;
 
-        @Spy
-        @InjectMocks
+        @Autowired
         private PurchaseService purchaseService;
-
 
         public Event event;
         public Service service;
@@ -165,8 +168,9 @@
             Mockito.when(serviceRepository.findById(service.getId())).thenReturn(Optional.of(service));
             Mockito.when(eventRepository.findById(event.getId())).thenReturn(Optional.of(event));
             Mockito.when(purchaseMapper.toPurchase(any(PurchaseServiceRequestDTO.class), any(Event.class), any(Service.class))).thenReturn(purchase);
-            Mockito.doReturn(true).when(purchaseService).isServiceAvailable(any(), any());
-            Mockito.doReturn(-1.0).when(purchaseService).getLeftMoneyFromBudgetItem(any(), any());
+            Mockito.when(purchaseRepository.exists(any(Specification.class))).thenReturn(false);
+            Mockito.when(budgetItemRepository.findBudgetItemByEventIdAndOfferingCategoryId(any(Long.class), any(Long.class)))
+                    .thenReturn(Optional.empty());
 
             purchaseService.purchaseService(requestDTO, event.getId(), service.getId());
 
@@ -197,8 +201,9 @@
             Mockito.when(serviceRepository.findById(service.getId())).thenReturn(Optional.of(service));
             Mockito.when(eventRepository.findById(event.getId())).thenReturn(Optional.of(event));
             Mockito.when(purchaseMapper.toPurchase(any(PurchaseServiceRequestDTO.class), any(Event.class), any(Service.class))).thenReturn(purchase);
-            Mockito.doReturn(true).when(purchaseService).isServiceAvailable(any(), any());
-            Mockito.doReturn(-1.0).when(purchaseService).getLeftMoneyFromBudgetItem(any(), any());
+            Mockito.when(purchaseRepository.exists(any(Specification.class))).thenReturn(false);
+            Mockito.when(budgetItemRepository.findBudgetItemByEventIdAndOfferingCategoryId(any(Long.class), any(Long.class)))
+                    .thenReturn(Optional.empty());
 
             service.setMinimumArrangement(2);
             service.setMaximumArrangement(5);
@@ -234,7 +239,7 @@
             Mockito.when(serviceRepository.findById(service.getId())).thenReturn(Optional.of(service));
             Mockito.when(eventRepository.findById(event.getId())).thenReturn(Optional.of(event));
             Mockito.when(purchaseMapper.toPurchase(any(PurchaseServiceRequestDTO.class), any(Event.class), any(Service.class))).thenReturn(purchase);
-            Mockito.doReturn(true).when(purchaseService).isServiceAvailable(any(), any());
+            Mockito.when(purchaseRepository.exists(any(Specification.class))).thenReturn(false);
 
             InvalidRequestError exception = assertThrowsExactly(InvalidRequestError.class, () ->
                     purchaseService.purchaseService(requestDTO, event.getId(), service.getId()));
@@ -253,7 +258,7 @@
             Mockito.when(serviceRepository.findById(service.getId())).thenReturn(Optional.of(service));
             Mockito.when(eventRepository.findById(event.getId())).thenReturn(Optional.of(event));
             Mockito.when(purchaseMapper.toPurchase(any(PurchaseServiceRequestDTO.class), any(Event.class), any(Service.class))).thenReturn(purchase);
-            Mockito.doReturn(false).when(purchaseService).isServiceAvailable(any(), any());
+            Mockito.when(purchaseRepository.exists(any(Specification.class))).thenReturn(true);
 
             InvalidRequestError exception = assertThrowsExactly(InvalidRequestError.class, () ->
                     purchaseService.purchaseService(requestDTO, event.getId(), service.getId()));
@@ -272,7 +277,7 @@
             Mockito.when(serviceRepository.findById(service.getId())).thenReturn(Optional.of(service));
             Mockito.when(eventRepository.findById(event.getId())).thenReturn(Optional.of(event));
             Mockito.when(purchaseMapper.toPurchase(any(PurchaseServiceRequestDTO.class), any(Event.class), any(Service.class))).thenReturn(purchase);
-            Mockito.doReturn(true).when(purchaseService).isServiceAvailable(any(), any());
+            Mockito.when(purchaseRepository.exists(any(Specification.class))).thenReturn(false);
 
             event.getEventType().setOfferingCategories(new ArrayList<>());
 
@@ -293,7 +298,7 @@
             Mockito.when(serviceRepository.findById(service.getId())).thenReturn(Optional.of(service));
             Mockito.when(eventRepository.findById(event.getId())).thenReturn(Optional.of(event));
             Mockito.when(purchaseMapper.toPurchase(any(PurchaseServiceRequestDTO.class), any(Event.class), any(Service.class))).thenReturn(purchase);
-            Mockito.doReturn(true).when(purchaseService).isServiceAvailable(any(), any());
+            Mockito.when(purchaseRepository.exists(any(Specification.class))).thenReturn(false);
 
             event.setStartDate(LocalDate.now().minusDays(3));
             event.setEndDate(LocalDate.now().minusDays(1));
@@ -315,7 +320,7 @@
             Mockito.when(serviceRepository.findById(service.getId())).thenReturn(Optional.of(service));
             Mockito.when(eventRepository.findById(event.getId())).thenReturn(Optional.of(event));
             Mockito.when(purchaseMapper.toPurchase(any(PurchaseServiceRequestDTO.class), any(Event.class), any(Service.class))).thenReturn(purchase);
-            Mockito.doReturn(true).when(purchaseService).isServiceAvailable(any(), any());
+            Mockito.when(purchaseRepository.exists(any(Specification.class))).thenReturn(false);
 
             purchase.setStartDate(LocalDate.now());
             purchase.setStartTime(LocalTime.now().minusHours(4));
@@ -337,7 +342,7 @@
             Mockito.when(serviceRepository.findById(service.getId())).thenReturn(Optional.of(service));
             Mockito.when(eventRepository.findById(event.getId())).thenReturn(Optional.of(event));
             Mockito.when(purchaseMapper.toPurchase(any(PurchaseServiceRequestDTO.class), any(Event.class), any(Service.class))).thenReturn(purchase);
-            Mockito.doReturn(true).when(purchaseService).isServiceAvailable(any(), any());
+            Mockito.when(purchaseRepository.exists(any(Specification.class))).thenReturn(false);
 
             purchase.setStartDate(event.getStartDate().minusDays(1));
 
@@ -358,7 +363,7 @@
             Mockito.when(serviceRepository.findById(service.getId())).thenReturn(Optional.of(service));
             Mockito.when(eventRepository.findById(event.getId())).thenReturn(Optional.of(event));
             Mockito.when(purchaseMapper.toPurchase(any(PurchaseServiceRequestDTO.class), any(Event.class), any(Service.class))).thenReturn(purchase);
-            Mockito.doReturn(true).when(purchaseService).isServiceAvailable(any(), any());
+            Mockito.when(purchaseRepository.exists(any(Specification.class))).thenReturn(false);
 
             purchase.setStartTime(event.getStartTime().minusHours(1));
 
@@ -379,7 +384,7 @@
             Mockito.when(serviceRepository.findById(service.getId())).thenReturn(Optional.of(service));
             Mockito.when(eventRepository.findById(event.getId())).thenReturn(Optional.of(event));
             Mockito.when(purchaseMapper.toPurchase(any(PurchaseServiceRequestDTO.class), any(Event.class), any(Service.class))).thenReturn(purchase);
-            Mockito.doReturn(true).when(purchaseService).isServiceAvailable(any(), any());
+            Mockito.when(purchaseRepository.exists(any(Specification.class))).thenReturn(false);
 
             purchase.setStartDate(event.getEndDate().plusDays(1));
 
@@ -400,7 +405,7 @@
             Mockito.when(serviceRepository.findById(service.getId())).thenReturn(Optional.of(service));
             Mockito.when(eventRepository.findById(event.getId())).thenReturn(Optional.of(event));
             Mockito.when(purchaseMapper.toPurchase(any(PurchaseServiceRequestDTO.class), any(Event.class), any(Service.class))).thenReturn(purchase);
-            Mockito.doReturn(true).when(purchaseService).isServiceAvailable(any(), any());
+            Mockito.when(purchaseRepository.exists(any(Specification.class))).thenReturn(false);
 
             purchase.setStartTime(event.getEndTime().plusHours(1));
 
@@ -421,7 +426,7 @@
             Mockito.when(serviceRepository.findById(service.getId())).thenReturn(Optional.of(service));
             Mockito.when(eventRepository.findById(event.getId())).thenReturn(Optional.of(event));
             Mockito.when(purchaseMapper.toPurchase(any(PurchaseServiceRequestDTO.class), any(Event.class), any(Service.class))).thenReturn(purchase);
-            Mockito.doReturn(true).when(purchaseService).isServiceAvailable(any(), any());
+            Mockito.when(purchaseRepository.exists(any(Specification.class))).thenReturn(false);
 
             purchase.setStartDate(event.getStartDate().minusDays(1));
             purchase.setEndDate(event.getStartDate().minusDays(1));
@@ -443,7 +448,7 @@
             Mockito.when(serviceRepository.findById(service.getId())).thenReturn(Optional.of(service));
             Mockito.when(eventRepository.findById(event.getId())).thenReturn(Optional.of(event));
             Mockito.when(purchaseMapper.toPurchase(any(PurchaseServiceRequestDTO.class), any(Event.class), any(Service.class))).thenReturn(purchase);
-            Mockito.doReturn(true).when(purchaseService).isServiceAvailable(any(), any());
+            Mockito.when(purchaseRepository.exists(any(Specification.class))).thenReturn(false);
 
             purchase.setEndTime(event.getStartTime().minusHours(1));
 
@@ -464,7 +469,7 @@
             Mockito.when(serviceRepository.findById(service.getId())).thenReturn(Optional.of(service));
             Mockito.when(eventRepository.findById(event.getId())).thenReturn(Optional.of(event));
             Mockito.when(purchaseMapper.toPurchase(any(PurchaseServiceRequestDTO.class), any(Event.class), any(Service.class))).thenReturn(purchase);
-            Mockito.doReturn(true).when(purchaseService).isServiceAvailable(any(), any());
+            Mockito.when(purchaseRepository.exists(any(Specification.class))).thenReturn(false);
 
             purchase.setEndDate(event.getEndDate().plusDays(1));
 
@@ -485,7 +490,7 @@
             Mockito.when(serviceRepository.findById(service.getId())).thenReturn(Optional.of(service));
             Mockito.when(eventRepository.findById(event.getId())).thenReturn(Optional.of(event));
             Mockito.when(purchaseMapper.toPurchase(any(PurchaseServiceRequestDTO.class), any(Event.class), any(Service.class))).thenReturn(purchase);
-            Mockito.doReturn(true).when(purchaseService).isServiceAvailable(any(), any());
+            Mockito.when(purchaseRepository.exists(any(Specification.class))).thenReturn(false);
 
             purchase.setEndTime(event.getEndTime().plusHours(1));
 
@@ -506,7 +511,7 @@
             Mockito.when(serviceRepository.findById(service.getId())).thenReturn(Optional.of(service));
             Mockito.when(eventRepository.findById(event.getId())).thenReturn(Optional.of(event));
             Mockito.when(purchaseMapper.toPurchase(any(PurchaseServiceRequestDTO.class), any(Event.class), any(Service.class))).thenReturn(purchase);
-            Mockito.doReturn(true).when(purchaseService).isServiceAvailable(any(), any());
+            Mockito.when(purchaseRepository.exists(any(Specification.class))).thenReturn(false);
 
 
             requestDTO.setEndTime(requestDTO.getStartTime().plusHours(service.getDuration()+1));
@@ -529,7 +534,7 @@
             Mockito.when(serviceRepository.findById(service.getId())).thenReturn(Optional.of(service));
             Mockito.when(eventRepository.findById(event.getId())).thenReturn(Optional.of(event));
             Mockito.when(purchaseMapper.toPurchase(any(PurchaseServiceRequestDTO.class), any(Event.class), any(Service.class))).thenReturn(purchase);
-            Mockito.doReturn(true).when(purchaseService).isServiceAvailable(any(), any());
+            Mockito.when(purchaseRepository.exists(any(Specification.class))).thenReturn(false);
 
             requestDTO.setEndTime(requestDTO.getStartTime().plusHours(service.getDuration()-1));
             purchase.setEndTime(purchase.getStartTime().plusHours(service.getDuration()-1));
@@ -551,7 +556,7 @@
             Mockito.when(serviceRepository.findById(service.getId())).thenReturn(Optional.of(service));
             Mockito.when(eventRepository.findById(event.getId())).thenReturn(Optional.of(event));
             Mockito.when(purchaseMapper.toPurchase(any(PurchaseServiceRequestDTO.class), any(Event.class), any(Service.class))).thenReturn(purchase);
-            Mockito.doReturn(true).when(purchaseService).isServiceAvailable(any(), any());
+            Mockito.when(purchaseRepository.exists(any(Specification.class))).thenReturn(false);
 
             service.setDuration(0);
             service.setMinimumArrangement(2);
@@ -576,7 +581,7 @@
             Mockito.when(serviceRepository.findById(service.getId())).thenReturn(Optional.of(service));
             Mockito.when(eventRepository.findById(event.getId())).thenReturn(Optional.of(event));
             Mockito.when(purchaseMapper.toPurchase(any(PurchaseServiceRequestDTO.class), any(Event.class), any(Service.class))).thenReturn(purchase);
-            Mockito.doReturn(true).when(purchaseService).isServiceAvailable(any(), any());
+            Mockito.when(purchaseRepository.exists(any(Specification.class))).thenReturn(false);
 
             service.setDuration(0);
             service.setMinimumArrangement(2);
@@ -601,8 +606,9 @@
             Mockito.when(serviceRepository.findById(service.getId())).thenReturn(Optional.of(service));
             Mockito.when(eventRepository.findById(event.getId())).thenReturn(Optional.of(event));
             Mockito.when(purchaseMapper.toPurchase(any(PurchaseServiceRequestDTO.class), any(Event.class), any(Service.class))).thenReturn(purchase);
-            Mockito.doReturn(true).when(purchaseService).isServiceAvailable(any(), any());
-            Mockito.doReturn(-1.0).when(purchaseService).getLeftMoneyFromBudgetItem(any(), any());
+            Mockito.when(purchaseRepository.exists(any(Specification.class))).thenReturn(false);
+            Mockito.when(budgetItemRepository.findBudgetItemByEventIdAndOfferingCategoryId(any(Long.class), any(Long.class)))
+                    .thenReturn(Optional.empty());
 
             service.setDuration(0);
             service.setMinimumArrangement(2);
@@ -639,8 +645,9 @@
             Mockito.when(serviceRepository.findById(service.getId())).thenReturn(Optional.of(service));
             Mockito.when(eventRepository.findById(event.getId())).thenReturn(Optional.of(event));
             Mockito.when(purchaseMapper.toPurchase(any(PurchaseServiceRequestDTO.class), any(Event.class), any(Service.class))).thenReturn(purchase);
-            Mockito.doReturn(true).when(purchaseService).isServiceAvailable(any(), any());
-            Mockito.doReturn(-1.0).when(purchaseService).getLeftMoneyFromBudgetItem(any(), any());
+            Mockito.when(purchaseRepository.exists(any(Specification.class))).thenReturn(false);
+            Mockito.when(budgetItemRepository.findBudgetItemByEventIdAndOfferingCategoryId(any(Long.class), any(Long.class)))
+                    .thenReturn(Optional.empty());
 
             service.setDuration(0);
             service.setMinimumArrangement(2);
@@ -677,7 +684,7 @@
             Mockito.when(serviceRepository.findById(service.getId())).thenReturn(Optional.of(service));
             Mockito.when(eventRepository.findById(event.getId())).thenReturn(Optional.of(event));
             Mockito.when(purchaseMapper.toPurchase(any(PurchaseServiceRequestDTO.class), any(Event.class), any(Service.class))).thenReturn(purchase);
-            Mockito.doReturn(true).when(purchaseService).isServiceAvailable(any(), any());
+            Mockito.when(purchaseRepository.exists(any(Specification.class))).thenReturn(false);
 
             requestDTO.setPrice(2000);
             service.setPrice(2500);
@@ -700,7 +707,7 @@
             Mockito.when(serviceRepository.findById(service.getId())).thenReturn(Optional.of(service));
             Mockito.when(eventRepository.findById(event.getId())).thenReturn(Optional.of(event));
             Mockito.when(purchaseMapper.toPurchase(any(PurchaseServiceRequestDTO.class), any(Event.class), any(Service.class))).thenReturn(purchase);
-            Mockito.doReturn(true).when(purchaseService).isServiceAvailable(any(), any());
+            Mockito.when(purchaseRepository.exists(any(Specification.class))).thenReturn(false);
 
             requestDTO.setPrice(5000);
             service.setPrice(2500);
@@ -723,7 +730,7 @@
             Mockito.when(serviceRepository.findById(service.getId())).thenReturn(Optional.of(service));
             Mockito.when(eventRepository.findById(event.getId())).thenReturn(Optional.of(event));
             Mockito.when(purchaseMapper.toPurchase(any(PurchaseServiceRequestDTO.class), any(Event.class), any(Service.class))).thenReturn(purchase);
-            Mockito.doReturn(true).when(purchaseService).isServiceAvailable(any(), any());
+            Mockito.when(purchaseRepository.exists(any(Specification.class))).thenReturn(false);
 
 
             requestDTO.setPrice(5000);
@@ -748,7 +755,7 @@
             Mockito.when(serviceRepository.findById(service.getId())).thenReturn(Optional.of(service));
             Mockito.when(eventRepository.findById(event.getId())).thenReturn(Optional.of(event));
             Mockito.when(purchaseMapper.toPurchase(any(PurchaseServiceRequestDTO.class), any(Event.class), any(Service.class))).thenReturn(purchase);
-            Mockito.doReturn(true).when(purchaseService).isServiceAvailable(any(), any());
+            Mockito.when(purchaseRepository.exists(any(Specification.class))).thenReturn(false);
 
 
             requestDTO.setPrice(10000);
@@ -773,9 +780,9 @@
             Mockito.when(serviceRepository.findById(service.getId())).thenReturn(Optional.of(service));
             Mockito.when(eventRepository.findById(event.getId())).thenReturn(Optional.of(event));
             Mockito.when(purchaseMapper.toPurchase(any(PurchaseServiceRequestDTO.class), any(Event.class), any(Service.class))).thenReturn(purchase);
-            Mockito.doReturn(true).when(purchaseService).isServiceAvailable(any(), any());
-            Mockito.doReturn(-1.0).when(purchaseService).getLeftMoneyFromBudgetItem(any(), any());
-
+            Mockito.when(purchaseRepository.exists(any(Specification.class))).thenReturn(false);
+            Mockito.when(budgetItemRepository.findBudgetItemByEventIdAndOfferingCategoryId(any(Long.class), any(Long.class)))
+                    .thenReturn(Optional.empty());
 
             requestDTO.setPrice(8000);
             purchase.getPrice().setAmount(requestDTO.getPrice());
@@ -811,8 +818,12 @@
             Mockito.when(serviceRepository.findById(service.getId())).thenReturn(Optional.of(service));
             Mockito.when(eventRepository.findById(event.getId())).thenReturn(Optional.of(event));
             Mockito.when(purchaseMapper.toPurchase(any(PurchaseServiceRequestDTO.class), any(Event.class), any(Service.class))).thenReturn(purchase);
-            Mockito.doReturn(true).when(purchaseService).isServiceAvailable(any(), any());
-            Mockito.doReturn(1200.0).when(purchaseService).getLeftMoneyFromBudgetItem(any(), any());
+            Mockito.when(purchaseRepository.exists(any(Specification.class))).thenReturn(false);
+            Mockito.when(purchaseRepository.findTotalSpentByEventIdAndOfferingCategoryId(any(Long.class), any(Long.class)))
+                    .thenReturn(0.0);
+            Mockito.when(budgetItemRepository.findBudgetItemByEventIdAndOfferingCategoryId(any(Long.class), any(Long.class)))
+                    .thenReturn(Optional.of(new BudgetItem(1,new Money(1200.0),null,null)));
+
 
             InvalidRequestError exception = assertThrowsExactly(InvalidRequestError.class, () ->
                     purchaseService.purchaseService(requestDTO, event.getId(), service.getId()));
@@ -831,8 +842,11 @@
             Mockito.when(serviceRepository.findById(service.getId())).thenReturn(Optional.of(service));
             Mockito.when(eventRepository.findById(event.getId())).thenReturn(Optional.of(event));
             Mockito.when(purchaseMapper.toPurchase(any(PurchaseServiceRequestDTO.class), any(Event.class), any(Service.class))).thenReturn(purchase);
-            Mockito.doReturn(true).when(purchaseService).isServiceAvailable(any(), any());
-            Mockito.doReturn(service.getPrice()*2).when(purchaseService).getLeftMoneyFromBudgetItem(any(), any());
+            Mockito.when(purchaseRepository.exists(any(Specification.class))).thenReturn(false);
+            Mockito.when(purchaseRepository.findTotalSpentByEventIdAndOfferingCategoryId(any(Long.class), any(Long.class)))
+                    .thenReturn(0.0);
+            Mockito.when(budgetItemRepository.findBudgetItemByEventIdAndOfferingCategoryId(any(Long.class), any(Long.class)))
+                    .thenReturn(Optional.of(new BudgetItem(1,new Money(service.getPrice()*2),null,null)));
 
             purchaseService.purchaseService(requestDTO, event.getId(), service.getId());
 
@@ -859,8 +873,12 @@
             Mockito.when(serviceRepository.findById(service.getId())).thenReturn(Optional.of(service));
             Mockito.when(eventRepository.findById(event.getId())).thenReturn(Optional.of(event));
             Mockito.when(purchaseMapper.toPurchase(any(PurchaseServiceRequestDTO.class), any(Event.class), any(Service.class))).thenReturn(purchase);
-            Mockito.doReturn(true).when(purchaseService).isServiceAvailable(any(), any());
-            Mockito.doReturn(service.getPrice()).when(purchaseService).getLeftMoneyFromBudgetItem(any(), any());
+            Mockito.when(purchaseRepository.exists(any(Specification.class))).thenReturn(false);
+            Mockito.when(purchaseRepository.findTotalSpentByEventIdAndOfferingCategoryId(any(Long.class), any(Long.class)))
+                    .thenReturn(0.0);
+            Mockito.when(budgetItemRepository.findBudgetItemByEventIdAndOfferingCategoryId(any(Long.class), any(Long.class)))
+                    .thenReturn(Optional.of(new BudgetItem(1,new Money(service.getPrice()),null,null)));
+
 
             purchaseService.purchaseService(requestDTO, event.getId(), service.getId());
 
@@ -885,7 +903,7 @@
         @DisplayName("Invalid purchase request when service does not exist")
         public void testPurchaseServiceWhenServiceDoesNotExist(){
             Mockito.when(serviceRepository.findById(service.getId())).thenReturn(Optional.empty());
-            Mockito.doReturn(true).when(purchaseService).isServiceAvailable(any(), any());
+            Mockito.when(purchaseRepository.exists(any(Specification.class))).thenReturn(false);
 
             NotFoundError exception = assertThrowsExactly(NotFoundError.class, () ->
                     purchaseService.purchaseService(requestDTO, event.getId(), service.getId()));
@@ -903,7 +921,7 @@
         public void testPurchaseServiceWhenEventDoesNotExist(){
             Mockito.when(serviceRepository.findById(service.getId())).thenReturn(Optional.of(service));
             Mockito.when(eventRepository.findById(event.getId())).thenReturn(Optional.empty());
-            Mockito.doReturn(true).when(purchaseService).isServiceAvailable(any(), any());
+            Mockito.when(purchaseRepository.exists(any(Specification.class))).thenReturn(false);
 
             NotFoundError exception = assertThrowsExactly(NotFoundError.class, () ->
                     purchaseService.purchaseService(requestDTO, event.getId(), service.getId()));
