@@ -55,7 +55,7 @@
                 <expression><![CDATA[$F{discount}]]></expression>
             </element>
             <element kind="textField" uuid="e6b2f67b-db63-4009-9c59-c3e30f7591eb" mode="Opaque" x="437" y="0" width="90" height="30" forecolor="#FFFFFF" backcolor="#4A92C2" hTextAlign="Center" vTextAlign="Middle">
-                <expression><![CDATA[$F{priceWithDiscount}]]></expression>
+                <expression><![CDATA[new java.text.DecimalFormat("#0.00").format($F{priceWithDiscount})]]></expression>
             </element>
         </band>
     </detail>

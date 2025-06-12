@@ -32,23 +32,28 @@ public class UserFavoritesController {
         return ResponseEntity.ok(userFavoritesService.getFavoriteProducts(id));
     }
 
+
     @PostMapping(value = "/{id}/favourite-services", consumes = MediaType.APPLICATION_JSON_VALUE, produces = MediaType.APPLICATION_JSON_VALUE)
+    @PreAuthorize("hasRole('ROLE_USER') and authentication.principal.userId == #id")
     public ResponseEntity<ServiceCardResponseDTO> addFavouriteService(@PathVariable("id") Long id, @RequestBody FavouriteOfferingDTO requestDTO) {
         return ResponseEntity.status(HttpStatus.CREATED).body(userFavoritesService.addFavoriteService(id, requestDTO));
     }
 
     @PostMapping(value = "/{id}/favourite-products", consumes = MediaType.APPLICATION_JSON_VALUE, produces = MediaType.APPLICATION_JSON_VALUE)
+    @PreAuthorize("hasRole('ROLE_USER') and authentication.principal.userId == #id")
     public ResponseEntity<ProductResponseDTO> addFavouriteProduct(@PathVariable("id") Long id, @RequestBody FavouriteOfferingDTO requestDTO) {
         return ResponseEntity.status(HttpStatus.CREATED).body(userFavoritesService.addFavoriteProduct(id, requestDTO));
     }
-    @DeleteMapping("/{userId}/favorite-service/{favId}")
+    @DeleteMapping("/{userId}/favourite-service/{favId}")
+    @PreAuthorize("hasRole('ROLE_USER') and authentication.principal.userId == #userId")
     public ResponseEntity<?> removeServiceFromFavorites(
             @PathVariable Long userId,
             @PathVariable Long favId) {
         userFavoritesService.removeServiceFromFavorites(userId, favId);
         return new ResponseEntity<>(HttpStatus.NO_CONTENT);
     }
-    @DeleteMapping("/{userId}/favorite-product/{favId}")
+    @DeleteMapping("/{userId}/favourite-product/{favId}")
+    @PreAuthorize("hasRole('ROLE_USER') and authentication.principal.userId == #userId")
     public ResponseEntity<?> removeProductFromFavorites(
             @PathVariable Long userId,
             @PathVariable Long favId) {
