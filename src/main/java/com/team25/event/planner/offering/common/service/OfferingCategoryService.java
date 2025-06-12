@@ -12,6 +12,7 @@ import com.team25.event.planner.offering.common.model.OfferingCategoryType;
 import com.team25.event.planner.offering.common.model.OfferingType;
 import com.team25.event.planner.offering.common.repository.OfferingCategoryRepository;
 import com.team25.event.planner.offering.common.repository.OfferingRepository;
+import com.team25.event.planner.offering.service.repository.ServiceRepository;
 import com.team25.event.planner.user.model.Owner;
 import com.team25.event.planner.user.model.User;
 import lombok.AllArgsConstructor;
@@ -31,6 +32,7 @@ public class OfferingCategoryService {
     private final OfferingCategoryCommonMapper offeringCategoryCommonMapper;
     private final BudgetItemRepository budgetItemRepository;
     private final NotificationService notificationService;
+    private final ServiceRepository serviceRepository;
 
     public List<OfferingCategoryResponseDTO> getOfferingCategories() {
         return offeringCategoryRepository.findOfferingCategoriesByStatus(OfferingCategoryType.ACCEPTED).stream().map(offeringCategoryCommonMapper::toResponseDTO).collect(Collectors.toList());
@@ -90,14 +92,15 @@ public class OfferingCategoryService {
     public OfferingCategoryResponseDTO approveOfferingCategory(Long id, OfferingCategoryUpdateRequestDTO requestDTO, Long offeringId){
         OfferingCategory offeringCategory = offeringCategoryRepository.findById(id).orElseThrow(() -> new NotFoundError("Offering category not found"));
         Offering offering = offeringRepository.findById(offeringId).orElseThrow(() -> new NotFoundError("Offering not found"));
-
+        com.team25.event.planner.offering.service.model.Service service = serviceRepository.findById(offeringId).orElse(null);
         offeringCategory.setName(requestDTO.getName());
         offeringCategory.setDescription(requestDTO.getDescription());
         offeringCategory.setStatus(OfferingCategoryType.ACCEPTED);
 
         offering.setStatus(OfferingType.ACCEPTED);
         offeringRepository.save(offering);
-        notificationService.sendOfferingCategoryApproveNotificationToOwner(offeringCategory, offering.getOwner());
+        boolean isService = service != null;
+        notificationService.sendOfferingCategoryApproveNotificationToOwner(offeringCategory,isService, offering.getOwner());
         return offeringCategoryCommonMapper.toResponseDTO(offeringCategoryRepository.save(offeringCategory));
     }
 
