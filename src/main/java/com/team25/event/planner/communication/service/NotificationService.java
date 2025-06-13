@@ -84,8 +84,8 @@ public class NotificationService {
         });
     }
 
-    public void sendOfferingCategoryApproveNotificationToOwner(OfferingCategory offeringCategory, Owner owner) {
-        String title = "Offering category approved";
+    public void sendOfferingCategoryApproveNotificationToOwner(OfferingCategory offeringCategory,boolean isService, Owner owner) {
+        String title = isService? "Service category approved": "Product category approved";
         String message ="The offering category '" + offeringCategory.getName() + "' has been approve. Please, take a look.";
         Long entityId = offeringCategory.getId();
         Notification notification = this.createNotification(title, message, entityId, NotificationCategory.OFFERING_CATEGORY, owner);
