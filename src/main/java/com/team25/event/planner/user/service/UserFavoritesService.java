@@ -5,6 +5,8 @@ import com.team25.event.planner.event.dto.EventPreviewResponseDTO;
 import com.team25.event.planner.event.mapper.EventMapper;
 import com.team25.event.planner.event.model.Event;
 import com.team25.event.planner.event.repository.EventRepository;
+import com.team25.event.planner.offering.common.dto.OfferingPreviewResponseDTO;
+import com.team25.event.planner.offering.common.model.Offering;
 import com.team25.event.planner.offering.product.dto.ProductRequestDTO;
 import com.team25.event.planner.offering.product.dto.ProductResponseDTO;
 import com.team25.event.planner.offering.product.mapper.ProductMapper;
@@ -56,14 +58,15 @@ public class UserFavoritesService {
         user.getFavoriteEvents().removeIf(event -> event.getId().equals(eventId));
         userRepository.save(user);
     }
-    public List<ServiceCardResponseDTO> getFavoriteServices(Long userId) {
+    public List<OfferingPreviewResponseDTO> getFavoriteServices(Long userId) {
         User user = userRepository.findById(userId).orElseThrow(() -> new NotFoundError("User not found"));
-
-        return user.getFavoriteServices().stream().map(serviceMapper::toCardDTO).toList();
+        List<com.team25.event.planner.offering.service.model.Service> services = user.getFavoriteServices();
+        return serviceRepository.findPreviewsForServices(services);
     }
-    public List<ProductResponseDTO> getFavoriteProducts(Long userId) {
+    public List<OfferingPreviewResponseDTO> getFavoriteProducts(Long userId) {
         User user = userRepository.findById(userId).orElseThrow(() -> new NotFoundError("User not found"));
-        return user.getFavoriteProducts().stream().map(productMapper::toDTO).toList();
+        List<Product> products = user.getFavoriteProducts();
+        return productRepository.findPreviewsForServices(products);
     }
 
     public ServiceCardResponseDTO addFavoriteService(Long userId, FavouriteOfferingDTO requestDTO) {

@@ -1,6 +1,7 @@
 package com.team25.event.planner.user.controller;
 
 import com.team25.event.planner.event.dto.EventPreviewResponseDTO;
+import com.team25.event.planner.offering.common.dto.OfferingPreviewResponseDTO;
 import com.team25.event.planner.offering.product.dto.ProductResponseDTO;
 import com.team25.event.planner.offering.service.dto.ServiceCardResponseDTO;
 import com.team25.event.planner.user.dto.*;
@@ -24,11 +25,11 @@ public class UserFavoritesController {
     private final UserFavoritesService userFavoritesService;
 
     @GetMapping(value = "/{id}/favourite-services", produces = MediaType.APPLICATION_JSON_VALUE)
-    public ResponseEntity<Collection<ServiceCardResponseDTO>> getFavouriteServices(@PathVariable("id") Long id) {
+    public ResponseEntity<Collection<OfferingPreviewResponseDTO>> getFavouriteServices(@PathVariable("id") Long id) {
         return ResponseEntity.ok(userFavoritesService.getFavoriteServices(id));
     }
     @GetMapping(value = "/{id}/favourite-products", produces = MediaType.APPLICATION_JSON_VALUE)
-    public ResponseEntity<Collection<ProductResponseDTO>> getFavouriteProducts(@PathVariable("id") Long id) {
+    public ResponseEntity<Collection<OfferingPreviewResponseDTO>> getFavouriteProducts(@PathVariable("id") Long id) {
         return ResponseEntity.ok(userFavoritesService.getFavoriteProducts(id));
     }
 
