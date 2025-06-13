@@ -16,7 +16,7 @@ import org.mapstruct.Mapping;
 import java.util.ArrayList;
 import java.util.List;
 
-@Mapper(componentModel = "spring", uses = {ServiceMapperHelper.class})
+@Mapper(componentModel = "spring", uses = ServiceMapperHelper.class)
 public interface ServiceMapper {
 
     @Mapping(source = "visible", target = "visible")

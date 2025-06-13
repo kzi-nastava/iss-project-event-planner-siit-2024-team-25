@@ -17,7 +17,7 @@ public class ProductMapperHelper {
     @AfterMapping
     public void addFavoriteFlag(@MappingTarget ProductResponseDTO productResponseDTO, Product product) {
         User currentUser = currentUserService.getCurrentUser();
-        //productResponseDTO.setFavorite(currentUser != null && currentUser.getFavoriteProducts().contains(product));
+        productResponseDTO.setIsFavorite(currentUser != null && currentUser.getFavoriteProducts().contains(product));
 
     }
 }

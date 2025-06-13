@@ -15,7 +15,7 @@ import org.mapstruct.Mapping;
 
 import java.util.List;
 
-@Mapper(componentModel = "spring", uses = OfferingCategoryCommonMapper.class)
+@Mapper(componentModel = "spring", uses = {OfferingCategoryCommonMapper.class, ProductMapperHelper.class})
 public interface ProductMapper {
     @Mapping(target = "ownerInfo", source = "owner")
     ProductResponseDTO toDTO(Product product);
