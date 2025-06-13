@@ -9,7 +9,6 @@ import com.team25.event.planner.event.repository.PurchaseRepository;
 import com.team25.event.planner.offering.common.dto.OfferingFilterDTO;
 import com.team25.event.planner.offering.common.dto.OfferingPreviewResponseDTO;
 import com.team25.event.planner.offering.common.dto.OfferingSubmittedResponseDTO;
-import com.team25.event.planner.offering.common.mapper.OfferingMapper;
 import com.team25.event.planner.offering.common.model.Offering;
 import com.team25.event.planner.offering.common.model.OfferingCategory;
 import com.team25.event.planner.offering.common.model.OfferingType;
@@ -33,7 +32,6 @@ import java.util.List;
 @RequiredArgsConstructor
 public class OfferingService {
 
-    private final OfferingMapper offeringMapper;
     private final OfferingRepository offeringRepository;
     private final OfferingSpecification offeringSpecification;
     private final OfferingCategoryRepository offeringCategoryRepository;

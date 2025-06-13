@@ -13,7 +13,6 @@ import com.team25.event.planner.event.repository.EventTypeRepository;
 import com.team25.event.planner.event.repository.PurchaseRepository;
 import com.team25.event.planner.offering.common.dto.OfferingFilterDTO;
 import com.team25.event.planner.offering.common.dto.OfferingPreviewResponseDTO;
-import com.team25.event.planner.offering.common.mapper.OfferingMapper;
 import com.team25.event.planner.offering.common.model.Offering;
 import com.team25.event.planner.offering.common.model.OfferingCategory;
 import com.team25.event.planner.offering.common.model.OfferingCategoryType;
@@ -61,7 +60,6 @@ public class ServiceService {
 
     private final Logger logger = LoggerFactory.getLogger(ServiceService.class);
     private final Path serviceImageFileStorageLocation;
-    private final OfferingMapper offeringMapper;
     private final ServiceRepository serviceRepository;
     private final OfferingCategoryRepository offeringCategoryRepository;
     private final EventTypeRepository eventTypeRepository;
@@ -74,7 +72,6 @@ public class ServiceService {
     private final PurchaseRepository purchaseRepository;
 
     public ServiceService(@Value("${file-storage.images.service}") String serviceImageSaveDirectory,
-                          OfferingMapper offeringMapper,
                           ServiceRepository serviceRepository,
                           OfferingCategoryRepository offeringCategoryRepository,
                           EventTypeRepository eventTypeRepository,
@@ -85,7 +82,6 @@ public class ServiceService {
                           CurrentUserService currentUserService,
                           NotificationService notificationService, PurchaseRepository purchaseRepository) {
         this.serviceImageFileStorageLocation = Paths.get(serviceImageSaveDirectory).toAbsolutePath().normalize();
-        this.offeringMapper = offeringMapper;
         this.serviceRepository = serviceRepository;
         this.offeringCategoryRepository = offeringCategoryRepository;
         this.eventTypeRepository = eventTypeRepository;
