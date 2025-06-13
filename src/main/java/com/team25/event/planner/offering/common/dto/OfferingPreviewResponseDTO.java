@@ -16,6 +16,7 @@ public class OfferingPreviewResponseDTO {
     private double rating;
     private double price;
     private Boolean isService;
+    private Boolean isFavorite;
 
     public OfferingPreviewResponseDTO(Offering service, boolean isService) {
         this.id = service.getId();

@@ -61,12 +61,12 @@ public class UserFavoritesService {
     public List<OfferingPreviewResponseDTO> getFavoriteServices(Long userId) {
         User user = userRepository.findById(userId).orElseThrow(() -> new NotFoundError("User not found"));
         List<com.team25.event.planner.offering.service.model.Service> services = user.getFavoriteServices();
-        return serviceRepository.findPreviewsForServices(services);
+        return serviceRepository.findPreviewsForServices(services, user.getId());
     }
     public List<OfferingPreviewResponseDTO> getFavoriteProducts(Long userId) {
         User user = userRepository.findById(userId).orElseThrow(() -> new NotFoundError("User not found"));
         List<Product> products = user.getFavoriteProducts();
-        return productRepository.findPreviewsForServices(products);
+        return productRepository.findPreviewsForServices(products, user.getId());
     }
 
     public ServiceCardResponseDTO addFavoriteService(Long userId, FavouriteOfferingDTO requestDTO) {

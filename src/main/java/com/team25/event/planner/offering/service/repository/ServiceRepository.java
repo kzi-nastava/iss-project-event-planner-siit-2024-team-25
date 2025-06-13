@@ -30,12 +30,22 @@ public interface ServiceRepository extends JpaRepository<Service, Long>, JpaSpec
         s.owner.companyAddress.city,
         COALESCE(AVG(CASE WHEN r.reviewType = com.team25.event.planner.common.model.ReviewType.OFFERING_REVIEW THEN r.rating ELSE null END), 0),
         s.price,
-        true
-    )
+        true,
+        (CASE
+                        
+                        WHEN EXISTS (
+                            SELECT 1 FROM User u2
+                            JOIN u2.favoriteServices fp
+                            WHERE u2.id = :currentUserId AND fp.id = s.id
+                        )
+                        THEN true ELSE false END)
+                    )
+    
     FROM Service s
     LEFT JOIN Review r ON s.id = r.id
     WHERE s IN :services
     GROUP BY s.id, s.name, s.owner.firstName,s.owner.lastName, s.description, s.owner.companyAddress.country, s.owner.companyAddress.city, s.price
 """)
-    List<OfferingPreviewResponseDTO> findPreviewsForServices(@Param("services") List<Service> services);
+    List<OfferingPreviewResponseDTO> findPreviewsForServices(@Param("services") List<Service> services,
+                                                             @Param("currentUserId") Long currentUserId);
 }
