@@ -96,16 +96,20 @@ public class ProductService {
 
 
     public Page<OfferingPreviewResponseDTO> getAllProducts(OfferingFilterDTO filter, int page, int size, String sortBy, String sortDirection) {
+        User currentUser = currentUserService.getCurrentUser();
+        Long userId = currentUser != null ? currentUser.getId() : null;
         Specification<Product> spec = productSpecification.createSpecification(filter);
         Sort.Direction direction = Sort.Direction.fromString(sortDirection);
         Pageable pageable = PageRequest.of(page, size, Sort.by(direction, sortBy));
         Page<Offering> offeringPage = productRepository.findAll(spec, pageable).map(product -> (Offering) product);
         pageable = PageRequest.of(0, size, Sort.by(direction, sortBy));
-        List<OfferingPreviewResponseDTO> offeringsWithRatings = offeringRepository.findOfferingsWithAverageRating(offeringPage.getContent(), pageable);
+        List<OfferingPreviewResponseDTO> offeringsWithRatings = offeringRepository.findOfferingsWithAverageRating(offeringPage.getContent(), pageable, userId);
         return new PageImpl<>(offeringsWithRatings, pageable, offeringPage.getTotalElements());
     }
 
     public Page<OfferingPreviewResponseDTO> getOwnerProducts(Long ownerId, OfferingFilterDTO filter, int page, int size, String sortBy, String sortDirection) {
+        User currentUser = currentUserService.getCurrentUser();
+        Long userId = currentUser != null ? currentUser.getId() : null;
         Specification<Product> spec = productSpecification.createSpecification(filter);
         spec = spec.and((root, query, cb) -> cb.equal(root.get("owner").get("id"), ownerId));
 
@@ -115,7 +119,7 @@ public class ProductService {
         Page<Offering> offeringPage = productRepository.findAll(spec, pageable).map(product -> (Offering) product);
         pageable = PageRequest.of(0, size, Sort.by(direction, sortBy));
 
-        List<OfferingPreviewResponseDTO> offeringsWithRatings = offeringRepository.findOfferingsWithAverageRating(offeringPage.getContent(), pageable);
+        List<OfferingPreviewResponseDTO> offeringsWithRatings = offeringRepository.findOfferingsWithAverageRating(offeringPage.getContent(), pageable, userId);
         return new PageImpl<>(offeringsWithRatings, pageable, offeringPage.getTotalElements());
     }
 

@@ -33,4 +33,5 @@ public class ServiceCreateResponseDTO {
     private List<EventTypePreviewResponseDTO> eventTypes;
     private OfferingCategoryPreviewResponseDTO offeringCategory;
     private OwnerPreviewResponseDTO owner;
+    private Boolean isFavorite;
 }

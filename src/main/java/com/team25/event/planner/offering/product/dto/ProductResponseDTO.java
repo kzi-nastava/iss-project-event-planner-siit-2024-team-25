@@ -20,4 +20,5 @@ public class ProductResponseDTO {
     private List<EventTypeServiceResponseDTO> eventTypes;
     private OfferingCategoryResponseDTO offeringCategory;
     private OwnerPreviewResponseDTO ownerInfo;
+    private Boolean isFavorite;
 }

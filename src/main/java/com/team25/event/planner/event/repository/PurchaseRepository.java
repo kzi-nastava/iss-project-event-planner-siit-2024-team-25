@@ -28,4 +28,6 @@ public interface PurchaseRepository extends JpaRepository<Purchase, Long>, JpaSp
     List<Purchase> findAllByEvent(Event e);
 
     List<Purchase> findAllByOffering(Offering o);
+
+    List<Purchase> getPurchasesByOffering_Id(Long id);
 }

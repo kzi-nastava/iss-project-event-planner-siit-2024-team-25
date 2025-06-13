@@ -72,12 +72,13 @@ public class OfferingService {
 
     public Page<OfferingPreviewResponseDTO> getOfferings(OfferingFilterDTO filter, int page, int size, String sortBy, String sortDirection) {
         User currentUser = currentUserService.getCurrentUser();
+        Long userId = currentUser != null ? currentUser.getId() : null;
         Specification<Offering> spec = offeringSpecification.createSpecification(filter, currentUser);
         Sort.Direction direction = Sort.Direction.fromString(sortDirection);
         Pageable pageable = PageRequest.of(page, size, Sort.by(direction, sortBy));
         Page<Offering> offeringPage = offeringRepository.findAll(spec, pageable);
         pageable = PageRequest.of(0,size, Sort.by(direction, sortBy));
-        List<OfferingPreviewResponseDTO> offeringsWithRatings = offeringRepository.findOfferingsWithAverageRating(offeringPage.getContent(), pageable);
+        List<OfferingPreviewResponseDTO> offeringsWithRatings = offeringRepository.findOfferingsWithAverageRating(offeringPage.getContent(), pageable, userId);
         return new PageImpl<>(offeringsWithRatings, pageable, offeringPage.getTotalElements());
     }
 
