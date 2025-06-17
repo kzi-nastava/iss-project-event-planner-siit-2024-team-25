@@ -17,7 +17,7 @@ public interface BudgetItemRepository extends JpaRepository<BudgetItem, Long> {
 
     List<BudgetItem> findAllByEvent(Event event);
 
-    @Query("SELECT COUNT(b) > 0 FROM BudgetItem b WHERE b.offeringCategory.id = :offerId AND b.event.id != :eventId")
+    @Query("SELECT COUNT(b) > 0 FROM BudgetItem b WHERE b.offeringCategory.id = :offerId AND b.event.id = :eventId")
     boolean isSuitableByOfferIdAndNotEventId(@Param("offerId") Long offerId, @Param("eventId") Long eventId);
 
     BudgetItem findByOfferingCategory(OfferingCategory offeringCategory);

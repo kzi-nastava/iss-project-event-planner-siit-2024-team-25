@@ -11,6 +11,7 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.messaging.handler.annotation.MessageMapping;
 import org.springframework.messaging.handler.annotation.Payload;
 import org.springframework.messaging.simp.SimpMessagingTemplate;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
@@ -38,6 +39,7 @@ public class ChatMessageController {
     }
 
     @GetMapping("/messages/{senderId}/{recipientId}")
+    @PreAuthorize("hasRole('ROLE_USER') and authentication.principal.userId == #senderId")
     public ResponseEntity<Page<ChatMessageResponseDTO>> findChatMessages(@PathVariable Long senderId,
                                                                          @PathVariable Long recipientId,
                                                                          @RequestParam(defaultValue = "0") int page,
