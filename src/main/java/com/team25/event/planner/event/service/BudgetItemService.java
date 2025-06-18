@@ -38,13 +38,10 @@ public class BudgetItemService {
         return budgetItemRepository.findAllByEvent(event).stream().map(budgetItemMapper::toResponseDTO).collect(Collectors.toList());
     }
     public boolean isSuitableByOfferIdAndNotEventId(Long OCId, Long eventId){
-        eventRepository.findById(eventId).orElseThrow(NotFoundError::new);
-        OfferingCategory offeringCategory = offeringCategoryRepository.findById(OCId).orElseThrow(NotFoundError::new);
-        BudgetItem budgetItem = budgetItemRepository.findByOfferingCategory(offeringCategory);
-        if(budgetItem==null){
-            return true;
-        }
-        return budgetItemRepository.isSuitableByOfferIdAndNotEventId(OCId, eventId);
+        eventRepository.findById(eventId).orElseThrow(()->new NotFoundError("Event not found"));
+        OfferingCategory offeringCategory = offeringCategoryRepository.findById(OCId).orElseThrow(()->new NotFoundError("Offering category not found"));
+
+        return !budgetItemRepository.isSuitableByOfferIdAndNotEventId(OCId, eventId);
 
     }
 
@@ -54,12 +51,20 @@ public class BudgetItemService {
     }
 
     public BudgetItemResponseDTO createBudgetItem(BudgetItemRequestDTO budgetItemRequestDTO) {
+        offeringCategoryRepository.findById(budgetItemRequestDTO.getOfferingCategoryId()).orElseThrow(() -> new NotFoundError("Offering category not found"));
+        eventRepository.findById(budgetItemRequestDTO.getEventId()).orElseThrow(() -> new NotFoundError("Event not found"));
+        if(budgetItemRequestDTO.getBudget() < 0) {
+            throw new InvalidRequestError("Budget must be greater than 0");
+        }
         BudgetItem budgetItem = budgetItemMapper.toBudgetItem(budgetItemRequestDTO);
         budgetItem.setMoney(new Money(budgetItemRequestDTO.getBudget()));
         return budgetItemMapper.toResponseDTO(budgetItemRepository.save(budgetItem));
     }
 
     public BudgetItemResponseDTO updateBudgetItem(Long id, BudgetItemRequestDTO budgetItemRequestDTO) {
+        if(budgetItemRequestDTO.getBudget() < 0) {
+            throw new InvalidRequestError("Budget must be greater than 0");
+        }
         BudgetItem budgetItem = budgetItemRepository.findById(id).orElseThrow(()-> new NotFoundError("Budget item not found"));
 
         List<Purchase> purchases = purchaseRepository.findAllByEvent(budgetItem.getEvent());

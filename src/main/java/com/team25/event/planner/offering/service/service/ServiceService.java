@@ -4,10 +4,8 @@ import com.team25.event.planner.common.exception.InvalidRequestError;
 import com.team25.event.planner.common.exception.NotFoundError;
 import com.team25.event.planner.common.exception.ServerError;
 import com.team25.event.planner.common.exception.UnauthorizedError;
-import com.team25.event.planner.common.model.Location;
 import com.team25.event.planner.common.util.FileUtils;
 import com.team25.event.planner.communication.service.NotificationService;
-import com.team25.event.planner.event.model.EventType;
 import com.team25.event.planner.event.model.Purchase;
 import com.team25.event.planner.event.repository.EventTypeRepository;
 import com.team25.event.planner.event.repository.PurchaseRepository;
@@ -19,21 +17,14 @@ import com.team25.event.planner.offering.common.model.OfferingCategoryType;
 import com.team25.event.planner.offering.common.model.OfferingType;
 import com.team25.event.planner.offering.common.repository.OfferingCategoryRepository;
 import com.team25.event.planner.offering.common.repository.OfferingRepository;
-import com.team25.event.planner.offering.product.model.Product;
-import com.team25.event.planner.offering.product.service.ProductService;
 import com.team25.event.planner.offering.service.dto.*;
 import com.team25.event.planner.offering.service.mapper.ServiceMapper;
 import com.team25.event.planner.offering.service.repository.ServiceRepository;
 import com.team25.event.planner.offering.service.specification.ServiceSpecification;
 import com.team25.event.planner.user.model.*;
-import com.team25.event.planner.user.repository.AccountRepository;
 import com.team25.event.planner.user.repository.UserRepository;
 import com.team25.event.planner.user.service.CurrentUserService;
 import jakarta.transaction.Transactional;
-import lombok.RequiredArgsConstructor;
-import org.mapstruct.AfterMapping;
-import org.mapstruct.MappingTarget;
-import org.mapstruct.control.MappingControl;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Value;
@@ -46,7 +37,6 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;
 
-import java.io.File;
 import java.io.IOException;
 import java.net.MalformedURLException;
 import java.nio.file.Files;
@@ -72,6 +62,7 @@ public class ServiceService {
     private final PurchaseRepository purchaseRepository;
 
     public ServiceService(@Value("${file-storage.images.service}") String serviceImageSaveDirectory,
+
                           ServiceRepository serviceRepository,
                           OfferingCategoryRepository offeringCategoryRepository,
                           EventTypeRepository eventTypeRepository,
@@ -82,6 +73,7 @@ public class ServiceService {
                           CurrentUserService currentUserService,
                           NotificationService notificationService, PurchaseRepository purchaseRepository) {
         this.serviceImageFileStorageLocation = Paths.get(serviceImageSaveDirectory).toAbsolutePath().normalize();
+
         this.serviceRepository = serviceRepository;
         this.offeringCategoryRepository = offeringCategoryRepository;
         this.eventTypeRepository = eventTypeRepository;

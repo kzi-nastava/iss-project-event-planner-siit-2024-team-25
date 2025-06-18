@@ -89,12 +89,14 @@ public class UserFavoritesService {
 
     public ResponseEntity<?> removeServiceFromFavorites(Long userId, Long serviceFavId) {
         User user = userRepository.findById(userId).orElseThrow(() -> new NotFoundError("User not found"));
+        serviceRepository.findById(serviceFavId).orElseThrow(() -> new NotFoundError("Service not found"));
         user.getFavoriteServices().removeIf(service -> service.getId().equals(serviceFavId));
         userRepository.save(user);
         return ResponseEntity.ok().build();
     }
     public ResponseEntity<?> removeProductFromFavorites(Long userId, Long productFavId) {
         User user = userRepository.findById(userId).orElseThrow(() -> new NotFoundError("User not found"));
+        productRepository.findById(productFavId).orElseThrow(() -> new NotFoundError("Product not found"));
         user.getFavoriteProducts().removeIf(product -> product.getId().equals(productFavId));
         userRepository.save(user);
         return ResponseEntity.ok().build();
