@@ -53,7 +53,7 @@ public class PurchaseController {
     }
 
     @GetMapping(value = "event/{eventId}/budget",produces = MediaType.APPLICATION_JSON_VALUE)
-    @Secured("EVENT_ORGANIZER")
+    @Secured("ROLE_EVENT_ORGANIZER")
     public ResponseEntity<Double> getLeftMoneyFromBudgetItem(@PathVariable Long eventId, @RequestParam Long categoryId) {
         return ResponseEntity.ok(purchaseService.getLeftMoneyFromBudgetItem(eventId, categoryId));
     }

@@ -98,10 +98,18 @@ WHERE
     (:city IS NULL OR :city = '' OR o.owner.companyAddress.city = :city) AND
     (:currentUserId IS NULL OR
         NOT EXISTS (
-            SELECT 1 FROM User u 
-            WHERE u.id = :currentUserId AND u MEMBER OF o.owner.blockedUsers
+            SELECT 1 FROM User u1
+            JOIN u1.blockedUsers bu1
+            WHERE u1.id = :currentUserId AND bu1.id = o.owner.id
+        )
+    ) AND
+    (:currentUserId IS NULL OR
+        NOT EXISTS (
+            SELECT 1 FROM User u2
+            WHERE u2.id = :currentUserId AND u2 MEMBER OF o.owner.blockedUsers
         )
     )
+
 GROUP BY o.id, o.name, o.owner.firstName, o.owner.lastName, o.description, 
          o.owner.companyAddress.country, o.owner.companyAddress.city, o.price, s.id
 ORDER BY COALESCE(AVG(r.rating), 0) DESC
