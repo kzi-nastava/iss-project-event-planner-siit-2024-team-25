@@ -42,23 +42,27 @@ public class OfferingSpecification {
                 predicates.add(cb.lessThanOrEqualTo(root.get("price"), filter.getMaxPrice()));
             }
 
-            if(currentUser != null){
+            if (currentUser != null) {
+
                 List<Long> blockedUserIds = currentUser.getBlockedUsers().stream()
                         .map(User::getId)
                         .toList();
 
-                Subquery<Long> blockedByCurrentUserSubquery = query.subquery(Long.class);
-                Root<User> blockedByUserRoot = blockedByCurrentUserSubquery.from(User.class);
-                blockedByCurrentUserSubquery.select(blockedByUserRoot.get("id"))
-                        .where(cb.and(
-                                cb.equal(blockedByUserRoot.get("id"), root.get("owner").get("id")),
-                                blockedByUserRoot.get("id").in(blockedUserIds)
-                        ));
+                if (!blockedUserIds.isEmpty()) {
+                    predicates.add(cb.not(root.get("owner").get("id").in(blockedUserIds)));
+                }
 
-                Predicate notBlockedByCurrentUser = cb.not(cb.exists(blockedByCurrentUserSubquery));
+                Subquery<Long> blockedByOwnerSubquery = query.subquery(Long.class);
+                Root<User> ownerUser = blockedByOwnerSubquery.from(User.class);
+                blockedByOwnerSubquery.select(ownerUser.get("id"))
+                        .where(
+                                cb.equal(ownerUser.get("id"), root.get("owner").get("id")),
+                                cb.isMember(currentUser, ownerUser.get("blockedUsers"))
+                        );
 
-                predicates.add(notBlockedByCurrentUser);
+                predicates.add(cb.not(cb.exists(blockedByOwnerSubquery)));
             }
+
 
             predicates.add(cb.equal(root.get("deleted"), false));
             //predicates.add(cb.equal(root.get("isAvailable"), true));

@@ -72,21 +72,16 @@ public class EventSpecification {
             }
 
             if (currentUser != null) {
+
                 List<Long> blockedUserIds = currentUser.getBlockedUsers().stream()
                         .map(User::getId)
                         .toList();
 
-                Subquery<Long> blockedByCurrentUserSubquery = query.subquery(Long.class);
-                Root<User> blockedByUserRoot = blockedByCurrentUserSubquery.from(User.class);
-                blockedByCurrentUserSubquery.select(blockedByUserRoot.get("id"))
-                        .where(cb.and(
-                                cb.equal(blockedByUserRoot.get("id"), root.get("organizer").get("id")),
-                                blockedByUserRoot.get("id").in(blockedUserIds)
-                        ));
+                if (!blockedUserIds.isEmpty()) {
+                    predicates.add(cb.not(root.get("organizer").get("id").in(blockedUserIds)));
+                }
 
-                Predicate notBlockedByCurrentUser = cb.not(cb.exists(blockedByCurrentUserSubquery));
-
-                predicates.add(notBlockedByCurrentUser);
+                predicates.add(cb.isNotMember(currentUser, root.get("organizer").get("blockedUsers")));
 
                 if (currentUser.getUserRole() == UserRole.REGULAR) {
                     List<Long> blockedByUserIds = currentUser.getBlockedByUsers().stream()
@@ -199,17 +194,11 @@ public class EventSpecification {
                         .map(User::getId)
                         .toList();
 
-                Subquery<Long> blockedByCurrentUserSubquery = query.subquery(Long.class);
-                Root<User> blockedByUserRoot = blockedByCurrentUserSubquery.from(User.class);
-                blockedByCurrentUserSubquery.select(blockedByUserRoot.get("id"))
-                        .where(cb.and(
-                                cb.equal(blockedByUserRoot.get("id"), root.get("organizer").get("id")),
-                                blockedByUserRoot.get("id").in(blockedUserIds)
-                        ));
+                if (!blockedUserIds.isEmpty()) {
+                    predicates.add(cb.not(root.get("organizer").get("id").in(blockedUserIds)));
+                }
 
-                Predicate notBlockedByCurrentUser = cb.not(cb.exists(blockedByCurrentUserSubquery));
-
-                predicates.add(notBlockedByCurrentUser);
+                predicates.add(cb.isNotMember(currentUser, root.get("organizer").get("blockedUsers")));
 
                 if (currentUser.getUserRole() == UserRole.REGULAR) {
                     List<Long> blockedByUserIds = currentUser.getBlockedByUsers().stream()
