@@ -45,6 +45,12 @@
 				<spring.profiles.active>e2e</spring.profiles.active>
 			</properties>
 		</profile>
+		<profile>
+			<id>test</id>
+			<properties>
+				<spring.profiles.active>test</spring.profiles.active>
+			</properties>
+		</profile>
 	</profiles>
 
 	<dependencies>
