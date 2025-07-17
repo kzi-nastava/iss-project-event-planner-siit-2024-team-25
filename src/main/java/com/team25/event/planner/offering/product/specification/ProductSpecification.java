@@ -1,6 +1,8 @@
 package com.team25.event.planner.offering.product.specification;
 
+import com.team25.event.planner.event.model.EventType;
 import com.team25.event.planner.offering.common.dto.OfferingFilterDTO;
+import com.team25.event.planner.offering.common.model.Offering;
 import com.team25.event.planner.offering.common.model.OfferingType;
 import com.team25.event.planner.offering.product.model.Product;
 import com.team25.event.planner.user.model.User;
@@ -31,7 +33,7 @@ public class ProductSpecification {
                         "%" + filter.getDescription().toLowerCase() + "%"));
             }
             if (filter.getEventTypeId() != null) {
-                Join<Object, Object> eventTypeJoin = root.join("eventTypes");
+                Join<Offering, EventType> eventTypeJoin = root.join("eventTypes");
                 predicates.add(cb.equal(eventTypeJoin.get("id"), filter.getEventTypeId()));
             }
             if (filter.getCategoryId() != null) {

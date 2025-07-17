@@ -67,7 +67,7 @@ public class ServiceController {
 
     @PostMapping
     @Secured("ROLE_OWNER")
-    public ResponseEntity<ServiceCreateResponseDTO> createService(@Valid @ModelAttribute ServiceCreateRequestDTO serviceDTO) throws Exception {
+    public ResponseEntity<ServiceCreateResponseDTO> createService(@ModelAttribute ServiceCreateRequestDTO serviceDTO) throws Exception {
 
         return new ResponseEntity<>(serviceService.createService(serviceDTO), HttpStatus.CREATED);
     }
