@@ -9,4 +9,5 @@ public class ChatMessageRequestDTO {
     private Long senderId;
     private Long receiverId;
     private String content;
+    private String chatId;
 }

@@ -14,6 +14,8 @@ import org.springframework.messaging.simp.SimpMessagingTemplate;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
 
+import java.time.LocalDate;
+import java.time.LocalDateTime;
 import java.util.List;
 
 @RestController
@@ -27,13 +29,15 @@ public class ChatMessageController {
     @MessageMapping("/chat")
     public void processMessage(@Payload ChatMessageRequestDTO chatMessage) {
         ChatMessageResponseDTO savedMsg = chatMessageService.save(chatMessage);
-        messagingTemplate.convertAndSendToUser(
-                chatMessage.getReceiverId().toString(), "/queue/messages",
+        messagingTemplate.convertAndSend(
+                 "/topic/" + chatMessage.getChatId(),
                 new ChatNotification(
                         savedMsg.getId(),
-                        savedMsg.getSender().getId(),
-                        savedMsg.getReceiver().getId(),
-                        savedMsg.getContent()
+                        savedMsg.getSender(),
+                        savedMsg.getReceiver(),
+                        savedMsg.getContent(),
+                        savedMsg.getChatId(),
+                        savedMsg.getTimestamp()
                 )
         );
     }

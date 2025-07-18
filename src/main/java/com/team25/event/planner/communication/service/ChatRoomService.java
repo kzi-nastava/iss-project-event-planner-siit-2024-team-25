@@ -14,7 +14,9 @@ import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
+import java.util.List;
 import java.util.Optional;
 
 @Service
@@ -24,23 +26,29 @@ public class ChatRoomService {
     private final UserRepository userRepository;
     private final ChatRoomMapper chatRoomMapper;
 
+    @Transactional
     public Optional<String> getChatRoomId(
             ChatRoomRequestDTO requestDTO) {
-        return chatRoomRepository
-                .findBySenderIdAndReceiverId(requestDTO.getSenderId(), requestDTO.getReceiverId())
+        List<ChatRoom> chatRooms = chatRoomRepository.findChatBetweenUsers(
+                requestDTO.getSenderId(), requestDTO.getReceiverId()
+        );
+        return chatRooms.stream()
+                .findFirst()
                 .map(ChatRoom::getChatId)
                 .or(() -> {
-                        User sender = userRepository.findById(requestDTO.getSenderId()).orElseThrow(()->new NotFoundError("Sender not found"));
-                        User receiver =userRepository.findById(requestDTO.getReceiverId()).orElseThrow(()->new NotFoundError("Receiver not found"));
-                        var chatId = createChatId(sender,receiver);
-                        return Optional.of(chatId);
+                    User sender = userRepository.findById(requestDTO.getSenderId())
+                            .orElseThrow(() -> new NotFoundError("Sender not found"));
+                    User receiver = userRepository.findById(requestDTO.getReceiverId())
+                            .orElseThrow(() -> new NotFoundError("Receiver not found"));
 
+                    String chatId = createChatId(sender, receiver);
+                    return Optional.of(chatId);
                 });
     }
 
-    private String createChatId(User sender, User receiver) {
+    @Transactional
+    protected String createChatId(User sender, User receiver) {
         String chatId = String.format("%s_%s", sender.getId(), receiver.getId());
-
         ChatRoom senderRecipient = ChatRoom
                 .builder()
                 .chatId(chatId)
