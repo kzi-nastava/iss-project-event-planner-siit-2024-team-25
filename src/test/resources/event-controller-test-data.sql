@@ -1,13 +1,19 @@
 INSERT INTO accounts (id, email, password, status) VALUES
     (1, 'organizer@example.com', '$2a$12$yto6FS5Fzul7kr1zPMxUZuzlzYazUy.VyAArUqZx8WasxhW3sn5km', 'ACTIVE'),
-    (2, 'jana@example.com', '$2a$12$yto6FS5Fzul7kr1zPMxUZuzlzYazUy.VyAArUqZx8WasxhW3sn5km', 'ACTIVE');
+    (2, 'jana@example.com', '$2a$12$yto6FS5Fzul7kr1zPMxUZuzlzYazUy.VyAArUqZx8WasxhW3sn5km', 'ACTIVE'),
+    (3, 'aco@example.com', '$2a$12$yto6FS5Fzul7kr1zPMxUZuzlzYazUy.VyAArUqZx8WasxhW3sn5km', 'ACTIVE'),
+    (4, 'pero@example.com', '$2a$12$yto6FS5Fzul7kr1zPMxUZuzlzYazUy.VyAArUqZx8WasxhW3sn5km', 'ACTIVE');
 
 INSERT INTO users (id, first_name, last_name, user_role, account_id) VALUES
     (1, 'John', 'Doe', 1, 1),
-    (2, 'Jana', 'JA', 0, 2);
+    (2, 'Jana', 'JA', 0, 2),
+    (3, 'Aleksandar', 'Makedonski', 0, 3),
+    (4, 'Petar', 'Popovic', 0, 4);
 
 UPDATE accounts SET user_id = 1 WHERE id = 1;
 UPDATE accounts SET user_id = 2 WHERE id = 2;
+UPDATE accounts SET user_id = 3 WHERE id = 3;
+UPDATE accounts SET user_id = 4 WHERE id = 4;
 
 INSERT INTO event_organizers (id, country, city, address, latitude, longitude, phone_number)
 VALUES
@@ -24,5 +30,10 @@ INSERT INTO events ( id, event_type_id, name, description, max_participants, pri
 INSERT INTO activities (id, name, description, start_time, end_time, location, event_id) VALUES
     (10, 'Opening ceremony', 'The starting activity of the event', '2024-12-16 10:00', '2024-12-16 12:00', 'Conference hall', 1);
 
-ALTER TABLE events ALTER COLUMN id RESTART WITH 3;
+INSERT INTO event_attendance (attendee_id, event_id) VALUES (3, 2);
+
+INSERT INTO event_invitations (guest_email, invitation_code, status, event_id) VALUES
+    ('pero@example.com', 'lasdjkflskdjflskadjf', 'PENDING', 2);
+
+ALTER TABLE events ALTER COLUMN id RESTART WITH 5;
 ALTER TABLE activities ALTER COLUMN id RESTART WITH 20;
