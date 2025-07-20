@@ -164,6 +164,22 @@ class EventControllerTest {
     }
 
     @Test
+    @Order(4)
+    @DisplayName("GET /api/events/{id} - not-logged in user can view public event")
+    void getEvent_publicAnonymousOk() {
+        ResponseEntity<EventResponseDTO> res = restTemplate.exchange(
+                "/api/events/{id}",
+                HttpMethod.GET,
+                new HttpEntity<>(jsonHeaders()),
+                EventResponseDTO.class,
+                1L
+        );
+
+        assertThat(res.getStatusCode()).isEqualTo(HttpStatus.OK);
+        assertThat(res.getBody().getId()).isEqualTo(1L);
+    }
+
+    @Test
     @Order(5)
     @DisplayName("PUT /api/events/{id} – successful update by organizer")
     void updateEvent_ok() {
