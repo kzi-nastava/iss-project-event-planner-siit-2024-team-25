@@ -12,6 +12,7 @@ import com.team25.event.planner.event.repository.EventTypeRepository;
 import com.team25.event.planner.event.repository.PurchaseRepository;
 import com.team25.event.planner.offering.common.model.OfferingCategory;
 import com.team25.event.planner.offering.common.repository.OfferingCategoryRepository;
+import com.team25.event.planner.user.service.CurrentUserService;
 import lombok.AllArgsConstructor;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
@@ -28,6 +29,7 @@ public class BudgetItemService {
     private final BudgetItemMapper budgetItemMapper;
     private final OfferingCategoryRepository offeringCategoryRepository;
     private final PurchaseRepository purchaseRepository;
+    private final CurrentUserService currentUserService;
 
     public List<BudgetItemResponseDTO> getAllBudgetItems() {
         return budgetItemRepository.findAll().stream().map(budgetItemMapper::toResponseDTO).collect(Collectors.toList());
@@ -35,7 +37,7 @@ public class BudgetItemService {
 
     public List<BudgetItemResponseDTO> getBudgetItemsByEvent(Long eventId){
         Event event = eventRepository.findById(eventId).orElseThrow(NotFoundError::new);
-        return budgetItemRepository.findAllByEvent(event).stream().map(budgetItemMapper::toResponseDTO).collect(Collectors.toList());
+        return budgetItemRepository.findByEventIdAndOrganizerId(event.getId(), currentUserService.getCurrentUserId()).stream().map(budgetItemMapper::toResponseDTO).collect(Collectors.toList());
     }
     public boolean isSuitableByOfferIdAndNotEventId(Long OCId, Long eventId){
         eventRepository.findById(eventId).orElseThrow(()->new NotFoundError("Event not found"));
