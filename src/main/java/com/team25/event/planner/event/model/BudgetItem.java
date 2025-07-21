@@ -8,12 +8,20 @@ import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
 
+import javax.print.attribute.standard.MediaName;
+
 @Entity
 @Getter
 @Setter
 @NoArgsConstructor
 @AllArgsConstructor
 public class BudgetItem {
+
+    public BudgetItem(Money money, OfferingCategory offeringCategory, Event event){
+        this.money = money;
+        this.offeringCategory = offeringCategory;
+        this.event = event;
+    }
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private long id;

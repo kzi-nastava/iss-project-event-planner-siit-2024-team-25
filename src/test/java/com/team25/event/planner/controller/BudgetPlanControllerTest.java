@@ -329,7 +329,7 @@ public class BudgetPlanControllerTest {
 
     @Test
     @Order(12)
-    @DisplayName("DELETE api/budget-items/ - Valid deleted budget item")
+    @DisplayName("DELETE api/budget-items/1 - Valid deleted budget item")
     void testDeleteBudgetItem_deleteOk(){
         login("organizer@example.com", "password1");
         ResponseEntity<?> res = restTemplate.exchange(
@@ -406,5 +406,26 @@ public class BudgetPlanControllerTest {
         assertThat(res.getStatusCode()).isEqualTo(HttpStatus.OK);
         assertThat(res.getBody()).isNotNull();
         assertThat(res.getBody()).isFalse();
+    }
+
+    @Test
+    @Order(17)
+    @DisplayName("POST api/budget-items/ - Invalid test with null budget")
+    void testCreateBudgetItem_nullBudget() {
+        login("organizer@example.com", "password1");
+        BudgetItemRequestDTO requestDTO = BudgetItemRequestDTO.builder()
+                .budget(null)
+                .eventId(1L)
+                .offeringCategoryId(1L)
+                .build();
+
+        ResponseEntity<BudgetItemResponseDTO> res = restTemplate.exchange(
+                "/api/budget-items/",
+                HttpMethod.POST,
+                new HttpEntity<>(requestDTO, jsonHeaders()),
+                BudgetItemResponseDTO.class
+        );
+
+        assertThat(res.getStatusCode()).isEqualTo(HttpStatus.UNPROCESSABLE_ENTITY);
     }
 }

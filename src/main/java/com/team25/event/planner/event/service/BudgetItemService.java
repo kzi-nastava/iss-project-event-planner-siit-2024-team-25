@@ -55,6 +55,9 @@ public class BudgetItemService {
     public BudgetItemResponseDTO createBudgetItem(BudgetItemRequestDTO budgetItemRequestDTO) {
         offeringCategoryRepository.findById(budgetItemRequestDTO.getOfferingCategoryId()).orElseThrow(() -> new NotFoundError("Offering category not found"));
         eventRepository.findById(budgetItemRequestDTO.getEventId()).orElseThrow(() -> new NotFoundError("Event not found"));
+        if(budgetItemRequestDTO.getBudget() == null){
+            throw new InvalidRequestError("Budget is required");
+        }
         if(budgetItemRequestDTO.getBudget() < 0) {
             throw new InvalidRequestError("Budget must be greater than 0");
         }
