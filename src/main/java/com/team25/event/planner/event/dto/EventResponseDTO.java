@@ -2,12 +2,14 @@ package com.team25.event.planner.event.dto;
 
 import com.team25.event.planner.common.dto.LocationResponseDTO;
 import com.team25.event.planner.event.model.PrivacyType;
+import lombok.AllArgsConstructor;
 import lombok.Data;
 
 import java.time.LocalDate;
 import java.time.LocalTime;
 
 @Data
+@AllArgsConstructor
 public class EventResponseDTO {
     private Long id;
     private EventTypePreviewResponseDTO eventType;

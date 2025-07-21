@@ -4,12 +4,14 @@ import com.team25.event.planner.common.dto.LocationRequestDTO;
 import com.team25.event.planner.event.model.PrivacyType;
 import jakarta.validation.constraints.NotEmpty;
 import jakarta.validation.constraints.NotNull;
+import lombok.Builder;
 import lombok.Data;
 
 import java.time.LocalDate;
 import java.time.LocalTime;
 
 @Data
+@Builder
 public class EventRequestDTO {
     private Long eventTypeId;
 
