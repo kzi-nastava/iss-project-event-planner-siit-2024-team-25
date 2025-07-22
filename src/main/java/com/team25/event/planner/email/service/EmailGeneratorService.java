@@ -69,7 +69,7 @@ public class EmailGeneratorService {
 
     public EmailDTO getServicePurchaseConfirmationEmail(String recipient, Purchase purchase){
         final String email = recipient;
-        final String url = frontendUrl + "/services/" + purchase.getOffering().getId();
+        final String url = frontendUrl + "/service/services/" + purchase.getOffering().getId();
         final String body = templateProcessorService.getServicePurchaseConfirmationBody(url, purchase);
         return new EmailDTO(email, "Service purchase confirmation", body);
     }
