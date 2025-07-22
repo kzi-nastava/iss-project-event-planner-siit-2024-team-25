@@ -53,6 +53,7 @@ public class BudgetItemController {
     @DeleteMapping(value = "{id}")
     @Secured("ROLE_EVENT_ORGANIZER")
     public ResponseEntity<?> deleteBudgetItem(@PathVariable Long id) {
-        return ResponseEntity.ok(budgetItemService.deleteBudgetItem(id));
+        budgetItemService.deleteBudgetItem(id);
+        return ResponseEntity.noContent().build();
     }
 }

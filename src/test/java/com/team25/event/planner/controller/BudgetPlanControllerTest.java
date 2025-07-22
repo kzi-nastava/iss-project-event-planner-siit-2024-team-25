@@ -71,8 +71,8 @@ public class BudgetPlanControllerTest {
 
         BudgetItemRequestDTO requestDTO = BudgetItemRequestDTO.builder()
                 .budget(300.0)
-                .eventId(1L)
-                .offeringCategoryId(1L)
+                .eventId(2L)
+                .offeringCategoryId(2L)
                 .build();
 
         ResponseEntity<BudgetItemResponseDTO> res = restTemplate.exchange(
@@ -86,8 +86,8 @@ public class BudgetPlanControllerTest {
         assertThat(res.getStatusCode()).isEqualTo(HttpStatus.OK);
         assertThat(res.getBody()).isNotNull();
         assertThat(res.getBody().getBudget()).isEqualTo(300.0);
-        assertThat(res.getBody().getEventId()).isEqualTo(1L);
-        assertThat(res.getBody().getOfferingCategoryId()).isEqualTo(1L);
+        assertThat(res.getBody().getEventId()).isEqualTo(2L);
+        assertThat(res.getBody().getOfferingCategoryId()).isEqualTo(2L);
     }
 
     @Test
@@ -327,25 +327,9 @@ public class BudgetPlanControllerTest {
         assertThat(res.getBody().getOfferingCategoryId()).isEqualTo(1L);
     }
 
+
     @Test
     @Order(12)
-    @DisplayName("DELETE api/budget-items/1 - Valid deleted budget item")
-    void testDeleteBudgetItem_deleteOk(){
-        login("organizer@example.com", "password1");
-        ResponseEntity<?> res = restTemplate.exchange(
-                "/api/budget-items/1",
-                HttpMethod.DELETE,
-                new HttpEntity<>(jsonHeaders()),
-                Void.class
-        );
-
-        assertThat(res.getStatusCode()).isEqualTo(HttpStatus.OK);
-        assertThat(res.getBody()).isNull();
-
-    }
-
-    @Test
-    @Order(13)
     @DisplayName("GET api/event-types/10/offering-categories - Invalid fetching offering category when event type does not exist")
     void testGetAvailableOfferingCategoryByEventType(){
         login("organizer@example.com", "password1");
@@ -361,7 +345,7 @@ public class BudgetPlanControllerTest {
     }
 
     @Test
-    @Order(14)
+    @Order(13)
     @DisplayName("GET api/event-types/1/offering-categories - Valid fetching offering category by event type")
     void testGetAvailableOfferingCategoryById_ok(){
         login("organizer@example.com", "password1");
@@ -377,7 +361,7 @@ public class BudgetPlanControllerTest {
     }
 
     @Test
-    @Order(15)
+    @Order(14)
     @DisplayName("GET api/budget-items/2/is-suitable?eventId=1 - Valid offering category can be added to budget items")
     void testIsOfferingCategorySuitable_ok(){
         login("organizer@example.com", "password1");
@@ -393,7 +377,7 @@ public class BudgetPlanControllerTest {
     }
 
     @Test
-    @Order(16)
+    @Order(15)
     @DisplayName("GET api/budget-items/1/is-suitable?eventId=1 - Invalid offering category has already added to budget items")
     void testIsOfferingCategorySuitable_invalid(){
         login("organizer@example.com", "password1");
@@ -409,7 +393,7 @@ public class BudgetPlanControllerTest {
     }
 
     @Test
-    @Order(17)
+    @Order(16)
     @DisplayName("POST api/budget-items/ - Invalid test with null budget")
     void testCreateBudgetItem_nullBudget() {
         login("organizer@example.com", "password1");
@@ -427,5 +411,21 @@ public class BudgetPlanControllerTest {
         );
 
         assertThat(res.getStatusCode()).isEqualTo(HttpStatus.UNPROCESSABLE_ENTITY);
+    }
+
+    @Test
+    @Order(17)
+    @DisplayName("DELETE api/budget-items/1 - Valid deleted budget item")
+    void testDeleteBudgetItem_deleteOk(){
+        login("organizer@example.com", "password1");
+        ResponseEntity<?> res = restTemplate.exchange(
+                "/api/budget-items/1",
+                HttpMethod.DELETE,
+                new HttpEntity<>(jsonHeaders()),
+                Void.class
+        );
+
+        assertThat(res.getStatusCode()).isEqualTo(HttpStatus.NO_CONTENT);
+
     }
 }

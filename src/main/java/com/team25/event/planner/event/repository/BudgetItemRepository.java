@@ -24,6 +24,7 @@ public interface BudgetItemRepository extends JpaRepository<BudgetItem, Long> {
     boolean isSuitableByOfferIdAndNotEventId(@Param("offerId") Long offerId, @Param("eventId") Long eventId);
 
     Optional<BudgetItem> findBudgetItemByEventIdAndOfferingCategoryId(Long eventId, Long categoryId);
+    boolean existsByEventIdAndOfferingCategoryId(Long eventId, Long offeringCategoryId);
 
     @Modifying
     @Query("DELETE FROM BudgetItem b WHERE b.offeringCategory.id = :offeringId")
