@@ -48,7 +48,8 @@ INSERT INTO events ( event_type_id, name, description, max_participants, privacy
 INSERT INTO offering_type ( id,name, description, status)
 VALUES
     (1,'Catering Services', 'Catering services for various event types such as weddings, corporate events, and more.', 'ACCEPTED'),
-    (2, 'Technical Services', 'Technical services including sound systems, lighting, and AV equipment for events.', 'ACCEPTED');
+    (2, 'Technical Services', 'Technical services including sound systems, lighting, and AV equipment for events.', 'ACCEPTED'),
+    (3, 'Technical Services 2', 'Technical services including sound systems, lighting, and AV equipment for events.', 'ACCEPTED');
 
 -- offering type for event type
 INSERT INTO event_types_offering_categories (event_type_id, offering_categories_id)
@@ -74,7 +75,21 @@ VALUES
 INSERT INTO product (id)
 VALUES
     (3),
-    (4);
+    (4),
+    (5);
 
 INSERT INTO budget_item (amount, currency, offering_category_id, event_id)
-VALUES (250, 'EUR', 1, 1);
+VALUES (250, 'EUR', 1, 1),
+       (250, 'EUR', 3, 1);
+
+INSERT INTO purchases (end_date, end_time, amount, currency, start_date, start_time, event_id, offering_id)
+VALUES (
+           '2025-08-10',
+           '18:00:00',
+           100.00,
+           'EUR',
+           '2025-08-05',
+           '09:00:00',
+           1,
+           5
+       );
