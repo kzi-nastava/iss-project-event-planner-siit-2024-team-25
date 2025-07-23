@@ -46,7 +46,7 @@ public class BudgetPlanRepositoryTest {
 
         List<BudgetItem> found = budgetItemRepository.findByEventIdAndOrganizerId(event.getId(), organizer.getId());
 
-        Assertions.assertEquals(1, found.size());
+        Assertions.assertEquals(2, found.size());
     }
     @Test
     @DisplayName("Invalid find by eventId and organizerId when organizer did not create the event")

@@ -43,7 +43,10 @@ public class BudgetItemService {
     public boolean isSuitableByOfferIdAndNotEventId(Long OCId, Long eventId){
         eventRepository.findById(eventId).orElseThrow(()->new NotFoundError("Event not found"));
         OfferingCategory offeringCategory = offeringCategoryRepository.findById(OCId).orElseThrow(()->new NotFoundError("Offering category not found"));
-
+        if(offeringCategory.getStatus() != OfferingCategoryType.ACCEPTED){
+            throw new InvalidRequestError("Offering category is not accepted");
+        }
+        // count budget item with offering category = OCId and event = eventId
         return !budgetItemRepository.isSuitableByOfferIdAndNotEventId(OCId, eventId);
 
     }

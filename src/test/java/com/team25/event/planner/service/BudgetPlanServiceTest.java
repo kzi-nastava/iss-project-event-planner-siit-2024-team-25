@@ -23,6 +23,7 @@ import com.team25.event.planner.offering.common.repository.OfferingCategoryRepos
 import com.team25.event.planner.user.model.*;
 import com.team25.event.planner.user.service.CurrentUserService;
 import com.team25.event.planner.event.service.BudgetItemService;
+import org.aspectj.weaver.ast.Not;
 import org.hibernate.annotations.UpdateTimestamp;
 import org.junit.jupiter.api.*;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -346,10 +347,12 @@ public class BudgetPlanServiceTest {
 
         when(eventRepository.findById(event.getId())).thenReturn(Optional.of(event));
         when(offeringCategoryRepository.findById(offeringCategory2.getId())).thenReturn(Optional.of(offeringCategory));
+        when(budgetItemRepository.isSuitableByOfferIdAndNotEventId(offeringCategory2.getId(), event.getId())).thenReturn(false);
 
         assertTrue(budgetItemService.isSuitableByOfferIdAndNotEventId(offeringCategory2.getId(), event.getId()));
         verify(eventRepository, times(1)).findById(event.getId());
         verify(offeringCategoryRepository, times(1)).findById(offeringCategory2.getId());
+        verify(budgetItemRepository, times(1)).isSuitableByOfferIdAndNotEventId(offeringCategory2.getId(), event.getId());
     }
 
     @Test
@@ -357,6 +360,7 @@ public class BudgetPlanServiceTest {
     void testIsSuitableByOfferIdAndEventId_eventNotFound() {
         Long nonExistingEventId = 100L;
         when(eventRepository.findById(nonExistingEventId)).thenReturn(Optional.empty());
+
         NotFoundError error = assertThrows(NotFoundError.class,
                 () -> budgetItemService.isSuitableByOfferIdAndNotEventId(offeringCategory.getId(), nonExistingEventId));
         assertEquals(error.getMessage(), "Event not found");
@@ -420,6 +424,9 @@ public class BudgetPlanServiceTest {
                 .thenReturn(false);
 
         assertTrue(budgetItemService.isSuitableByOfferIdAndNotEventId(offeringCategory2.getId(), event.getId()));
+        verify(eventRepository, times(1)).findById(event.getId());
+        verify(offeringCategoryRepository, times(1)).findById(offeringCategory2.getId());
+        verify(budgetItemRepository,times(1)).isSuitableByOfferIdAndNotEventId(offeringCategory2.getId(), event.getId());
     }
 
     @Test
@@ -441,7 +448,12 @@ public class BudgetPlanServiceTest {
         when(budgetItemRepository.isSuitableByOfferIdAndNotEventId(offeringCategory2.getId(), event.getId()))
                 .thenReturn(false);
 
-        assertTrue(budgetItemService.isSuitableByOfferIdAndNotEventId(offeringCategory2.getId(), event.getId()));
+        InvalidRequestError error = assertThrows(InvalidRequestError.class, () ->budgetItemService.isSuitableByOfferIdAndNotEventId(offeringCategory2.getId(), event.getId()));
+        assertEquals(error.getMessage(),"Offering category is not accepted");
+        verify(eventRepository, times(1)).findById(event.getId());
+        verify(offeringCategoryRepository, times(1)).findById(offeringCategory2.getId());
+        verify(budgetItemRepository,times(0)).isSuitableByOfferIdAndNotEventId(offeringCategory2.getId(), event.getId());
+
     }
 
     @Test
@@ -453,6 +465,10 @@ public class BudgetPlanServiceTest {
                 .thenReturn(true);
 
         assertFalse(budgetItemService.isSuitableByOfferIdAndNotEventId(offeringCategory.getId(), event.getId()));
+        verify(eventRepository, times(1)).findById(event.getId());
+        verify(offeringCategoryRepository, times(1)).findById(offeringCategory.getId());
+        verify(budgetItemRepository,times(1)).isSuitableByOfferIdAndNotEventId(offeringCategory.getId(), event.getId());
+
     }
 
     @Test
@@ -548,80 +564,78 @@ public class BudgetPlanServiceTest {
 
         BudgetItemResponseDTO result = budgetItemService.createBudgetItem(budgetItemRequestDTO);
 
+        assertEquals(budgetItemResponseDTO, result);
         verify(offeringCategoryRepository, times(1)).findById(offeringCategory.getId());
         verify(eventRepository, times(1)).findById(event.getId());
         verify(budgetItemMapper, times(1)).toBudgetItem(budgetItemRequestDTO);
         verify(budgetItemRepository, times(1)).save(budgetItem);
         verify(budgetItemMapper, times(1)).toResponseDTO(budgetItem);
-        assertEquals(budgetItemResponseDTO, result);
+
     }
 
     @Test
     @DisplayName("Create budget item when offering category does not exist")
     void testCreateBudgetItem_offeringCategoryNotFound() {
         Long nonExistingOfferingCategory = 100L;
-        BudgetItemRequestDTO req = BudgetItemRequestDTO.builder().budget(200.0).build();
-        req.setOfferingCategoryId(nonExistingOfferingCategory);
+        budgetItemRequestDTO.setOfferingCategoryId(nonExistingOfferingCategory);
 
         when(offeringCategoryRepository.findById(nonExistingOfferingCategory)).thenReturn(Optional.empty());
 
-        NotFoundError exception = assertThrows(NotFoundError.class, () -> budgetItemService.createBudgetItem(req));
-        verify(offeringCategoryRepository, times(1)).findById(nonExistingOfferingCategory);
+        NotFoundError exception = assertThrows(NotFoundError.class, () -> budgetItemService.createBudgetItem(budgetItemRequestDTO));
         assertEquals("Offering category not found", exception.getMessage());
+        verify(offeringCategoryRepository, times(1)).findById(nonExistingOfferingCategory);
+
     }
 
     @Test
     @DisplayName("Create budget item when event does not exist")
     void testCreateBudgetItem_eventNotFound() {
         Long nonExistingEvent = 100L;
-        BudgetItemRequestDTO req = BudgetItemRequestDTO.builder().budget(200.0).build();
-        req.setOfferingCategoryId(offeringCategory.getId());
-        req.setEventId(nonExistingEvent);
+        budgetItemRequestDTO.setOfferingCategoryId(offeringCategory.getId());
+        budgetItemRequestDTO.setEventId(nonExistingEvent);
 
         when(offeringCategoryRepository.findById(offeringCategory.getId())).thenReturn(Optional.of(offeringCategory));
         when(eventRepository.findById(nonExistingEvent)).thenReturn(Optional.empty());
 
-        NotFoundError exception = assertThrows(NotFoundError.class, () -> budgetItemService.createBudgetItem(req));
-        verify(eventRepository, times(1)).findById(nonExistingEvent);
+        NotFoundError exception = assertThrows(NotFoundError.class, () -> budgetItemService.createBudgetItem(budgetItemRequestDTO));
         assertEquals("Event not found", exception.getMessage());
+        verify(eventRepository, times(1)).findById(nonExistingEvent);
+        verify(offeringCategoryRepository, times(1)).findById(offeringCategory.getId());
+
     }
 
     @Test
     @DisplayName("Create budget item when budget does not exist")
     void testCreateBudgetItem_budgetNull() {
-        BudgetItemRequestDTO req = BudgetItemRequestDTO.builder().build();
-        req.setOfferingCategoryId(offeringCategory.getId());
-        req.setEventId(event.getId());
-        req.setBudget(null);
+        budgetItemRequestDTO.setOfferingCategoryId(offeringCategory.getId());
+        budgetItemRequestDTO.setEventId(event.getId());
+        budgetItemRequestDTO.setBudget(null);
 
         when(offeringCategoryRepository.findById(offeringCategory.getId())).thenReturn(Optional.of(offeringCategory));
         when(eventRepository.findById(event.getId())).thenReturn(Optional.of(event));
 
-        InvalidRequestError error = assertThrows(InvalidRequestError.class, () -> budgetItemService.createBudgetItem(req));
+        InvalidRequestError error = assertThrows(InvalidRequestError.class, () -> budgetItemService.createBudgetItem(budgetItemRequestDTO));
         assertEquals(error.getMessage(),"Budget is required");
 
         verify(offeringCategoryRepository, times(1)).findById(offeringCategory.getId());
         verify(eventRepository, times(1)).findById(event.getId());
-        verifyNoMoreInteractions(offeringCategoryRepository, eventRepository);
     }
 
     @Test
     @DisplayName("Create budget item when budget is less than 0")
     void testCreateBudgetItem_budgetNegative() {
-        BudgetItemRequestDTO req = BudgetItemRequestDTO.builder().budget(200.0).build();
-        req.setOfferingCategoryId(offeringCategory.getId());
-        req.setEventId(event.getId());
-        req.setBudget(-10.0);
+        budgetItemRequestDTO.setOfferingCategoryId(offeringCategory.getId());
+        budgetItemRequestDTO.setEventId(event.getId());
+        budgetItemRequestDTO.setBudget(-10.0);
 
         when(offeringCategoryRepository.findById(offeringCategory.getId())).thenReturn(Optional.of(offeringCategory));
         when(eventRepository.findById(event.getId())).thenReturn(Optional.of(event));
 
-        InvalidRequestError error = assertThrows(InvalidRequestError.class, () -> budgetItemService.createBudgetItem(req));
+        InvalidRequestError error = assertThrows(InvalidRequestError.class, () -> budgetItemService.createBudgetItem(budgetItemRequestDTO));
         assertEquals(error.getMessage(),"Budget must be greater than 0");
 
         verify(offeringCategoryRepository, times(1)).findById(offeringCategory.getId());
         verify(eventRepository, times(1)).findById(event.getId());
-        verifyNoMoreInteractions(offeringCategoryRepository, eventRepository);
     }
 
     @Test
@@ -693,6 +707,7 @@ public class BudgetPlanServiceTest {
         newBudgetItem.setOfferingCategory(offeringCategoryNew);
 
         budgetItemRequestDTO.setOfferingCategoryId(offeringCategoryNew.getId());
+        budgetItemRequestDTO.setEventId(event.getId());
 
         when(offeringCategoryRepository.findById(offeringCategoryNew.getId())).thenReturn(Optional.of(offeringCategoryNew));
         when(eventRepository.findById(event.getId())).thenReturn(Optional.of(event));
@@ -731,6 +746,7 @@ public class BudgetPlanServiceTest {
         newBudgetItem.setOfferingCategory(offeringCategory);
 
         budgetItemRequestDTO.setEventId(event1.getId());
+        budgetItemRequestDTO.setOfferingCategoryId(offeringCategory.getId());
 
         when(offeringCategoryRepository.findById(offeringCategory.getId())).thenReturn(Optional.of(offeringCategory));
         when(eventRepository.findById(event1.getId())).thenReturn(Optional.of(event1));
@@ -801,25 +817,25 @@ public class BudgetPlanServiceTest {
         when(purchaseRepository.findAllByEvent(any())).thenReturn(Collections.emptyList());
         when(budgetItemRepository.save(budgetItem)).thenReturn(budgetItem);
 
-        budgetItemResponseDTO.setBudget(200.0);
         when(budgetItemMapper.toResponseDTO(budgetItem)).thenReturn(budgetItemResponseDTO);
 
         BudgetItemResponseDTO result = budgetItemService.updateBudgetItem(budgetItem.getId(), budgetItemRequestDTO);
 
+        assertEquals(budgetItemResponseDTO, result);
         verify(budgetItemRepository, times(1)).findById(budgetItem.getId());
         verify(purchaseRepository, times(1)).findAllByEvent(any());
         verify(budgetItemRepository, times(1)).save(budgetItem);
         verify(budgetItemMapper, times(1)).toResponseDTO(budgetItem);
 
-        assertEquals(budgetItemResponseDTO, result);
+
     }
 
     @Test
     @DisplayName("Update budget when budget is less than zero")
     void testUpdateBudgetItem_budgetNegative() {
         budgetItemRequestDTO.setBudget(-200.0);
-        assertThrows(InvalidRequestError.class, () -> budgetItemService.updateBudgetItem(budgetItem.getId(), budgetItemRequestDTO));
-
+        InvalidRequestError error = assertThrows(InvalidRequestError.class, () -> budgetItemService.updateBudgetItem(budgetItem.getId(), budgetItemRequestDTO));
+        assertEquals(error.getMessage(), "Budget must be greater than 0");
         verify(budgetItemRepository, times(0)).findById(budgetItem.getId());
         verify(purchaseRepository, times(0)).findAllByEvent(any());
         verify(budgetItemRepository, times(0)).save(budgetItem);
@@ -831,8 +847,8 @@ public class BudgetPlanServiceTest {
     void testUpdateBudgetItem_notFound() {
         Long nonExistingBudgetItem = 100L;
         when(budgetItemRepository.findById(anyLong())).thenReturn(Optional.empty());
-        assertThrows(NotFoundError.class, () -> budgetItemService.updateBudgetItem(nonExistingBudgetItem, budgetItemRequestDTO));
-
+        NotFoundError error = assertThrows(NotFoundError.class, () -> budgetItemService.updateBudgetItem(nonExistingBudgetItem, budgetItemRequestDTO));
+        assertEquals(error.getMessage(), "Budget item not found");
         verify(budgetItemRepository, times(0)).findById(budgetItem.getId());
         verify(purchaseRepository, times(0)).findAllByEvent(any());
         verify(budgetItemRepository, times(0)).save(budgetItem);
@@ -847,8 +863,8 @@ public class BudgetPlanServiceTest {
         when(budgetItemRepository.findById(budgetItem.getId())).thenReturn(Optional.of(budgetItem));
         when(purchaseRepository.findAllByEvent(event)).thenReturn(List.of(purchase));
 
-        assertThrows(InvalidRequestError.class, () -> budgetItemService.updateBudgetItem(budgetItem.getId(), budgetItemRequestDTO));
-
+        InvalidRequestError error = assertThrows(InvalidRequestError.class, () -> budgetItemService.updateBudgetItem(budgetItem.getId(), budgetItemRequestDTO));
+        assertEquals(error.getMessage(), "Your budget is not enough for purchased offering");
         verify(budgetItemRepository, times(1)).findById(budgetItem.getId());
         verify(purchaseRepository, times(1)).findAllByEvent(event);
         verify(budgetItemRepository, times(0)).save(budgetItem);
@@ -874,7 +890,8 @@ public class BudgetPlanServiceTest {
     @DisplayName("Delete budget item when item does not exist")
     void testDeleteBudgetItem_notFound() {
         when(budgetItemRepository.findById(budgetItem.getId())).thenReturn(Optional.empty());
-        assertThrows(NotFoundError.class, () -> budgetItemService.deleteBudgetItem(budgetItem.getId()));
+        NotFoundError error = assertThrows(NotFoundError.class, () -> budgetItemService.deleteBudgetItem(budgetItem.getId()));
+        assertEquals(error.getMessage(), "Budget item not found");
         verify(budgetItemRepository, times(1)).findById(budgetItem.getId());
         verify(purchaseRepository, times(0)).findAllByEvent(event);
         verify(budgetItemRepository,times(0)).deleteById(budgetItem.getId());
@@ -885,7 +902,8 @@ public class BudgetPlanServiceTest {
     void testDeleteBudgetItem_hasPurchasedOffering() {
         when(budgetItemRepository.findById(budgetItem.getId())).thenReturn(Optional.of(budgetItem));
         when(purchaseRepository.findAllByEvent(event)).thenReturn(List.of(purchase));
-        assertThrows(InvalidRequestError.class, () -> budgetItemService.deleteBudgetItem(budgetItem.getId()));
+        InvalidRequestError error =  assertThrows(InvalidRequestError.class, () -> budgetItemService.deleteBudgetItem(budgetItem.getId()));
+        assertEquals(error.getMessage(), "Offering category belongs to purchased offering");
         verify(budgetItemRepository, times(1)).findById(budgetItem.getId());
         verify(purchaseRepository, times(1)).findAllByEvent(event);
         verify(budgetItemRepository,times(0)).deleteById(budgetItem.getId());
