@@ -82,6 +82,7 @@ public class EventService {
                 return eventMapper.toDTO(event);
             }
             if (this.checkInvitation(currentUser.getAccount().getEmail(), invitationCode)) {
+                createEventAttendance(currentUser, invitationCode);
                 return eventMapper.toDTO(event);
             }
             if (this.checkAttendance(currentUser.getId(), event)) {
@@ -312,7 +313,9 @@ public class EventService {
             eventAttendance.setEvent(eventInvitation.get().getEvent());
         }
         eventAttendance.setAttendee(user);
-        eventAttendanceRepository.save(eventAttendance);
+        if(eventAttendanceRepository.getEventAttendanceByAttendeeIdAndEventId(user.getId(), eventInvitation.get().getEvent().getId()).isEmpty()){
+            eventAttendanceRepository.save(eventAttendance);
+        }
     }
 
     public List<Event> findAttendingEventsOverlappingDateRange(Long userId, LocalDate startDate, LocalDate endDate) {
