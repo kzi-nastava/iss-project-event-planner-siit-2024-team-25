@@ -19,6 +19,11 @@ INSERT INTO event_organizers (id, country, city, address, latitude, longitude, p
 VALUES
     (1, 'Serbia', 'Belgrade', 'Bulevar kralja Aleksandra 73', 44, 20, '+381601234567');
 
+INSERT INTO owners (id, company_name, country, city, address, latitude, longitude, contact_phone, description)
+VALUES
+    (2, 'Petrović Catering', 'Srbija', 'Beograd', 'Knez Mihailova 12', 44, 20, '+381641114567', 'Najbolja ketering usluga u Beogradu.'),
+
+
 INSERT INTO event_types (id, description, name, is_active) VALUES
     (1, 'Corporate Event', 'Conference', true),
     (2, 'Music and Entertainment Event', 'Concert', true);

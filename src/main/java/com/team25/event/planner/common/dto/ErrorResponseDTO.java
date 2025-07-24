@@ -1,11 +1,13 @@
 package com.team25.event.planner.common.dto;
 
 import lombok.Data;
+import lombok.NoArgsConstructor;
 import lombok.RequiredArgsConstructor;
 
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.Map;
+
 
 @Data
 @RequiredArgsConstructor
@@ -19,6 +21,7 @@ public class ErrorResponseDTO {
         this.message = message;
         this.errors = new HashMap<>();
     }
+
 
     public Map<String, String> getErrors() {
         return Collections.unmodifiableMap(errors);

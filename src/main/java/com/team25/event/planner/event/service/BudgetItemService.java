@@ -11,7 +11,9 @@ import com.team25.event.planner.event.repository.EventRepository;
 import com.team25.event.planner.event.repository.EventTypeRepository;
 import com.team25.event.planner.event.repository.PurchaseRepository;
 import com.team25.event.planner.offering.common.model.OfferingCategory;
+import com.team25.event.planner.offering.common.model.OfferingCategoryType;
 import com.team25.event.planner.offering.common.repository.OfferingCategoryRepository;
+import com.team25.event.planner.user.service.CurrentUserService;
 import lombok.AllArgsConstructor;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
@@ -28,6 +30,7 @@ public class BudgetItemService {
     private final BudgetItemMapper budgetItemMapper;
     private final OfferingCategoryRepository offeringCategoryRepository;
     private final PurchaseRepository purchaseRepository;
+    private final CurrentUserService currentUserService;
 
     public List<BudgetItemResponseDTO> getAllBudgetItems() {
         return budgetItemRepository.findAll().stream().map(budgetItemMapper::toResponseDTO).collect(Collectors.toList());
@@ -35,12 +38,15 @@ public class BudgetItemService {
 
     public List<BudgetItemResponseDTO> getBudgetItemsByEvent(Long eventId){
         Event event = eventRepository.findById(eventId).orElseThrow(NotFoundError::new);
-        return budgetItemRepository.findAllByEvent(event).stream().map(budgetItemMapper::toResponseDTO).collect(Collectors.toList());
+        return budgetItemRepository.findByEventIdAndOrganizerId(event.getId(), currentUserService.getCurrentUserId()).stream().map(budgetItemMapper::toResponseDTO).collect(Collectors.toList());
     }
     public boolean isSuitableByOfferIdAndNotEventId(Long OCId, Long eventId){
         eventRepository.findById(eventId).orElseThrow(()->new NotFoundError("Event not found"));
         OfferingCategory offeringCategory = offeringCategoryRepository.findById(OCId).orElseThrow(()->new NotFoundError("Offering category not found"));
-
+        if(offeringCategory.getStatus() != OfferingCategoryType.ACCEPTED){
+            throw new InvalidRequestError("Offering category is not accepted");
+        }
+        // count budget item with offering category = OCId and event = eventId
         return !budgetItemRepository.isSuitableByOfferIdAndNotEventId(OCId, eventId);
 
     }
@@ -51,10 +57,19 @@ public class BudgetItemService {
     }
 
     public BudgetItemResponseDTO createBudgetItem(BudgetItemRequestDTO budgetItemRequestDTO) {
-        offeringCategoryRepository.findById(budgetItemRequestDTO.getOfferingCategoryId()).orElseThrow(() -> new NotFoundError("Offering category not found"));
+        OfferingCategory offeringCategory = offeringCategoryRepository.findById(budgetItemRequestDTO.getOfferingCategoryId()).orElseThrow(() -> new NotFoundError("Offering category not found"));
+        if(offeringCategory.getStatus() != OfferingCategoryType.ACCEPTED){
+            throw new InvalidRequestError("Offering category is not accepted");
+        }
         eventRepository.findById(budgetItemRequestDTO.getEventId()).orElseThrow(() -> new NotFoundError("Event not found"));
+        if(budgetItemRequestDTO.getBudget() == null){
+            throw new InvalidRequestError("Budget is required");
+        }
         if(budgetItemRequestDTO.getBudget() < 0) {
             throw new InvalidRequestError("Budget must be greater than 0");
+        }
+        if (budgetItemRepository.existsByEventIdAndOfferingCategoryId(budgetItemRequestDTO.getEventId(), budgetItemRequestDTO.getOfferingCategoryId())) {
+            throw new InvalidRequestError("Budget item already exists for this offering category and event");
         }
         BudgetItem budgetItem = budgetItemMapper.toBudgetItem(budgetItemRequestDTO);
         budgetItem.setMoney(new Money(budgetItemRequestDTO.getBudget()));
