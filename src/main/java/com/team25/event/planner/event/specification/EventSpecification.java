@@ -5,6 +5,7 @@ import com.team25.event.planner.event.dto.EventFilterDTO;
 import com.team25.event.planner.event.model.Event;
 import com.team25.event.planner.event.model.PrivacyType;
 import com.team25.event.planner.user.model.Account;
+import com.team25.event.planner.user.model.EventOrganizer;
 import com.team25.event.planner.user.model.User;
 import com.team25.event.planner.user.model.UserRole;
 import jakarta.persistence.criteria.Join;
@@ -106,7 +107,7 @@ public class EventSpecification {
         };
     }
 
-    public Specification<Event> createOrganizerSpecification(EventFilterDTO filter, Account organizer) {
+    public Specification<Event> createOrganizerSpecification(EventFilterDTO filter, User organizer) {
         return (root, query, cb) -> {
             List<Predicate> predicates = new ArrayList<>();
 
