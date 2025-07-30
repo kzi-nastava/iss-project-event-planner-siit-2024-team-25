@@ -381,7 +381,7 @@ public class EventServiceTest {
         when(currentUserService.getCurrentUserId()).thenReturn(1L);
         when(userRepository.findById(eq(1L))).thenReturn(Optional.of(eventOrganizer));
         Specification<Event> spec = Specification.where(null);
-        when(eventSpecification.createOrganizerSpecification(eq(emptyFilterDto), eq(eventOrganizer.getAccount())))
+        when(eventSpecification.createOrganizerSpecification(eq(emptyFilterDto), eq(eventOrganizer)))
                 .thenReturn(spec);
         when(eventRepository.findAll(eq(spec), (Pageable) any()))
                 .thenReturn(new PageImpl<>(List.of(publicEvent, privateEvent)));

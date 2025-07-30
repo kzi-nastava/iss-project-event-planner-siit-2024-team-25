@@ -117,8 +117,7 @@ public class EventService {
 
     public Page<EventPreviewResponseDTO> getOrganizerEvents(EventFilterDTO filter, int page, int size, String sortBy, String sortDirection) {
         User user = userRepository.findById(currentUserService.getCurrentUserId()).orElseThrow(() -> new NotFoundError("User not found"));
-        Account organizer = user.getAccount();
-        Specification<Event> spec = eventSpecification.createOrganizerSpecification(filter, organizer);
+        Specification<Event> spec = eventSpecification.createOrganizerSpecification(filter, user);
 
         Sort.Direction direction = Sort.Direction.fromString(sortDirection);
         Pageable pageable = PageRequest.of(page, size, Sort.by(direction, sortBy));
