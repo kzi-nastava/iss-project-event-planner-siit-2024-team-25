@@ -128,6 +128,11 @@ VALUES
     ( 7,'Gifts and Favors', 'Products like wedding favors, corporate gifts, and promotional materials for events.', 'ACCEPTED'),
     ( 8,'Event Apparel', 'Event-related apparel such as branded t-shirts, uniforms, and clothing for guests and staff.', 'ACCEPTED');
 
+INSERT INTO  event_types_offering_categories (event_type_id, offering_categories_id)
+VALUES (2, 1),
+       (2, 2),
+       (2,3),
+       (2,4);
 
 INSERT INTO offerings (id, name,deleted, description, price, discount, is_visible, is_available, status, offering_category_id, owner_id)
 VALUES
