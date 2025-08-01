@@ -171,7 +171,8 @@ VALUES
     ( 2,2000.0, CURRENT_DATE, CURRENT_TIME, CURRENT_DATE, CURRENT_TIME, 2, 2),
     ( 3,2000.0, CURRENT_DATE, CURRENT_TIME, CURRENT_DATE, CURRENT_TIME, 3, 3),
     ( 4,2000.0, CURRENT_DATE, CURRENT_TIME, CURRENT_DATE, CURRENT_TIME, 4, 4),
-    ( 5,2000.0, CURRENT_DATE, CURRENT_TIME, CURRENT_DATE, CURRENT_TIME, 5, 5);
+    ( 5,2000.0, CURRENT_DATE, CURRENT_TIME, CURRENT_DATE, CURRENT_TIME, 5, 5),
+    ( 6,2000.0, CURRENT_DATE, CURRENT_TIME, CURRENT_DATE, CURRENT_TIME, 17, 10);
 
 -- Insert OfferingReviews
 INSERT INTO review ( comment, created_date, rating, review_status, review_type, purchase_id, user_id)
@@ -182,4 +183,6 @@ VALUES
     ('Comment4',CURRENT_TIMESTAMP, 5, 'APPROVED','OFFERING_REVIEW', 4,1),
     ( 'Comment5',CURRENT_TIMESTAMP, 5, 'APPROVED','OFFERING_REVIEW', 5,1);
 
-
+INSERT INTO budget_item(id, amount, currency, event_id, offering_category_id)
+VALUES
+    (10, 2200, '$', 17, 2)
