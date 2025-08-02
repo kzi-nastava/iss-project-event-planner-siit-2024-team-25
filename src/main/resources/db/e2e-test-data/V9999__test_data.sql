@@ -128,6 +128,11 @@ VALUES
     ( 7,'Gifts and Favors', 'Products like wedding favors, corporate gifts, and promotional materials for events.', 'ACCEPTED'),
     ( 8,'Event Apparel', 'Event-related apparel such as branded t-shirts, uniforms, and clothing for guests and staff.', 'ACCEPTED');
 
+INSERT INTO  event_types_offering_categories (event_type_id, offering_categories_id)
+VALUES (2, 1),
+       (2, 2),
+       (2,3),
+       (2,4);
 
 INSERT INTO offerings (id, name,deleted, description, price, discount, is_visible, is_available, status, offering_category_id, owner_id)
 VALUES
@@ -166,7 +171,8 @@ VALUES
     ( 2,2000.0, CURRENT_DATE, CURRENT_TIME, CURRENT_DATE, CURRENT_TIME, 2, 2),
     ( 3,2000.0, CURRENT_DATE, CURRENT_TIME, CURRENT_DATE, CURRENT_TIME, 3, 3),
     ( 4,2000.0, CURRENT_DATE, CURRENT_TIME, CURRENT_DATE, CURRENT_TIME, 4, 4),
-    ( 5,2000.0, CURRENT_DATE, CURRENT_TIME, CURRENT_DATE, CURRENT_TIME, 5, 5);
+    ( 5,2000.0, CURRENT_DATE, CURRENT_TIME, CURRENT_DATE, CURRENT_TIME, 5, 5),
+    ( 6,2000.0, CURRENT_DATE, CURRENT_TIME, CURRENT_DATE, CURRENT_TIME, 17, 10);
 
 -- Insert OfferingReviews
 INSERT INTO review ( comment, created_date, rating, review_status, review_type, purchase_id, user_id)
@@ -177,4 +183,6 @@ VALUES
     ('Comment4',CURRENT_TIMESTAMP, 5, 'APPROVED','OFFERING_REVIEW', 4,1),
     ( 'Comment5',CURRENT_TIMESTAMP, 5, 'APPROVED','OFFERING_REVIEW', 5,1);
 
-
+INSERT INTO budget_item(id, amount, currency, event_id, offering_category_id)
+VALUES
+    (10, 2200, '$', 17, 2)
