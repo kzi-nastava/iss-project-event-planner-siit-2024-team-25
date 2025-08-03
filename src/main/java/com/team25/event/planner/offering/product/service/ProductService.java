@@ -191,6 +191,12 @@ public class ProductService {
             product.getImages().addAll(filenames);
         }
 
+        final List<EventType> eventTypes = eventTypeRepository.findAllById(productDto.getEventTypeIds());
+        if (eventTypes.isEmpty()) {
+            throw new InvalidRequestError("No valid event types were provided");
+        }
+        product.setEventTypes(eventTypes);
+
         product = productRepository.save(product);
         return productMapper.toDTO(product);
     }
