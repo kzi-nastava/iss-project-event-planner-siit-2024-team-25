@@ -6,7 +6,6 @@ import com.team25.event.planner.event.model.Money;
 import com.team25.event.planner.event.repository.BudgetItemRepository;
 import com.team25.event.planner.event.repository.EventRepository;
 import com.team25.event.planner.offering.common.model.OfferingCategory;
-import com.team25.event.planner.offering.common.model.OfferingCategoryType;
 import com.team25.event.planner.offering.common.repository.OfferingCategoryRepository;
 import com.team25.event.planner.user.model.User;
 import com.team25.event.planner.user.repository.UserRepository;
@@ -16,6 +15,7 @@ import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.TestInstance;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.orm.jpa.DataJpaTest;
+import org.springframework.test.annotation.DirtiesContext;
 import org.springframework.test.context.jdbc.Sql;
 
 import java.util.List;
@@ -23,6 +23,7 @@ import java.util.List;
 @DataJpaTest
 @TestInstance(TestInstance.Lifecycle.PER_CLASS)
 @Sql(scripts = "classpath:budget-plan-controller-test-data.sql", executionPhase = Sql.ExecutionPhase.BEFORE_TEST_CLASS)
+@DirtiesContext(classMode = DirtiesContext.ClassMode.AFTER_CLASS)
 public class BudgetPlanRepositoryTest {
 
     @Autowired

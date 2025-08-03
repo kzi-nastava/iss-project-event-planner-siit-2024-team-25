@@ -1,11 +1,8 @@
 package com.team25.event.planner.controller;
 
-import com.team25.event.planner.common.dto.ErrorResponseDTO;
 import com.team25.event.planner.event.dto.BudgetItemRequestDTO;
 import com.team25.event.planner.event.dto.BudgetItemResponseDTO;
-import com.team25.event.planner.event.dto.EventResponseDTO;
 import com.team25.event.planner.event.dto.OfferingCategoryPreviewDTO;
-import com.team25.event.planner.offering.common.dto.OfferingCategoryResponseDTO;
 import com.team25.event.planner.user.dto.LoginRequestDTO;
 import com.team25.event.planner.user.dto.LoginResponseDTO;
 import lombok.extern.slf4j.Slf4j;
@@ -15,14 +12,12 @@ import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.boot.test.web.client.TestRestTemplate;
 import org.springframework.core.ParameterizedTypeReference;
 import org.springframework.http.*;
+import org.springframework.test.annotation.DirtiesContext;
 import org.springframework.test.context.TestPropertySource;
 import org.springframework.test.context.jdbc.Sql;
-import org.springframework.web.ErrorResponse;
 
-import java.io.Console;
 import java.util.List;
 
-import static org.assertj.core.api.Assertions.as;
 import static org.assertj.core.api.Assertions.assertThat;
 
 @Slf4j
@@ -30,6 +25,7 @@ import static org.assertj.core.api.Assertions.assertThat;
 @TestPropertySource(locations = "classpath:application-test.properties")
 @Sql(scripts = "classpath:budget-plan-controller-test-data.sql",
         executionPhase = Sql.ExecutionPhase.BEFORE_TEST_CLASS)
+@DirtiesContext(classMode = DirtiesContext.ClassMode.AFTER_CLASS)
 @TestMethodOrder(MethodOrderer.OrderAnnotation.class)
 public class BudgetPlanControllerTest {
 
