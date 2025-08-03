@@ -21,7 +21,7 @@ VALUES
 
 INSERT INTO owners (id, company_name, country, city, address, latitude, longitude, contact_phone, description)
 VALUES
-    (2, 'Petrović Catering', 'Srbija', 'Beograd', 'Knez Mihailova 12', 44, 20, '+381641114567', 'Najbolja ketering usluga u Beogradu.'),
+    (2, 'Petrović Catering', 'Srbija', 'Beograd', 'Knez Mihailova 12', 44, 20, '+381641114567', 'Najbolja ketering usluga u Beogradu.');
 
 
 INSERT INTO event_types (id, description, name, is_active) VALUES
