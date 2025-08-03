@@ -3,6 +3,7 @@ package com.team25.event.planner.offering.product.controllers;
 import com.team25.event.planner.common.exception.ServerError;
 import com.team25.event.planner.offering.common.dto.OfferingFilterDTO;
 import com.team25.event.planner.offering.common.dto.OfferingPreviewResponseDTO;
+import com.team25.event.planner.offering.product.dto.ProductPreviewResponseDTO;
 import com.team25.event.planner.offering.product.dto.ProductRequestDTO;
 import com.team25.event.planner.offering.product.dto.ProductResponseDTO;
 import com.team25.event.planner.offering.product.service.ProductService;
@@ -46,7 +47,7 @@ public class ProductController {
     }
 
     @GetMapping("/owner/{ownerId}")
-    public ResponseEntity<Page<OfferingPreviewResponseDTO>> getOwnerProducts(
+    public ResponseEntity<Page<ProductPreviewResponseDTO>> getOwnerProducts(
             @PathVariable Long ownerId,
             @ModelAttribute OfferingFilterDTO filter,
             @RequestParam(defaultValue = "0") int page,

@@ -16,6 +16,7 @@ import com.team25.event.planner.offering.common.model.OfferingCategoryType;
 import com.team25.event.planner.offering.common.model.OfferingType;
 import com.team25.event.planner.offering.common.repository.OfferingCategoryRepository;
 import com.team25.event.planner.offering.common.repository.OfferingRepository;
+import com.team25.event.planner.offering.product.dto.ProductPreviewResponseDTO;
 import com.team25.event.planner.offering.product.dto.ProductRequestDTO;
 import com.team25.event.planner.offering.product.dto.ProductResponseDTO;
 import com.team25.event.planner.offering.product.mapper.ProductMapper;
@@ -44,6 +45,7 @@ import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.*;
+import java.util.stream.Collectors;
 
 @Service
 public class ProductService {
@@ -107,7 +109,7 @@ public class ProductService {
         return new PageImpl<>(offeringsWithRatings, pageable, offeringPage.getTotalElements());
     }
 
-    public Page<OfferingPreviewResponseDTO> getOwnerProducts(Long ownerId, OfferingFilterDTO filter, int page, int size, String sortBy, String sortDirection) {
+    public Page<ProductPreviewResponseDTO> getOwnerProducts(Long ownerId, OfferingFilterDTO filter, int page, int size, String sortBy, String sortDirection) {
         User currentUser = currentUserService.getCurrentUser();
         Long userId = currentUser != null ? currentUser.getId() : null;
         Specification<Product> spec = productSpecification.createSpecification(filter);
@@ -119,8 +121,21 @@ public class ProductService {
         Page<Offering> offeringPage = productRepository.findAll(spec, pageable).map(product -> (Offering) product);
         pageable = PageRequest.of(0, size, Sort.by(direction, sortBy));
 
+        Map<Long, String> productThumbnails = offeringPage
+                .stream()
+                .collect(Collectors.toMap(
+                        Offering::getId,
+                        p -> p.getImages().getFirst()
+                ));
+
         List<OfferingPreviewResponseDTO> offeringsWithRatings = offeringRepository.findOfferingsWithAverageRating(offeringPage.getContent(), pageable, userId);
-        return new PageImpl<>(offeringsWithRatings, pageable, offeringPage.getTotalElements());
+
+        List<ProductPreviewResponseDTO> productsWithThumbnail = offeringsWithRatings
+                .stream()
+                .map(dto -> new ProductPreviewResponseDTO(dto, productThumbnails.get(dto.getId())))
+                .collect(Collectors.toList());
+
+        return new PageImpl<>(productsWithThumbnail, pageable, offeringPage.getTotalElements());
     }
 
 
