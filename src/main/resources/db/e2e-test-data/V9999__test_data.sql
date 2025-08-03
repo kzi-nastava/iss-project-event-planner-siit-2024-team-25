@@ -185,4 +185,6 @@ VALUES
 
 INSERT INTO budget_item(id, amount, currency, event_id, offering_category_id)
 VALUES
-    (10, 2200, '$', 17, 2)
+    (10, 2200, '$', 17, 2);
+
+ALTER TABLE events ALTER COLUMN id RESTART WITH 30;
