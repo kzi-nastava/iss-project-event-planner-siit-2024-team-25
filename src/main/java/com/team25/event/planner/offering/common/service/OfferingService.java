@@ -1,0 +1,103 @@
+package com.team25.event.planner.offering.common.service;
+
+import com.team25.event.planner.common.dto.LocationResponseDTO;
+import com.team25.event.planner.common.exception.NotFoundError;
+import com.team25.event.planner.communication.model.NotificationCategory;
+import com.team25.event.planner.communication.service.NotificationService;
+import com.team25.event.planner.event.repository.EventRepository;
+import com.team25.event.planner.event.repository.PurchaseRepository;
+import com.team25.event.planner.offering.common.dto.OfferingFilterDTO;
+import com.team25.event.planner.offering.common.dto.OfferingPreviewResponseDTO;
+import com.team25.event.planner.offering.common.dto.OfferingSubmittedResponseDTO;
+import com.team25.event.planner.offering.common.model.Offering;
+import com.team25.event.planner.offering.common.model.OfferingCategory;
+import com.team25.event.planner.offering.common.model.OfferingType;
+import com.team25.event.planner.offering.common.repository.OfferingCategoryRepository;
+import com.team25.event.planner.offering.common.repository.OfferingRepository;
+import com.team25.event.planner.offering.common.specification.OfferingSpecification;
+import com.team25.event.planner.offering.product.model.Product;
+import com.team25.event.planner.user.model.User;
+import com.team25.event.planner.user.service.CurrentUserService;
+import com.team25.event.planner.user.service.UserService;
+import lombok.RequiredArgsConstructor;
+import org.springframework.data.domain.*;
+import org.springframework.data.jpa.domain.Specification;
+import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
+
+import java.util.List;
+
+
+@Service
+@RequiredArgsConstructor
+public class OfferingService {
+
+    private final OfferingRepository offeringRepository;
+    private final OfferingSpecification offeringSpecification;
+    private final OfferingCategoryRepository offeringCategoryRepository;
+    private final PurchaseRepository purchaseRepository;
+    private final EventRepository eventRepository;
+    private final NotificationService notificationService;
+    private final UserService userService;
+    private final CurrentUserService currentUserService;
+
+
+    public List<OfferingSubmittedResponseDTO> getSubmittedOfferings(){
+        return offeringRepository.getOfferingSubmittedResponseDTOs();
+    }
+
+    // Offering id - connected to the category
+    // category id - category status == pending
+    // update category id = edited category id or already created category from combobox
+    @Transactional
+    public void updateOfferingsCategory(Long offeringId, Long categoryId, Long updateCategoryId){
+        Offering offering = offeringRepository.findById(offeringId).orElseThrow(()-> new NotFoundError("Offering not found"));
+        OfferingCategory category = offeringCategoryRepository.findById(categoryId).orElseThrow(()-> new NotFoundError("Submitted category not found"));
+        OfferingCategory categoryUpdate = offeringCategoryRepository.findById(updateCategoryId).orElseThrow(()-> new NotFoundError("Category to update not found"));
+
+        offering.setStatus(OfferingType.ACCEPTED);
+        offering.setOfferingCategory(categoryUpdate);
+        offeringRepository.save(offering);
+        if(offering instanceof Product){
+            notificationService.sendOfferingsCategoryUpdateNotificationToOwner(offering, NotificationCategory.PRODUCT);
+        }else{
+            notificationService.sendOfferingsCategoryUpdateNotificationToOwner(offering, NotificationCategory.SERVICE);
+        }
+        if(offeringRepository.countOfferingsByOfferingCategoryId(categoryId) == 0){
+            offeringCategoryRepository.deleteById(categoryId);
+        }
+    }
+
+    public Page<OfferingPreviewResponseDTO> getOfferings(OfferingFilterDTO filter, int page, int size, String sortBy, String sortDirection) {
+        User currentUser = currentUserService.getCurrentUser();
+        Long userId = currentUser != null ? currentUser.getId() : null;
+        Specification<Offering> spec = offeringSpecification.createSpecification(filter, currentUser);
+        Sort.Direction direction = Sort.Direction.fromString(sortDirection);
+        Pageable pageable = PageRequest.of(page, size, Sort.by(direction, sortBy));
+        Page<Offering> offeringPage = offeringRepository.findAll(spec, pageable);
+        pageable = PageRequest.of(0,size, Sort.by(direction, sortBy));
+        List<OfferingPreviewResponseDTO> offeringsWithRatings = offeringRepository.findOfferingsWithAverageRating(offeringPage.getContent(), pageable, userId);
+        return new PageImpl<>(offeringsWithRatings, pageable, offeringPage.getTotalElements());
+    }
+
+
+
+    public Page<OfferingPreviewResponseDTO> getTopOfferings() {
+        String country = null;
+        String city = null;
+        if(currentUserService.getCurrentUserId() != null){
+            LocationResponseDTO location = userService.getUserAddress(currentUserService.getCurrentUserId());
+            if(location != null) {
+                country = location.getCountry();
+                city = location.getCity();
+            }
+        }
+        User currentUser = currentUserService.getCurrentUser();
+        Long userId = currentUser != null ? currentUser.getId() : null;
+        Pageable pageable = PageRequest.of(0, 5);
+        return offeringRepository
+                .findTopOfferings(country, city,userId, pageable);
+    }
+
+
+}
